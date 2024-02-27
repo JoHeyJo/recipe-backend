@@ -1,13 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import INTEGER, BIGINT
+from sqlalchemy import BIGINT
 from sqlalchemy.orm import DeclarativeBase ,Mapped, mapped_column
 from annotations import str_255
 from mixins import TableNameMixin, TimestampMixin
 from flask_jwt_extended import create_access_token
-from flask_bcrypt import Bcrypt
+# from flask_bcrypt import Bcrypt
 
 
-bcrypt = Bcrypt()
+# bcrypt = Bcrypt()
 db = SQLAlchemy()
 
 
@@ -18,7 +18,7 @@ class Base(DeclarativeBase):
 
 class User(Base, TableNameMixin, TimestampMixin):
     """Users table"""
-    id = Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     first_name: Mapped[str_255]
     last_name: Mapped[str_255]
     email: Mapped[str_255]
