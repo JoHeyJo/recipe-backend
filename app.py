@@ -3,6 +3,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from models import connect_db
 from repository import UserRepo
 from sqlalchemy.exc import IntegrityError
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 
 app = Flask(__name__)
 
@@ -12,6 +13,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
 debug = DebugToolbarExtension(app)
+jwt = JWTManager(app)
 
 connect_db(app)
 
