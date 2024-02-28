@@ -3,6 +3,8 @@ from sqlalchemy import BIGINT
 from sqlalchemy.orm import Mapped, mapped_column
 from annotations import str_255
 from mixins import TableNameMixin, TimestampMixin
+from flask_bcrypt import Bcrypt
+
 
 db = SQLAlchemy()
 
@@ -14,6 +16,8 @@ class User(db.Model, TableNameMixin, TimestampMixin):
     email: Mapped[str_255]
     password: Mapped[str_255]
     user_name: Mapped[str_255]
+
+
 
 
 def connect_db(app):
