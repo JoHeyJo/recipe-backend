@@ -26,7 +26,13 @@ class UserRepo():
           db.session.commit()
           return token
         except IntegrityError as e:
-           db.session.rollback()
-           return {"error":f"error in UserRepo.signup =>{e}"}
+            db.session.rollback()
+            # print({"error":f"error in UserRepo.signup =>{e}"})
+            if "users_user_name_key" in str(e.orig):
+                 return {"error": "This username is already taken."}
+            elif "users_email_key" in str(e.orig):
+                 return {"error": "This email is already registered."}
+            else:
+                 return {"error": "An error occurred during signup."}
 
 
