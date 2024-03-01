@@ -12,6 +12,7 @@ app.config['SECRET_KEY'] = "oh-so-secret"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///sling_it'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True  # change to False for production
+# app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False # does this auto update flask app?
 
 debug = DebugToolbarExtension(app)
 jwt = JWTManager(app)
