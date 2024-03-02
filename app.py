@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from repository import UserRepo
@@ -7,9 +8,8 @@ from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 # from flask_migrate import Migrate 
 
 app = Flask(__name__)
-
-app.config['SECRET_KEY'] = "oh-so-secret"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///sling_it'
+app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True  # change to False for production
 # app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False # does this auto update flask app?

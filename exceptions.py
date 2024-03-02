@@ -16,3 +16,9 @@ class InvalidEmailError(Exception):
 class WeakPasswordError(Exception):
     """Exception raised for passwords that are too weak."""
     pass
+
+class InvalidCredentials(Exception):
+    """Exception raised for invalid credentials"""
+
+class SignUpError(Exception):
+    """Exception raised during sign up"""

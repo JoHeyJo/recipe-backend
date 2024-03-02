@@ -34,7 +34,7 @@ class UserRepo():
                 raise EmailAlreadyRegisteredError(
                     "This email is already taken.")
             else:
-                raise Exception("An error occurred during signup.")
+                raise SignUpError("An error occurred during signup.")
             
     @staticmethod
     def authenticate(user_name, password):
