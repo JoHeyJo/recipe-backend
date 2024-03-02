@@ -11,7 +11,7 @@ class UserRepo():
     def signup(user_name, first_name, last_name, email, password):
         """Sign up user. Hashes password and adds user to system. => Token"""
         hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
-
+        print('####Email before creating user', email)
         user = User(
             user_name=user_name,
             first_name=first_name,
@@ -21,7 +21,7 @@ class UserRepo():
         )
 
         token = create_access_token(identity=user.user_name)
-        print("USEREMAIL-------",user)
+        print("####Email after creating user",user)
         try:
           db.session.add(user)
           db.session.commit()
