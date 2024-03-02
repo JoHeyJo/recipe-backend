@@ -36,7 +36,6 @@ def signup():
     password = request.json["password"]
     email = request.json["email"]
     try:
-       print('####Email taken from request in flask', email)
        token = UserRepo.signup(user_name, first_name,last_name, email, password)
        return jsonify({"token": token})
     except IntegrityError as e:

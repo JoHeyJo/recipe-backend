@@ -2,6 +2,7 @@ from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
 from models import User, db
 from sqlalchemy.exc import IntegrityError
+from exceptions import *
 
 bcrypt = Bcrypt()
 
@@ -11,7 +12,6 @@ class UserRepo():
     def signup(user_name, first_name, last_name, email, password):
         """Sign up user. Hashes password and adds user to system. => Token"""
         hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
-        print('####Email before creating user', email)
         user = User(
             user_name=user_name,
             first_name=first_name,
@@ -21,7 +21,6 @@ class UserRepo():
         )
 
         token = create_access_token(identity=user.user_name)
-        print("####Email after creating user",user)
         try:
           db.session.add(user)
           db.session.commit()
@@ -29,9 +28,11 @@ class UserRepo():
         except IntegrityError as e:
             db.session.rollback()
             if "users_user_name_key" in str(e.orig):
-                raise Exception("This username is already taken.")
+                raise UsernameAlreadyTakenError(
+                    "This username is already taken.")
             elif "users_email_key" in str(e.orig):
-                 raise Exception("This email is already taken.")
+                raise EmailAlreadyRegisteredError(
+                    "This email is already taken.")
             else:
                 raise Exception("An error occurred during signup.")
             
@@ -40,7 +41,6 @@ class UserRepo():
         """Find user with username and password. Return False for incorrect credentials"""
 
         user = User.query.filter_by(user_name=user_name).first()
-        print('****====>',user.password)
         if user:
             is_auth = bcrypt.check_password_hash(user.password, password)
             if is_auth:
