@@ -36,9 +36,10 @@ def signup():
     password = request.json["password"]
     email = request.json["email"]
     try:
+       print('************MAIL IN APP', email)
        token = UserRepo.signup(user_name, first_name, last_name, password, email)
        return jsonify({"token": token})
-    except BaseException as e:
+    except IntegrityError as e:
        return jsonify({"error": f"Sign up error: {e}"}), 400
     
 

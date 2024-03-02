@@ -21,7 +21,7 @@ class UserRepo():
         )
 
         token = create_access_token(identity=user.user_name)
-
+        print("USEREMAIL-------",user)
         try:
           db.session.add(user)
           db.session.commit()
@@ -29,18 +29,18 @@ class UserRepo():
         except IntegrityError as e:
             db.session.rollback()
             if "users_user_name_key" in str(e.orig):
-                 raise {"error": "This username is already taken."}
+                raise Exception("This username is already taken.")
             elif "users_email_key" in str(e.orig):
-                 raise {"error": "This email is already registered."}
+                 raise Exception("This email is already taken.")
             else:
-                 raise {"error": "An error occurred during signup."}
+                raise Exception("An error occurred during signup.")
             
     @staticmethod
     def authenticate(user_name, password):
         """Find user with username and password. Return False for incorrect credentials"""
 
         user = User.query.filter_by(user_name=user_name).first()
-        print('****====>',user)
+        print('****====>',user.password)
         if user:
             is_auth = bcrypt.check_password_hash(user.password, password)
             if is_auth:
