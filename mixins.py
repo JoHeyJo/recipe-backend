@@ -15,3 +15,14 @@ class TableNameMixin:
 class TimestampMixin:
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP, server_default=func.now())
+
+
+class ReprMixin:
+    def __repr__(self):
+        # Dynamically get column names
+        attribute_names = [column.name for column in self.__table__.columns]
+        # Build a string representation of each column and its value
+        attributes = ', '.join(
+            f"{name}={getattr(self, name)!r}" for name in attribute_names)
+
+        return f"<{self.__class__.__name__}({attributes})>"

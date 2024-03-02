@@ -37,11 +37,10 @@ class UserRepo():
             
     @staticmethod
     def authenticate(user_name, password):
-        """Find user with username and password. If cant match with user or pe is wrong return False"""
+        """Find user with username and password. Return False for incorrect credentials"""
 
-        # user = User.query.filter_by(user_name=user_name)[0]
-        user = "user"
-        print('****',user)
+        user = User.query.filter_by(user_name=user_name).first()
+        print('****====>',user)
         if user:
             is_auth = bcrypt.check_password_hash(user.password, password)
             if is_auth:

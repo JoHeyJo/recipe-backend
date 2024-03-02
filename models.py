@@ -2,11 +2,12 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import BIGINT, String
 from sqlalchemy.orm import Mapped, mapped_column
 from annotations import str_255, str_unique_255
-from mixins import TableNameMixin, TimestampMixin
+from mixins import TableNameMixin, TimestampMixin, ReprMixin
 
 db = SQLAlchemy()
 
-class User(db.Model, TableNameMixin, TimestampMixin):
+
+class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Users table"""
 
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
