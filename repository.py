@@ -44,7 +44,8 @@ class UserRepo():
         if user:
             is_auth = bcrypt.check_password_hash(user.password, password)
             if is_auth:
-                token = create_access_token(identity=user_name)
+                token = create_access_token(
+                    identity=user.user_name, additional_claims={"is_admin": True})
                 return token
         return False  
 

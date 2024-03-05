@@ -54,5 +54,5 @@ def login():
        else:
           return jsonify({"error": "Invalid credentials"}), 401
     except IntegrityError as e:
-       return jsonify({"error": f"login error: {e}"}), 401
+       return jsonify({"error": f"login error: {e}"}), 400
     
