@@ -3,6 +3,7 @@ from sqlalchemy import BIGINT, String
 from sqlalchemy.orm import Mapped, mapped_column
 from annotations import str_255, str_unique_255
 from mixins import TableNameMixin, TimestampMixin, ReprMixin
+from typing import Optional
 
 db = SQLAlchemy()
 
@@ -16,7 +17,7 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     email: Mapped[str_unique_255]
     password: Mapped[str_255]
     user_name: Mapped[str_unique_255]
-    is_admin: Mapped[bool] 
+    is_admin: Mapped[bool]
 
 
 def connect_db(app):
