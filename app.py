@@ -4,8 +4,8 @@ from flask_debugtoolbar import DebugToolbarExtension
 from repository import UserRepo
 from models import connect_db, db
 from sqlalchemy.exc import IntegrityError
+from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
-# from flask_migrate import Migrate 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
@@ -17,9 +17,9 @@ app.config['SQLALCHEMY_ECHO'] = True  # change to False for production
 debug = DebugToolbarExtension(app)
 jwt = JWTManager(app)
 
-# migrate = Migrate(app, db)
+migrate = Migrate(app, db)
 
-# from models import User
+from models import User
 
 connect_db(app)
 

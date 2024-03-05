@@ -15,7 +15,8 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     last_name: Mapped[str_255]
     email: Mapped[str_unique_255]
     password: Mapped[str_255]
-    user_name: Mapped[str_unique_255] 
+    user_name: Mapped[str_unique_255]
+    is_admin: Mapped[bool] 
 
 
 def connect_db(app):
