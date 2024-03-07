@@ -11,10 +11,9 @@ from flask import Flask
 from flask_cors import CORS
 
 # If app doesn't auto update code
-# flask --app example_app.py --debug run
+# flask --app app.py --debug run
 
 app = Flask(__name__)
-CORS(app) # SET CORS PROPERTIES FOR DEPLOYMENT WHICH SITES CAN ACCESS 
 load_dotenv()  # This loads the variables from .env into the environment
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
@@ -31,6 +30,7 @@ from models import User
 
 connect_db(app)
 
+CORS(app) # SPECIFY CORS OPTIONS FOR RESOURCES 
 @app.get("/")
 def index():
   return "hello"
