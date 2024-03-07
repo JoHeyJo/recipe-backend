@@ -18,6 +18,7 @@ class UserRepo():
             last_name=last_name,
             email=email,
             password=hashed_pwd,
+            is_admin=False
         )
 
         token = create_access_token(identity=user.user_name)

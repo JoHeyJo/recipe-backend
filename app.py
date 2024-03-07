@@ -7,9 +7,14 @@ from sqlalchemy.exc import IntegrityError
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from dotenv import load_dotenv
+from flask import Flask
+from flask_cors import CORS
 
+# If app doesn't auto update code
+# flask --app example_app.py --debug run
 
 app = Flask(__name__)
+CORS(app) # SET CORS PROPERTIES FOR DEPLOYMENT WHICH SITES CAN ACCESS 
 load_dotenv()  # This loads the variables from .env into the environment
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
@@ -29,6 +34,7 @@ connect_db(app)
 @app.get("/")
 def index():
   return "hello"
+
 
 @app.post("/signup")
 def signup():
