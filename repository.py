@@ -20,7 +20,6 @@ class UserRepo():
             password=hashed_pwd,
             is_admin=False
         )
-
         token = create_access_token(identity=user.user_name)
         try:
           db.session.add(user)

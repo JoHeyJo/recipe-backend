@@ -1,3 +1,4 @@
+from models import User
 import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
@@ -7,10 +8,9 @@ from sqlalchemy.exc import IntegrityError
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from dotenv import load_dotenv
-from flask import Flask
 from flask_cors import CORS
-
-# If app doesn't auto update code
+from exceptions import *
+# Execute if app doesn't auto update code
 # flask --app app.py --debug run
 
 app = Flask(__name__)
@@ -26,14 +26,16 @@ jwt = JWTManager(app)
 
 migrate = Migrate(app, db)
 
-from models import User
 
 connect_db(app)
+# CORS(app, resources={r"/*": {"origins": "*"}})
 
-CORS(app) # SPECIFY CORS OPTIONS FOR RESOURCES 
+CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT
+
+
 @app.get("/")
 def index():
-  return "hello"
+    return "hello"
 
 
 @app.post("/signup")
@@ -44,12 +46,24 @@ def signup():
     last_name = request.json["lastName"]
     password = request.json["password"]
     email = request.json["email"]
+      
     try:
-       token = UserRepo.signup(user_name, first_name,last_name, email, password)
-       return jsonify({"token": token})
-    except IntegrityError as e:
-       return jsonify({"error": f"Sign up error: {e}"}), 400
-    
+        token = UserRepo.signup(user_name, first_name,
+                                last_name, email, password)
+        return jsonify({"token": token})
+    except UsernameAlreadyTakenError as e:
+        # Handle username already taken error
+        return jsonify({"error": str(e)}), 400
+    except EmailAlreadyRegisteredError as e:
+        # Handle email already taken error
+        return jsonify({"error": str(e)}), 400
+    except SignUpError as e:
+        # Handle general sign-up error
+        return jsonify({"error": "Sign up error: An unexpected error occurred."}), 500
+    except Exception as e:
+        # Handle any other unexpected errors
+        return jsonify({"error": "An unexpected error occurred."}), 500
+
 
 @app.post("/login")
 def login():
@@ -57,11 +71,10 @@ def login():
     user_name = request.json["userName"]
     password = request.json["password"]
     try:
-       token = UserRepo.authenticate(user_name, password)
-       if token:
-          return jsonify({"token": token})
-       else:
-          return jsonify({"error": "Invalid credentials"}), 401
+        token = UserRepo.authenticate(user_name, password)
+        if token:
+            return jsonify({"token": token})
+        else:
+            return jsonify({"error": "Invalid credentials"}), 401
     except IntegrityError as e:
-       return jsonify({"error": f"login error: {e}"}), 400
-    
+        return jsonify({"error": f"login error: {e}"}), 400
