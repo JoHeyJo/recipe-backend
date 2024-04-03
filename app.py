@@ -30,7 +30,7 @@ migrate = Migrate(app, db)
 connect_db(app)
 # CORS(app, resources={r"/*": {"origins": "*"}})
 
-CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT
+CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT ^^^^^
 
 
 @app.get("/")
