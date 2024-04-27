@@ -27,7 +27,19 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     preparation: Mapped[str_255]
     notes: Mapped[str_255]
 
-class 
+
+class RecipeIngredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+    """Recipe_Ingredient table"""
+    
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+
+
+class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+    """Quantity_Unit table"""
+
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    unit: Mapped[str_unique_255]
+
 
 def connect_db(app):
     """Connect this database to provided Flask app."""

@@ -3,13 +3,15 @@ from sqlalchemy.dialects.postgresql import TIMESTAMP
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.functions import func
+import re
 
 
 class TableNameMixin:
-
     @declared_attr.directive
     def __tablename__(cls) -> str:
-        return cls.__name__.lower() + "s"
+        # print(">>>>>>>>>>>>",cls.__name__.lower() + "s")
+        pattern = r"(?<!^)(?=[A-Z])"  # Negative lookbehind for not start of string and uppercase letter
+        return re.sub(pattern, "_", cls.__name__).lower() + "s"
 
 
 class TimestampMixin:
