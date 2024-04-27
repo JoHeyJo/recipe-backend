@@ -9,7 +9,7 @@ import re
 class TableNameMixin:
     @declared_attr.directive
     def __tablename__(cls) -> str:
-        # print(">>>>>>>>>>>>",cls.__name__.lower() + "s")
+        # Converts CamelCase -> snake_case + "s"
         pattern = r"(?<!^)(?=[A-Z])"  # Negative lookbehind for not start of string and uppercase letter
         return re.sub(pattern, "_", cls.__name__).lower() + "s"
 
