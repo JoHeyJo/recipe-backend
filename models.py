@@ -26,18 +26,24 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     name: Mapped[str_255]
     preparation: Mapped[str_255]
     notes: Mapped[str_255]
-    children: Mapped[List["QuantityAmount"]] = relationship(
-        secondary="RecipeIngredient")
-
+    ingredients = relationship('RecipeIngredient', back_populates='recipe')
 
 
 class RecipeIngredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Recipe Ingredient table"""
     
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    recipe_id: Mapped[int] = mapped_column(Integer,ForeignKey(recipes.recipe_id, ondelete="CASCADE"),primary_key=True)
-    Column("left_id", ForeignKey("left_table.id")),
-    Column("right_id", ForeignKey("right_table.id")),
+    recipe_id = Column(Integer, ForeignKey('recipes.id'))
+    ingredient_id = Column(Integer, ForeignKey('ingredients.id'))
+    quantity_unit_id = Column(Integer, ForeignKey('quantity_units.id'))
+    quantity_amount_id = Column(Integer, ForeignKey('quantity_amounts.id'))
+
+    recipe = relationship('Recipe', back_populates='ingredients')
+    ingredient = relationship(
+        'Ingredient', back_populates='recipe_ingredients')
+    quantity_unit = relationship('QuantityUnit')
+    quantity_amount = relationship('QuantityAmount')
+
 
 
 class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -59,6 +65,8 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     unit: Mapped[str_unique_255]
+    recipe_ingredients = relationship(
+        'RecipeIngredient', back_populates='ingredient')
     
 
 
