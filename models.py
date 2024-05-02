@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import BIGINT, String, Integer
+from sqlalchemy import BIGINT, String, Integer, Column, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from annotations import str_255, str_unique_255
 from mixins import TableNameMixin, TimestampMixin, ReprMixin
