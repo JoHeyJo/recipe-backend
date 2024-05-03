@@ -35,7 +35,7 @@ class RecipeIngredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     quantity_unit_id = Column(Integer, ForeignKey('quantity_units.id'))
     quantity_amount_id = Column(Integer, ForeignKey('quantity_amounts.id'))
 
-    recipe = relationship('Recipe', back_populates='ingredients')
+    recipe = relationship('Recipe', back_populates='recipe_ingredients')
     ingredient = relationship(
         'Ingredient', back_populates='recipe_ingredients')
     quantity_unit = relationship('QuantityUnit')
@@ -56,7 +56,6 @@ class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
 class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Ingredient table"""
-
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     unit: Mapped[str_unique_255]
     recipe_ingredients = relationship(
