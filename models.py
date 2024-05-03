@@ -10,7 +10,6 @@ db = SQLAlchemy()
 
 class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Users table"""
-
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     first_name: Mapped[str_255]
     last_name: Mapped[str_255]
@@ -21,7 +20,6 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
 class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Recipe table"""
-
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     name: Mapped[str_255]
     preparation: Mapped[str_255]
@@ -31,7 +29,6 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
 class RecipeIngredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Recipe Ingredient table"""
-    
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     recipe_id = Column(Integer, ForeignKey('recipes.id'))
     ingredient_id = Column(Integer, ForeignKey('ingredients.id'))
@@ -45,17 +42,14 @@ class RecipeIngredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     quantity_amount = relationship('QuantityAmount')
 
 
-
 class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Quantity Unit table"""
-
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     unit: Mapped[str_unique_255]
 
 
 class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Quantity Amount table"""
-
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     unit: Mapped[str_unique_255]
 
