@@ -1,13 +1,13 @@
 from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
-from models import User, db
+from models import User, db, Ingredient
 from sqlalchemy.exc import IntegrityError
 from exceptions import *
 
 bcrypt = Bcrypt()
 
 class UserRepo():
-    """Handles interactions with User table"""
+    """Facilitate User table interactions"""
     @staticmethod
     def signup(user_name, first_name, last_name, email, password):
         """Sign up user. Hashes password and adds user to system. => Token"""
@@ -49,4 +49,21 @@ class UserRepo():
                 return token
         return False  
 
+
+class IngredientRepo():
+    """Facilitates Ingredient table interactions"""
+    @staticmethod
+    def addIngredient(name, preparation, notes):
+        """Add ingredient"""
+        ingredient = Ingredient(name=name, preparation=preparation, notes=notes)
+        try:
+            db.session.add(ingredient)
+            db.session.commit()
+            return {"message":"Ingredient added"}
+        except IntegrityError as e:
+            db.session.rollback()
+            return 
+
+
+    
 

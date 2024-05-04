@@ -18,6 +18,7 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     user_name: Mapped[str_unique_255]
     is_admin: Mapped[bool]
 
+
 class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Recipe table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
@@ -40,7 +41,7 @@ class RecipeIngredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'Ingredient', back_populates='recipe_ingredients')
     quantity_unit = relationship('QuantityUnit')
     quantity_amount = relationship('QuantityAmount')
-
+j
 
 class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Quantity Unit table"""
