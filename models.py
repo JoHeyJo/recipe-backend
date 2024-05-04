@@ -25,7 +25,10 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     name: Mapped[str_255]
     preparation: Mapped[str_255]
     notes: Mapped[str_255]
-    ingredients = relationship('RecipeIngredient', back_populates='recipe')
+
+    ingredient = db.relationship('Ingredient',
+                           secondary='recipe_ingredients',
+                           backref='recipes')
 
 
 class RecipeIngredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -36,12 +39,12 @@ class RecipeIngredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     quantity_unit_id = Column(Integer, ForeignKey('quantity_units.id'))
     quantity_amount_id = Column(Integer, ForeignKey('quantity_amounts.id'))
 
-    recipe = relationship('Recipe', back_populates='recipe_ingredients')
-    ingredient = relationship(
-        'Ingredient', back_populates='recipe_ingredients')
-    quantity_unit = relationship('QuantityUnit')
-    quantity_amount = relationship('QuantityAmount')
-j
+    # recipe = relationship('Recipe', back_populates='recipe_ingredients')
+    # ingredient = relationship(
+    #     'Ingredient', back_populates='recipe_ingredients')
+    # quantity_unit = relationship('QuantityUnit')
+    # quantity_amount = relationship('QuantityAmount')
+
 
 class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Quantity Unit table"""
@@ -59,8 +62,9 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Ingredient table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     unit: Mapped[str_unique_255]
-    recipe_ingredients = relationship(
-        'RecipeIngredient', back_populates='ingredient')
+    recipe = db.relationship('Recipe',
+                                 secondary='recipe_ingredients',
+                                 backref='ingredients')
     
 
 

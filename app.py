@@ -2,7 +2,7 @@ from models import User
 import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
-from repository import UserRepo
+from repository import UserRepo, IngredientRepo
 from models import connect_db, db
 from sqlalchemy.exc import IntegrityError
 from flask_migrate import Migrate
@@ -78,3 +78,15 @@ def login():
             return jsonify({"error": "Invalid credentials"}), 401
     except IntegrityError as e:
         return jsonify({"error": f"login error: {e}"}), 400
+    
+@app.post("/add")
+def add_ingredient():
+    """Receives client request, passes data to repo"""
+    name = request.json["name"]
+    preparation = request.json["preparation"]
+    notes = request.json["notes"]
+    try:
+        ingredient = IngredientRepo.addIngredient(name, preparation, notes)
+        return jsonify(ingredient)
+    except IntegrityError as e:
+        return jsonify({"error": f"add_ingredient error: {e}"}), 400

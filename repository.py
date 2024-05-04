@@ -50,11 +50,11 @@ class UserRepo():
         return False  
 
 
-class IngredientRepo():
+class RecipeRepo():
     """Facilitates Ingredient table interactions"""
     @staticmethod
     def addIngredient(name, preparation, notes):
-        """Add ingredient"""
+        """Add ingredient to table"""
         ingredient = Ingredient(name=name, preparation=preparation, notes=notes)
         try:
             db.session.add(ingredient)
