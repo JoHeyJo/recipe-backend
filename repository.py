@@ -80,7 +80,7 @@ class RecipeIngredientRepo():
             raise {"error": "error in createRecipe"}
         
         
-class QuantityUnit():
+class QuantityUnitRepo():
     """Facilitates quantity units table interactions"""
     @staticmethod
     def addQuantityUnit(unit):
@@ -93,7 +93,7 @@ class QuantityUnit():
             db.rollback()
             raise {"error": "error in addQuantityUnit"}
 
-class QuantityAmount():
+class QuantityAmountRepo():
     """Facilitates quantity amount table interactions"""
     @staticmethod
     def addQuantityAmount(amount):

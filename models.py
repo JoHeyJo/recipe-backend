@@ -55,13 +55,14 @@ class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Quantity Amount table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    unit: Mapped[str_unique_255]
+    amount: Mapped[str_unique_255]
 
 
 class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Ingredient table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    unit: Mapped[str_unique_255]
+    ingredient: Mapped[str_unique_255]
+    
     recipe = db.relationship('Recipe',
                                  secondary='recipe_ingredients',
                                  backref='ingredients')

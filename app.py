@@ -2,7 +2,7 @@ from models import User
 import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
-from repository import UserRepo, RecipeRepo
+from repository import UserRepo, RecipeRepo, QuantityAmountRepo, QuantityUnitRepo, RecipeIngredientRepo
 from models import connect_db, db
 from sqlalchemy.exc import IntegrityError
 from flask_migrate import Migrate
@@ -85,8 +85,17 @@ def add_ingredient():
     name = request.json["name"]
     preparation = request.json["preparation"]
     notes = request.json["notes"]
+
+    unit = request.json["unit"]
+
+    quantity = request.json["quantity"]
+
+
     try:
-        ingredient = RecipeRepo.addRecipe(name, preparation, notes)
-        return jsonify(ingredient)
+        recipe = RecipeRepo.addRecipe(name, preparation, notes)
+        quantity_unit = QuantityUnitRepo.addQuantityUnit(unit=unit)
+        quantity_amount = QuantityAmountRepo.addQuantityAmount(amount=quantity)
+
+        return jsonify(recipe)
     except IntegrityError as e:
         return jsonify({"error": f"add_ingredient error: {e}"}), 400
