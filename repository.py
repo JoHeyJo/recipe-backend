@@ -1,6 +1,6 @@
 from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
-from models import User, db, Ingredient
+from models import User, db, Ingredient, Recipe
 from sqlalchemy.exc import IntegrityError
 from exceptions import *
 
@@ -51,18 +51,18 @@ class UserRepo():
 
 
 class RecipeRepo():
-    """Facilitates Ingredient table interactions"""
+    """Facilitates recipes table interactions"""
     @staticmethod
-    def addIngredient(name, preparation, notes):
-        """Add ingredient to table"""
-        ingredient = Ingredient(name=name, preparation=preparation, notes=notes)
+    def addRecipe(name, preparation, notes):
+        """Add Recipe to table"""
+        recipe = Recipe(name=name, preparation=preparation, notes=notes)
         try:
-            db.session.add(ingredient)
+            db.session.add(recipe)
             db.session.commit()
-            return {"message":"Ingredient added"}
+            return {"message":"Recipe added"}
         except IntegrityError as e:
             db.session.rollback()
-            raise {"error":"error adding ingredient"}
+            raise {"error":"error adding recipe"}
 
 
     
