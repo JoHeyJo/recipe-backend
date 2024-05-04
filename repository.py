@@ -54,7 +54,7 @@ class RecipeRepo():
     """Facilitates recipes table interactions"""
     @staticmethod
     def addRecipe(name, preparation, notes):
-        """Add initial recipe information to table"""
+        """Add initial recipe information to database"""
         recipe = Recipe(name=name, preparation=preparation, notes=notes)
         try:
             db.session.add(recipe)
@@ -84,7 +84,7 @@ class QuantityUnit():
     """Facilitates quantity units table interactions"""
     @staticmethod
     def addQuantityUnit(unit):
-        """Add quantity unit to table"""
+        """Add quantity unit to database"""
         quantity_unit = QuantityUnit(unit=unit)
         try:
             db.session.add(quantity_unit)
@@ -93,3 +93,15 @@ class QuantityUnit():
             db.rollback()
             raise {"error": "error in addQuantityUnit"}
 
+class QuantityAmount():
+    """Facilitates quantity amount table interactions"""
+    @staticmethod
+    def addQuantityAmount(amount):
+        """Add quantity amount to database"""
+        quantity_amount = QuantityAmount(unit=amount)
+        try:
+            db.session.add(quantity_amount)
+            db.session.commit()
+        except InterruptedError as e:
+            db.rollback()
+            raise {"error": "error in addQuantityAmount"}
