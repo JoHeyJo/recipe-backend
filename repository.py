@@ -62,7 +62,7 @@ class IngredientRepo():
             return {"message":"Ingredient added"}
         except IntegrityError as e:
             db.session.rollback()
-            return 
+            raise {"error":"error adding ingredient"}
 
 
     
