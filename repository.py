@@ -88,8 +88,8 @@ class QuantityUnitRepo():
         quantity_unit = QuantityUnit(unit=unit)
         try:
             db.session.add(quantity_unit)
-            val = db.session.commit()
-            print("##########",val)
+            db.session.commit()
+            return {"quantity_unit_id": quantity_unit.id}
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in addQuantityUnit"}
@@ -103,6 +103,7 @@ class QuantityAmountRepo():
         try:
             db.session.add(quantity_amount)
             db.session.commit()
+            return {"quantity_amount_id": quantity_amount.id}
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in addQuantityAmount"}
