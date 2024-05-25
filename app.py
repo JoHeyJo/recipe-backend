@@ -81,21 +81,21 @@ def login():
     
 @app.post("/add")
 def add_ingredient():
-    """Receives client request, passes data to repo"""
+    """Consolidates recipe data before calling repo functions. If successful RecipeIngredients record created"""
     name = request.json["name"]
     preparation = request.json["preparation"]
     notes = request.json["notes"]
 
     unit = request.json["unit"]
 
-    quantity = request.json["quantity"]
+    # quantity = request.json["quantity"]
 
 
     try:
         recipe = RecipeRepo.addRecipe(name, preparation, notes)
         quantity_unit = QuantityUnitRepo.addQuantityUnit(unit=unit)
-        quantity_amount = QuantityAmountRepo.addQuantityAmount(amount=quantity)
-
+        # quantity_amount = QuantityAmountRepo.addQuantityAmount(amount=quantity)
+        print("quantity_unit>>>>>>>",quantity_unit)
         return jsonify(recipe)
     except IntegrityError as e:
         return jsonify({"error": f"add_ingredient error: {e}"}), 400
