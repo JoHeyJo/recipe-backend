@@ -88,15 +88,20 @@ def add_ingredient():
 
     unit = request.json["unit"]
 
-    # quantity = request.json["quantity"]
+    quantity = request.json["quantity"]
 
 
     try:
-        recipe = RecipeRepo.addRecipe(name, preparation, notes)
-        quantity_unit = QuantityUnitRepo.addQuantityUnit(unit=unit)
-        # quantity_amount = QuantityAmountRepo.addQuantityAmount(amount=quantity)
+        recipe_id = RecipeRepo.addRecipe(name, preparation, notes)
+        quantity_unit_id = QuantityUnitRepo.addQuantityUnit(unit=unit)
+        quantity_amount_id = QuantityAmountRepo.addQuantityAmount(amount=quantity)
+
+        try:
+            RecipeIngredientRepo.createRecipe(
+                recipe_id=recipe_id,
+                
+            )
         
-        # return jsonify(recipe)
-        return jsonify(quantity_unit)
+        return jsonify(recipe)
     except IntegrityError as e:
         return jsonify({"error": f"add_ingredient error: {e}"}), 400

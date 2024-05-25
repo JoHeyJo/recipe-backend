@@ -59,7 +59,7 @@ class RecipeRepo():
         try:
             db.session.add(recipe)
             db.session.commit()
-            return {"message":"Recipe added"}
+            return {"recipe_id":recipe.id}
         except IntegrityError as e:
             db.session.rollback()
             raise {"error": "error addRecipe"}
