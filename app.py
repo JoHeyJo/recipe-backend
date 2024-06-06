@@ -85,9 +85,7 @@ def add_ingredient():
     name = request.json["name"]
     preparation = request.json["preparation"]
     notes = request.json["notes"]
-
     unit = request.json["unit"]
-
     quantity = request.json["quantity"]
 
 

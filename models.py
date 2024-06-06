@@ -73,6 +73,7 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 class UserRecipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Association table for users and recipes"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    title: Mapped[str_255]
     user_id = Column(Integer, ForeignKey("users.id"))
     recipe_id = Column(Integer, ForeignKey("recipes.id"))
 
