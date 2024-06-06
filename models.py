@@ -18,6 +18,8 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     user_name: Mapped[str_unique_255]
     is_admin: Mapped[bool]
 
+    recipe = db.relationship('Recipe', secondary='user_recipes', backref='users')
+
 
 class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Recipe table"""
@@ -32,7 +34,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
 
 class RecipeIngredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
-    """Recipe Ingredient table"""
+    """Association table for recipes and ingredients"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     recipe_id = Column(Integer, ForeignKey('recipes.id'))
     ingredient_id = Column(Integer, ForeignKey('ingredients.id'))
@@ -68,7 +70,11 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
                                  backref='ingredients')
     
 
-
+class UserRecipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+    """Association table for users and recipes"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    recipe_id = Column(Integer, ForeignKey("recipes.id"))
 
 def connect_db(app):
     """Connect this database to provided Flask app."""
