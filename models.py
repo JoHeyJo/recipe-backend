@@ -3,7 +3,7 @@ from sqlalchemy import BIGINT, String, Integer, Column, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from annotations import str_255, str_unique_255, str_255_nullable
 from mixins import TableNameMixin, TimestampMixin, ReprMixin
-from typing import Optional
+from typing import Optional, List
 
 db = SQLAlchemy()
 
@@ -18,7 +18,10 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     user_name: Mapped[str_unique_255]
     is_admin: Mapped[bool]
 
-    recipe = db.relationship('Recipe', secondary='user_recipes', backref='users')
+    # recipes = db.relationship('Recipe', secondary='user_recipes', backref='users')
+    ### Instead Use type annotation for better type checking and readability ###
+    recipes: Mapped[List['Recipe']] = relationship(
+        'Recipe', secondary='user_recipes', back_populates='users')
 
 
 class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -28,24 +31,20 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     preparation: Mapped[str_255_nullable]
     notes: Mapped[str_255_nullable]
 
-    ingredient = db.relationship('Ingredient',
-                           secondary='recipe_ingredients',
-                           backref='recipes')
+    ingredients: Mapped[List['Recipe']] = relationship(
+        'Ingredient', secondary='recipe_ingredients', back_populates='recipes')
+
+    users: Mapped[List['Recipe']] = relationship(
+        'User', secondary='user_recipes', back_populates='recipes')
 
 
 class RecipeIngredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Association table for recipes and ingredients"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    recipe_id = Column(Integer, ForeignKey('recipes.id'))
-    ingredient_id = Column(Integer, ForeignKey('ingredients.id'))
-    quantity_unit_id = Column(Integer, ForeignKey('quantity_units.id'))
-    quantity_amount_id = Column(Integer, ForeignKey('quantity_amounts.id'))
-
-    # recipe = relationship('Recipe', back_populates='recipe_ingredients')
-    # ingredient = relationship(
-    #     'Ingredient', back_populates='recipe_ingredients')
-    # quantity_unit = relationship('QuantityUnit')
-    # quantity_amount = relationship('QuantityAmount')
+    recipe_id: Mapped[int] = Column(Integer, ForeignKey('recipes.id'))
+    ingredient_id: Mapped[int] = Column(Integer, ForeignKey('ingredients.id'))
+    quantity_unit_id: Mapped[int] = Column(Integer, ForeignKey('quantity_units.id'))
+    quantity_amount_id: Mapped[int] = Column(Integer, ForeignKey('quantity_amounts.id'))
 
 
 class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -64,18 +63,18 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Ingredient table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     ingredient: Mapped[str_unique_255]
-    
-    recipe = db.relationship('Recipe',
-                                 secondary='recipe_ingredients',
-                                 backref='ingredients')
-    
+
+    recipes: Mapped[List['Ingredient']] = relationship(
+        'Recipe', secondary='recipe_ingredients', back_populates='ingredients')
+
 
 class UserRecipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Association table for users and recipes"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     title: Mapped[str_255]
-    user_id = Column(Integer, ForeignKey("users.id"))
-    recipe_id = Column(Integer, ForeignKey("recipes.id"))
+    user_id: Mapped[int] = Column(Integer, ForeignKey("users.id"))
+    recipe_id: Mapped[int] = Column(Integer, ForeignKey("recipes.id"))
+
 
 def connect_db(app):
     """Connect this database to provided Flask app."""
