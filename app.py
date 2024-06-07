@@ -80,7 +80,7 @@ def login():
         return jsonify({"error": f"login error: {e}"}), 400
     
 @app.post("/add")
-def add_ingredient():
+def add_recipe():
     """Consolidates recipe data before calling repo functions. If successful RecipeIngredients record created"""
     name = request.json["name"]
     preparation = request.json["preparation"]
