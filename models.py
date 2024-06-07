@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import BIGINT, String, Integer, Column, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from annotations import str_255, str_unique_255
+from annotations import str_255, str_unique_255, str_255_nullable
 from mixins import TableNameMixin, TimestampMixin, ReprMixin
 from typing import Optional
 
@@ -25,8 +25,8 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Recipe table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     name: Mapped[str_255]
-    preparation: Mapped[str_255]
-    notes: Mapped[str_255]
+    preparation: Mapped[str_255_nullable]
+    notes: Mapped[str_255_nullable]
 
     ingredient = db.relationship('Ingredient',
                            secondary='recipe_ingredients',
@@ -36,7 +36,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 class RecipeIngredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Association table for recipes and ingredients"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    recipe_id = Column(Integer, ForeignKey('recipes.id'), nullable=False)
+    recipe_id = Column(Integer, ForeignKey('recipes.id'))
     ingredient_id = Column(Integer, ForeignKey('ingredients.id'))
     quantity_unit_id = Column(Integer, ForeignKey('quantity_units.id'))
     quantity_amount_id = Column(Integer, ForeignKey('quantity_amounts.id'))
