@@ -41,6 +41,7 @@ def index():
 @app.post("/signup")
 def signup():
     """Create new user, add to DB, return token"""
+
     user_name = request.json["userName"]
     first_name = request.json["firstName"]
     last_name = request.json["lastName"]
@@ -68,6 +69,7 @@ def signup():
 @app.post("/login")
 def login():
     """Validate user credentials"""
+
     user_name = request.json["userName"]
     password = request.json["password"]
     try:
@@ -81,25 +83,34 @@ def login():
     
 @app.post("/add")
 def add_recipe():
-    """Consolidates recipe data before calling repo functions. If successful RecipeIngredients record created"""
-    name = request.json["name"]
-    preparation = request.json["preparation"]
-    notes = request.json["notes"]
-    unit = request.json["unit"]
-    quantity = request.json["quantity"]
+    """Consolidates recipe data before calling repo functions. If successful 
+    RecipeIngredients record created"""
+    # User data
+    user_id = request.json["user_id"]
+    user_recipes_id = request.json["user_recipes_id"]
+
+    # Recipe data
+    recipe = request.json["recipe"]
+    recipe_name = recipe["name"]
+    preparation = recipe["preparation"]
+    notes = recipe["notes"]
+
+    # Ingredient data
+    ingredients = recipe["ingredients"]
+    # for ingredient in ingredients:
+
+    #     ingredient = ingredient["ingredient"]
+    #     unit = ingredient["unit"]
+    #     quantity = ingredient["quantity"]
+
 
 
     try:
-        recipe_id = RecipeRepo.addRecipe(name, preparation, notes)
-        quantity_unit_id = QuantityUnitRepo.addQuantityUnit(unit=unit)
-        quantity_amount_id = QuantityAmountRepo.addQuantityAmount(amount=quantity)
-
-        # try:
-        #     RecipeIngredientRepo.createRecipe(
-        #         recipe_id=recipe_id,
-                
-        #     )
-        
-        # return jsonify(recipe)
+        print(user_id,user_recipes_id, recipe,recipe_name, preparation, 
+              notes, ingredients)
+        return jsonify(ingredients)
+        # recipe_id = RecipeRepo.addRecipe(name, preparation, notes)
+        # quantity_unit_id = QuantityUnitRepo.addQuantityUnit(unit=unit)
+        # quantity_amount_id = QuantityAmountRepo.addQuantityAmount(amount=quantity)
     except IntegrityError as e:
         return jsonify({"error": f"add_ingredient error: {e}"}), 400
