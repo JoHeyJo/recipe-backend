@@ -136,4 +136,4 @@ class IngredientsRepo():
             except InterruptedError as e:
                 db.rollback()
                 raise {"error": "error in IngredientsRepo - add_ingredients"}
-        db.session.committ()
+        db.session.commit()
