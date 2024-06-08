@@ -53,7 +53,7 @@ class UserRepo():
 class RecipeRepo():
     """Facilitates recipes table interactions"""
     @staticmethod
-    def addRecipe(name, preparation, notes):
+    def add_recipe(name, preparation, notes):
         """Add initial recipe information to database"""
         recipe = Recipe(name=name, preparation=preparation, notes=notes)
         try:
@@ -62,13 +62,13 @@ class RecipeRepo():
             return {"recipe_id":recipe.id}
         except IntegrityError as e:
             db.session.rollback()
-            raise {"error": "error addRecipe"}
+            raise {"error": "error add_recipe"}
         
         
 class RecipeIngredientRepo():
     """Facilitates creation of record that corresponds to a recipe"""
     @staticmethod
-    def createRecipe(recipe_id, ingredient_id, quantity_unit_id, quantity_amount_id):
+    def create_recipe(recipe_id, ingredient_id, quantity_unit_id, quantity_amount_id):
         """Create recipe record"""
         recipe = RecipeIngredient(
             recipe_id=recipe_id, ingredient_id=ingredient_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
@@ -77,33 +77,63 @@ class RecipeIngredientRepo():
             db.session.commit()
         except InterruptedError as e:
             db.rollback()
-            raise {"error": "error in createRecipe"}
+            raise {"error": "error in create_recipe"}
         
         
 class QuantityUnitRepo():
     """Facilitates quantity units table interactions"""
     @staticmethod
-    def addQuantityUnit(unit):
+    def add_quantity_unit(unit):
         """Add quantity unit to database"""
         quantity_unit = QuantityUnit(unit=unit)
         try:
             db.session.add(quantity_unit)
-            db.session.commit()
+            # db.session.commit()
             return {"quantity_unit_id": quantity_unit.id}
         except InterruptedError as e:
             db.rollback()
-            raise {"error": "error in addQuantityUnit"}
+            raise {"error": "error in add_quantity_unit"}
 
 class QuantityAmountRepo():
     """Facilitates quantity amount table interactions"""
     @staticmethod
-    def addQuantityAmount(amount):
+    def add_quantity_amount(amount):
         """Add quantity amount to database"""
         quantity_amount = QuantityAmount(unit=amount)
         try:
             db.session.add(quantity_amount)
-            db.session.commit()
+            # db.session.commit()
             return {"quantity_amount_id": quantity_amount.id}
         except InterruptedError as e:
             db.rollback()
-            raise {"error": "error in addQuantityAmount"}
+            raise {"error": "error in add_quantity_amount"}
+
+class IngredientRepo():
+    """Facilitates Ingredient table interactions"""
+    @staticmethod
+    def add_ingredients(ingredient):
+        """Add a list of ingredients to database"""
+        ingredient = Ingredient(ingredient=ingredient)
+        try:
+            db.session.add(ingredient)
+        except InterruptedError as e:
+            db.rollback()
+            raise {"error": "error in IngredientRepo - add_ingredient"}
+
+class IngredientsRepo():
+    """Directs incoming data to corresponding repo methods"""
+    @staticmethod
+    def add_ingredients(ingredients):
+        """Adds list of ingredients - calls repo methods to add ingredient components"""
+        for ingredient in ingredients:
+            ingredient = ingredient["ingredient"]
+            quantity_amount = ingredient["quantity_amount"]
+            quantity_unit = ingredient["quantity_unit"]
+            try:
+                db.session.add(ingredient)
+                db.session.add(quantity_amount)
+                db.session.add(quantity_unit)
+            except InterruptedError as e:
+                db.rollback()
+                raise {"error": "error in IngredientsRepo - add_ingredients"}
+        db.session.committ()

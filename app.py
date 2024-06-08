@@ -108,9 +108,9 @@ def add_recipe():
     try:
         print(user_id,user_recipes_id, recipe,recipe_name, preparation, 
               notes, ingredients)
-        return jsonify(ingredients)
-        # recipe_id = RecipeRepo.addRecipe(name, preparation, notes)
-        # quantity_unit_id = QuantityUnitRepo.addQuantityUnit(unit=unit)
-        # quantity_amount_id = QuantityAmountRepo.addQuantityAmount(amount=quantity)
+        return jsonify(recipe)
+        # recipe_id = RecipeRepo.add_recipe(name, preparation, notes)
+        # quantity_unit_id = QuantityUnitRepo.add_quantity_unit(unit=unit)
+        # quantity_amount_id = QuantityAmountRepo.add_quantity_amount(amount=quantity)
     except IntegrityError as e:
         return jsonify({"error": f"add_ingredient error: {e}"}), 400
