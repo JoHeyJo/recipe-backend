@@ -97,17 +97,9 @@ def add_recipe():
 
     # Ingredient data
     ingredients = recipe["ingredients"]
-    # for ingredient in ingredients:
-
-    #     ingredient = ingredient["ingredient"]
-    #     unit = ingredient["unit"]
-    #     quantity = ingredient["quantity"]
-
-
 
     try:
-        print(user_id,user_recipes_id, recipe,recipe_name, preparation, 
-              notes, ingredients)
+        
         return jsonify(recipe)
         # recipe_id = RecipeRepo.add_recipe(name, preparation, notes)
         # quantity_unit_id = QuantityUnitRepo.add_quantity_unit(unit=unit)

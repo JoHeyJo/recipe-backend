@@ -111,7 +111,7 @@ class QuantityAmountRepo():
 class IngredientRepo():
     """Facilitates Ingredient table interactions"""
     @staticmethod
-    def add_ingredients(ingredient):
+    def add_ingredient(ingredient):
         """Add a list of ingredients to database"""
         ingredient = Ingredient(ingredient=ingredient)
         try:
@@ -129,10 +129,12 @@ class IngredientsRepo():
             ingredient = ingredient["ingredient"]
             quantity_amount = ingredient["quantity_amount"]
             quantity_unit = ingredient["quantity_unit"]
+
+
             try:
-                db.session.add(ingredient)
-                db.session.add(quantity_amount)
-                db.session.add(quantity_unit)
+                IngredientRepo.add_ingredient(ingredient)
+                QuantityAmountRepo.add_quantity_amount(quantity_amount)
+                QuantityUnitRepo.add_quantity_unit(quantity_unit)
             except InterruptedError as e:
                 db.rollback()
                 raise {"error": "error in IngredientsRepo - add_ingredients"}
