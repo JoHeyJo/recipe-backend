@@ -88,7 +88,6 @@ class QuantityUnitRepo():
         quantity_unit = QuantityUnit(unit=unit)
         try:
             db.session.add(quantity_unit)
-            # db.session.commit()
             return {"quantity_unit_id": quantity_unit.id}
         except InterruptedError as e:
             db.rollback()
@@ -102,7 +101,6 @@ class QuantityAmountRepo():
         quantity_amount = QuantityAmount(unit=amount)
         try:
             db.session.add(quantity_amount)
-            # db.session.commit()
             return {"quantity_amount_id": quantity_amount.id}
         except InterruptedError as e:
             db.rollback()
@@ -116,6 +114,7 @@ class IngredientRepo():
         ingredient = Ingredient(ingredient=ingredient)
         try:
             db.session.add(ingredient)
+            return {"ingredient_id":ingredient.id}
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in IngredientRepo - add_ingredient"}
@@ -130,12 +129,14 @@ class IngredientsRepo():
             quantity_amount = ingredient["quantity_amount"]
             quantity_unit = ingredient["quantity_unit"]
 
-
             try:
-                IngredientRepo.add_ingredient(ingredient)
-                QuantityAmountRepo.add_quantity_amount(quantity_amount)
-                QuantityUnitRepo.add_quantity_unit(quantity_unit)
+                ingredient_id = IngredientRepo.add_ingredient(ingredient)
+                unit_id = QuantityAmountRepo.add_quantity_amount(quantity_amount)
+                amount_id = QuantityUnitRepo.add_quantity_unit(quantity_unit)
+                db.session.commit()
+
+                return {ingredient_id, unit_id, amount_id}
+
             except InterruptedError as e:
                 db.rollback()
                 raise {"error": "error in IngredientsRepo - add_ingredients"}
-        db.session.commit()
