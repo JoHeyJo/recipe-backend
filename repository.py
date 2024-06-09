@@ -128,6 +128,7 @@ class IngredientsRepo():
     def add_ingredients(ingredients):
         """Adds list of ingredients - calls repo methods to add ingredient components"""
         for ingredient in ingredients:
+            return ingredient
             ingredient = ingredient["ingredient"]
             quantity_amount = ingredient["quantity_amount"] or None
             quantity_unit = ingredient["quantity_unit"] or None
