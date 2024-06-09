@@ -93,6 +93,7 @@ class QuantityUnitRepo():
             db.rollback()
             raise {"error": "error in add_quantity_unit"}
 
+
 class QuantityAmountRepo():
     """Facilitates quantity amount table interactions"""
     @staticmethod
@@ -105,6 +106,7 @@ class QuantityAmountRepo():
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in add_quantity_amount"}
+
 
 class IngredientRepo():
     """Facilitates Ingredient table interactions"""
@@ -119,6 +121,7 @@ class IngredientRepo():
             db.rollback()
             raise {"error": "error in IngredientRepo - add_ingredient"}
 
+
 class IngredientsRepo():
     """Directs incoming data to corresponding repo methods"""
     @staticmethod
@@ -126,16 +129,19 @@ class IngredientsRepo():
         """Adds list of ingredients - calls repo methods to add ingredient components"""
         for ingredient in ingredients:
             ingredient = ingredient["ingredient"]
-            quantity_amount = ingredient["quantity_amount"]
-            quantity_unit = ingredient["quantity_unit"]
+            quantity_amount = ingredient["quantity_amount"] or None
+            quantity_unit = ingredient["quantity_unit"] or None
 
             try:
+                # should these have individual try/catch???
                 ingredient_id = IngredientRepo.add_ingredient(ingredient)
-                unit_id = QuantityAmountRepo.add_quantity_amount(quantity_amount)
-                amount_id = QuantityUnitRepo.add_quantity_unit(quantity_unit)
+                if quantity_amount:
+                    amount_id = QuantityAmountRepo.add_quantity_amount(quantity_amount)
+                if quantity_unit:
+                    unit_id = QuantityUnitRepo.add_quantity_unit(quantity_unit)
                 db.session.commit()
 
-                return {ingredient_id, unit_id, amount_id}
+                return {ingredient_id, amount_id, unit_id}
 
             except InterruptedError as e:
                 db.rollback()

@@ -2,7 +2,7 @@ from models import User
 import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
-from repository import UserRepo, RecipeRepo, QuantityAmountRepo, QuantityUnitRepo, RecipeIngredientRepo
+from repository import UserRepo, RecipeRepo, QuantityAmountRepo, QuantityUnitRepo, RecipeIngredientRepo, IngredientsRepo
 from models import connect_db, db
 from sqlalchemy.exc import IntegrityError
 from flask_migrate import Migrate
@@ -47,7 +47,7 @@ def signup():
     last_name = request.json["lastName"]
     password = request.json["password"]
     email = request.json["email"]
-      
+
     try:
         token = UserRepo.signup(user_name, first_name,
                                 last_name, email, password)
@@ -80,26 +80,33 @@ def login():
             return jsonify({"error": "Invalid credentials"}), 401
     except IntegrityError as e:
         return jsonify({"error": f"login error: {e}"}), 400
-    
+
+
 @app.post("/add")
 def add_recipe():
     """Consolidates recipe data before calling repo functions. If successful 
     RecipeIngredients record created"""
     # User data
     user_id = request.json["user_id"]
-    user_recipes_id = request.json["user_recipes_id"]
 
     # Recipe data
     recipe = request.json["recipe"]
     recipe_name = recipe["name"]
-    preparation = recipe["preparation"]
-    notes = recipe["notes"]
+    preparation = recipe["preparation"] or None
+    notes = recipe["notes"] or None
 
     # Ingredient data
-    ingredients = recipe["ingredients"]
+    ingredients = recipe["ingredients"] or None
 
     try:
-
-        return jsonify(recipe)
+        recipe_id = RecipeRepo.add_recipe(
+            name=recipe_name, preparation=preparation, notes=notes)
+        if ingredients:
+            ingredients_ids = IngredientsRepo(ingredients)
+        RecipeIngredientRepo.create_recipe(
+            recipe_id=recipe_id, 
+            ingredient_id=ingredients_ids["ingredients_id"], 
+            quantity_amount_id=ingredients_ids["quantity_amount_id"], 
+            quantity_unit_id=ingredients_ids["quantity_unit_id"])
     except IntegrityError as e:
-        return jsonify({"error": f"add_ingredient error: {e}"}), 400
+        return jsonify({"error": f"add_ingredient error - calling RecipeRepo & ingredients Repo: {e}"}), 400
