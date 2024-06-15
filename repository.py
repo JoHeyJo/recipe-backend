@@ -6,6 +6,11 @@ from exceptions import *
 
 bcrypt = Bcrypt()
 
+def highlight(value,divider):
+    print(divider)
+    print(value)
+    print(divider)
+
 class UserRepo():
     """Facilitate User table interactions"""
     @staticmethod
@@ -85,6 +90,11 @@ class QuantityUnitRepo():
     @staticmethod
     def add_quantity_unit(unit):
         """Add quantity unit to database"""
+        unit = QuantityUnit.query.filter_by(unit=unit).first()
+        if unit:
+            # highlight(unit,"****************")
+            return unit.id
+        
         quantity_unit = QuantityUnit(unit=unit)
         try:
             db.session.add(quantity_unit)
@@ -99,8 +109,10 @@ class QuantityAmountRepo():
     @staticmethod
     def add_quantity_amount(amount):
         """Add quantity amount to database"""
-        value = QuantityAmount.query.filter_by(amount=amount)
-        if value 
+        amount = QuantityAmount.query.filter_by(amount=amount).first()
+        if amount:
+            # highlight(amount, "****************")
+            return amount.id
 
         quantity_amount = QuantityAmount(amount=amount)
         try:
@@ -116,6 +128,12 @@ class IngredientRepo():
     @staticmethod
     def add_ingredient(ingredient):
         """Add a list of ingredients to database"""
+        ingredient = Ingredient.query.filter_by(ingredient=ingredient).first()
+        highlight(ingredient,"=================")
+        if ingredient:
+            highlight("hello",">>>>>>>>>>>>")
+            return ingredient
+         
         ingredient = Ingredient(ingredient=ingredient)
         try:
             db.session.add(ingredient)
