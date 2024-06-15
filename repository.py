@@ -90,10 +90,10 @@ class QuantityUnitRepo():
     @staticmethod
     def add_quantity_unit(unit):
         """Add quantity unit to database"""
-        unit = QuantityUnit.query.filter_by(unit=unit).first()
-        if unit:
-            # highlight(unit,"****************")
-            return unit.id
+        value = QuantityUnit.query.filter_by(unit=unit).first()
+        if value:
+            # highlight(value,"****************")
+            return value.id
         
         quantity_unit = QuantityUnit(unit=unit)
         try:
@@ -109,10 +109,10 @@ class QuantityAmountRepo():
     @staticmethod
     def add_quantity_amount(amount):
         """Add quantity amount to database"""
-        amount = QuantityAmount.query.filter_by(amount=amount).first()
-        if amount:
-            # highlight(amount, "****************")
-            return amount.id
+        value = QuantityAmount.query.filter_by(amount=amount).first()
+        if value:
+            # highlight(value, "****************")
+            return value.id
 
         quantity_amount = QuantityAmount(amount=amount)
         try:
@@ -128,13 +128,14 @@ class IngredientRepo():
     @staticmethod
     def add_ingredient(ingredient):
         """Add a list of ingredients to database"""
-        ingredient = Ingredient.query.filter_by(ingredient=ingredient).first()
-        highlight(ingredient,"=================")
-        if ingredient:
+        value = Ingredient.query.filter_by(ingredient=ingredient).first()
+        highlight(value,"=================")
+        if value:
             highlight("hello",">>>>>>>>>>>>")
-            return ingredient
+            return value.id
          
         ingredient = Ingredient(ingredient=ingredient)
+        highlight(ingredient,"............")
         try:
             db.session.add(ingredient)
             return {"id":ingredient.id}
