@@ -26,7 +26,6 @@ jwt = JWTManager(app)
 
 migrate = Migrate(app, db)
 
-
 connect_db(app)
 # CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -103,7 +102,8 @@ def add_recipe():
             name=recipe_name, preparation=preparation, notes=notes)
         if ingredients:
             ingredients_ids = IngredientsRepo.add_ingredients(ingredients)
-            return ingredients_ids["ingredient"]
+            # return ingredients_ids["ingredient"]
+            return ingredients_ids
         # RecipeIngredientRepo.create_recipe(
         #     recipe_id=recipe_id, 
         #     ingredient_id=ingredients_ids["ingredients_id"], 

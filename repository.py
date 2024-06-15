@@ -88,7 +88,7 @@ class QuantityUnitRepo():
         quantity_unit = QuantityUnit(unit=unit)
         try:
             db.session.add(quantity_unit)
-            return {"quantity_unit_id": quantity_unit.id}
+            return {"id": quantity_unit.id}
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in add_quantity_unit"}
@@ -99,10 +99,10 @@ class QuantityAmountRepo():
     @staticmethod
     def add_quantity_amount(amount):
         """Add quantity amount to database"""
-        quantity_amount = QuantityAmount(unit=amount)
+        quantity_amount = QuantityAmount(amount=amount)
         try:
             db.session.add(quantity_amount)
-            return {"quantity_amount_id": quantity_amount.id}
+            return {"id": quantity_amount.id}
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in add_quantity_amount"}
@@ -116,7 +116,7 @@ class IngredientRepo():
         ingredient = Ingredient(ingredient=ingredient)
         try:
             db.session.add(ingredient)
-            return {"ingredient_id":ingredient.id}
+            return {"id":ingredient.id}
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in IngredientRepo - add_ingredient"}
@@ -127,23 +127,27 @@ class IngredientsRepo():
     @staticmethod
     def add_ingredients(ingredients):
         """Adds list of ingredients - calls repo methods to add ingredient components"""
+        ingredients_ids = []
+        # return ingredients
         for ingredient in ingredients:
-            return ingredient
-            ingredient = ingredient["ingredient"]
+            # return ingredient
+            ingredient_name = ingredient["ingredient"]
             quantity_amount = ingredient["quantity_amount"] or None
             quantity_unit = ingredient["quantity_unit"] or None
+            # return [ingredient_name, quantity_amount,quantity_unit]
 
             try:
                 # should these have individual try/catch???
-                ingredient_id = IngredientRepo.add_ingredient(ingredient)
+                ingredient_id = IngredientRepo.add_ingredient(ingredient_name)
                 if quantity_amount:
                     amount_id = QuantityAmountRepo.add_quantity_amount(quantity_amount)
                 if quantity_unit:
                     unit_id = QuantityUnitRepo.add_quantity_unit(quantity_unit)
                 db.session.commit()
 
-                return {ingredient_id, amount_id, unit_id}
+                ingredients_ids.append({"ingredient":ingredient_id, "amount":amount_id, "unit":unit_id})
 
             except InterruptedError as e:
                 db.rollback()
                 raise {"error": "error in IngredientsRepo - add_ingredients"}
+        return ingredients_ids
