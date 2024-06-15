@@ -99,6 +99,9 @@ class QuantityAmountRepo():
     @staticmethod
     def add_quantity_amount(amount):
         """Add quantity amount to database"""
+        value = QuantityAmount.query.filter_by(amount=amount)
+        if value 
+
         quantity_amount = QuantityAmount(amount=amount)
         try:
             db.session.add(quantity_amount)
