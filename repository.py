@@ -92,7 +92,6 @@ class QuantityUnitRepo():
         """Add quantity unit to database"""
         value = QuantityUnit.query.filter_by(unit=unit).first()
         if value:
-            # highlight(value,"****************")
             return value.id
         
         quantity_unit = QuantityUnit(unit=unit)
@@ -111,7 +110,6 @@ class QuantityAmountRepo():
         """Add quantity amount to database"""
         value = QuantityAmount.query.filter_by(amount=amount).first()
         if value:
-            # highlight(value, "****************")
             return value.id
 
         quantity_amount = QuantityAmount(amount=amount)
@@ -129,13 +127,11 @@ class IngredientRepo():
     def add_ingredient(ingredient):
         """Add a list of ingredients to database"""
         value = Ingredient.query.filter_by(ingredient=ingredient).first()
-        highlight(value,"=================")
         if value:
-            highlight("hello",">>>>>>>>>>>>")
+            highlight(value.id,">>>>>>>>>>>>")
             return value.id
          
         ingredient = Ingredient(ingredient=ingredient)
-        highlight(ingredient,"............")
         try:
             db.session.add(ingredient)
             return {"id":ingredient.id}
@@ -161,13 +157,14 @@ class IngredientsRepo():
             try:
                 # should these have individual try/catch???
                 ingredient_id = IngredientRepo.add_ingredient(ingredient_name)
+                highlight(ingredient_id, "*********")
                 if quantity_amount:
                     amount_id = QuantityAmountRepo.add_quantity_amount(quantity_amount)
                 if quantity_unit:
                     unit_id = QuantityUnitRepo.add_quantity_unit(quantity_unit)
                 db.session.commit()
 
-                ingredients_ids.append({"ingredient":ingredient_id, "amount":amount_id, "unit":unit_id})
+                ingredients_ids.append({"ingredient_id":ingredient_id, "amount_id":amount_id, "unit_id":unit_id})
 
             except InterruptedError as e:
                 db.rollback()
