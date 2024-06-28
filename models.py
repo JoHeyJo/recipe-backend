@@ -68,13 +68,17 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'Recipe', secondary='recipe_ingredients', back_populates='ingredients')
 
 
-class UserRecipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
-    """Association table for users and recipes"""
+class RecipeBook(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+    """Recipe book table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     title: Mapped[str_255]
-    user_id: Mapped[int] = Column(Integer, ForeignKey("users.id"))
-    recipe_id: Mapped[int] = Column(Integer, ForeignKey("recipes.id"))
 
+
+class BookRecipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+    """Association table for books and recipes"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    book_id: Mapped[int] = Column(Integer, ForeignKey("recipe_books.id"))
+    recipe_id: Mapped[int] = Column(Integer, ForeignKey("recipes.id"))
 
 def connect_db(app):
     """Connect this database to provided Flask app."""
