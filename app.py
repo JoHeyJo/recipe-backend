@@ -102,7 +102,7 @@ def add_recipe():
             name=recipe_name, preparation=preparation, notes=notes)
         if ingredients:
             ids = IngredientsRepo.add_ingredients(ingredients)
-        if recipe_id and ids:
-            None
+        # return jsonify({recipe_id,ids})
+        
     except IntegrityError as e:
         return jsonify({"error": f"add_ingredient error - calling RecipeRepo & ingredients Repo: {e}"}), 400
