@@ -22,8 +22,8 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     ### Instead Use type annotation for better type checking and readability ###
     # recipes: Mapped[List['Recipe']] = relationship(
     #     'Recipe', secondary='user_recipes', back_populates='users')
-    books: Mapped[List['RecipeBook']] = relationship(
-        'RecipeBook', secondary='book_recipes', back_populates='users')
+    user_books: Mapped[List['Book']] = relationship(
+        'Book', secondary='users_books', back_populates='users')
 
 
 class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -34,10 +34,10 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     notes: Mapped[str_255_nullable]
 
     ingredients: Mapped[List['Recipe']] = relationship(
-        'Ingredient', secondary='recipe_ingredients', back_populates='recipes')
+        'Ingredient', secondary='recipes_ingredients', back_populates='recipes')
 
-    # users: Mapped[List['Recipe']] = relationship(
-    #     'User', secondary='user_recipes', back_populates='recipes')
+    recipe_books: Mapped[List['Book']] = relationship(
+        'Book', secondary='recipes_books', back_populates='recipes')
 
 
 class RecipeIngredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -70,15 +70,15 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'Recipe', secondary='recipe_ingredients', back_populates='ingredients')
 
 
-class RecipeBook(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Recipe book table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     title: Mapped[str_255]
 
     users: Mapped[List['User']] = relationship(
-        'User', secondary='book_recipes', back_populates='recipe_books')
+        'User', secondary='users_books', back_populates='recipe_books')
 
-class BookRecipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+class RecipeBook(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Association table for books and recipes"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     book_id: Mapped[int] = Column(Integer, ForeignKey("recipe_books.id"))
