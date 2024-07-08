@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import BIGINT, String, Integer, Column, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from annotations import str_255, str_unique_255, str_255_nullable
-from mixins import TableNameMixin, TimestampMixin, ReprMixin
+from mixins import TableNameMixin, TimestampMixin, ReprMixin, AssociationTableNameMixin
 from typing import Optional, List
 
 db = SQLAlchemy()
@@ -40,7 +40,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'Book', secondary='recipes_books', back_populates='recipes')
 
 
-class RecipeIngredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+class RecipeIngredient(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for recipes and ingredients"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     recipe_id: Mapped[int] = Column(Integer, ForeignKey('recipes.id'))
@@ -76,19 +76,20 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     title: Mapped[str_255]
 
     users: Mapped[List['User']] = relationship(
-        'User', secondary='users_books', back_populates='recipe_books')
+        'User', secondary='users_books', back_populates='recipes_books')
 
-class RecipeBook(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+
+class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for books and recipes"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    book_id: Mapped[int] = Column(Integer, ForeignKey("recipe_books.id"))
+    book_id: Mapped[int] = Column(Integer, ForeignKey("recipes_books.id"))
     recipe_id: Mapped[int] = Column(Integer, ForeignKey("recipes.id"))
 
 
-class UserBook(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for users and books"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    book_id: Mapped[int] = Column(Integer, ForeignKey("recipe_books.id"))
+    book_id: Mapped[int] = Column(Integer, ForeignKey("recipes_books.id"))
     user_id: Mapped[int] = Column(Integer, ForeignKey("users.id"))
 
 def connect_db(app):

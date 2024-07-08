@@ -14,6 +14,17 @@ class TableNameMixin:
         return re.sub(pattern, "_", cls.__name__).lower() + "s"
 
 
+class AssociationTableNameMixin:
+    @declared_attr.directive
+    def __tablename__(cls) -> str:
+        # Converts CamelCase -> snake_case and adds "s" after every word
+        # Negative lookbehind for not start of string and uppercase letter
+        pattern = r"(?<!^)(?=[A-Z])"
+        words = re.sub(pattern, "_", cls.__name__).lower().split('_')
+        words_with_s = [word + 's' for word in words]
+        return "_".join(words_with_s)
+
+
 class TimestampMixin:
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP, server_default=func.now())
