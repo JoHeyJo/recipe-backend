@@ -75,6 +75,7 @@ class RecipeIngredientRepo():
     @staticmethod
     def create_recipe(recipe_id, ingredient_id, quantity_unit_id, quantity_amount_id):
         """Create recipe record"""
+
         recipe = RecipeIngredient(
             recipe_id=recipe_id, ingredient_id=ingredient_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
         try:
@@ -128,7 +129,6 @@ class IngredientRepo():
         """Add a list of ingredients to database"""
         value = Ingredient.query.filter_by(ingredient=ingredient).first()
         if value:
-            highlight(value.id,">>>>>>>>>>>>")
             return value.id
          
         ingredient = Ingredient(ingredient=ingredient)
