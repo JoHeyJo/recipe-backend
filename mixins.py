@@ -7,17 +7,17 @@ import re
 
 
 class TableNameMixin:
+    """Converts CamelCase -> snake_case + "s"""
     @declared_attr.directive
     def __tablename__(cls) -> str:
-        # Converts CamelCase -> snake_case + "s"
         pattern = r"(?<!^)(?=[A-Z])"  # Negative lookbehind for not start of string and uppercase letter
         return re.sub(pattern, "_", cls.__name__).lower() + "s"
 
 
 class AssociationTableNameMixin:
+    """Converts CamelCase -> snake_case and adds "s" after every word"""
     @declared_attr.directive
     def __tablename__(cls) -> str:
-        # Converts CamelCase -> snake_case and adds "s" after every word
         # Negative lookbehind for not start of string and uppercase letter
         pattern = r"(?<!^)(?=[A-Z])"
         words = re.sub(pattern, "_", cls.__name__).lower().split('_')

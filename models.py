@@ -22,7 +22,7 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     ### Instead Use type annotation for better type checking and readability ###
     # recipes: Mapped[List['Recipe']] = relationship(
     #     'Recipe', secondary='user_recipes', back_populates='users')
-    user_books: Mapped[List['Book']] = relationship(
+    books: Mapped[List['Book']] = relationship(
         'Book', secondary='users_books', back_populates='users')
 
 
@@ -36,7 +36,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     ingredients: Mapped[List['Recipe']] = relationship(
         'Ingredient', secondary='recipes_ingredients', back_populates='recipes')
 
-    recipe_books: Mapped[List['Book']] = relationship(
+    books: Mapped[List['Book']] = relationship(
         'Book', secondary='recipes_books', back_populates='recipes')
 
 
@@ -67,7 +67,7 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     ingredient: Mapped[str_unique_255]
 
     recipes: Mapped[List['Ingredient']] = relationship(
-        'Recipe', secondary='recipe_ingredients', back_populates='ingredients')
+        'Recipe', secondary='recipes_ingredients', back_populates='ingredients')
 
 
 class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -76,20 +76,23 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     title: Mapped[str_255]
 
     users: Mapped[List['User']] = relationship(
-        'User', secondary='users_books', back_populates='recipes_books')
+        'User', secondary='users_books', back_populates='books')
+    
+    recipes: Mapped[List['Recipe']] = relationship(
+        'Recipe', secondary='recipes_books', back_populates='books')
 
 
 class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for books and recipes"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    book_id: Mapped[int] = Column(Integer, ForeignKey("recipes_books.id"))
+    book_id: Mapped[int] = Column(Integer, ForeignKey("books.id"))
     recipe_id: Mapped[int] = Column(Integer, ForeignKey("recipes.id"))
 
 
 class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for users and books"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    book_id: Mapped[int] = Column(Integer, ForeignKey("recipes_books.id"))
+    book_id: Mapped[int] = Column(Integer, ForeignKey("books.id"))
     user_id: Mapped[int] = Column(Integer, ForeignKey("users.id"))
 
 def connect_db(app):
