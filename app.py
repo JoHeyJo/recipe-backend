@@ -101,12 +101,10 @@ def add_recipe():
         recipe_id = RecipeRepo.add_recipe(
             name=recipe_name, preparation=preparation, notes=notes)
         if ingredients:
+            recipe_ids = recipe_id
             ids = IngredientsRepo.add_ingredients(ingredients)
-            ids.append(recipe_id)
-            return jsonify(ids)
-
-        highlight(recipe_id,'*')
-        highlight(ids,'=')
+            recipe_ids['ids'] = ids
+            return jsonify(recipe_ids)
         return jsonify(recipe_id)
         
     except IntegrityError as e:
