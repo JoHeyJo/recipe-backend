@@ -66,7 +66,10 @@ class RecipeRepo():
         try:
             db.session.add(recipe)
             db.session.commit()
-            return {"recipe_id": recipe.id}
+            return {"recipe_title": name,
+                    "recipe_id": recipe.id,
+                    "preparation": preparation,
+                    "notes": notes}
         except IntegrityError as e:
             db.session.rollback()
             raise {"error": "error add_recipe"}
@@ -165,11 +168,11 @@ class IngredientsRepo():
 
                 ingredients_data.append(
                     {
-                    "ingredient": ingredient["ingredient"],
-                     "ingredient_id": ingredient_id,
-                     "amount_id": amount_id, 
-                     "unit_id": unit_id
-                     })
+                        "ingredient": ingredient["ingredient"],
+                        "ingredient_id": ingredient_id,
+                        "amount_id": amount_id,
+                        "unit_id": unit_id
+                    })
 
             except InterruptedError as e:
                 db.rollback()

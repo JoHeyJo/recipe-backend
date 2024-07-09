@@ -98,22 +98,21 @@ def add_recipe():
     ingredients = recipe["ingredients"] or None
 
     try:
-        recipe_id = RecipeRepo.add_recipe(
+        recipe_data = RecipeRepo.add_recipe(
             name=recipe_name, preparation=preparation, notes=notes)
         if ingredients: 
-            recipe_data = {**recipe_id,**{'recipe_title':recipe_name}}
             ingredients_data = IngredientsRepo.add_ingredients(ingredients)
-            recipe_data['ids'] = ingredients_data
+            recipe_data['ingredients'] = ingredients_data
 
-            for ingredient in recipe_data['ids']:
+            for ingredient in recipe_data['ingredients']:
                 RecipeIngredientRepo.create_recipe(
-                    recipe_id=recipe_id['recipe_id'], 
+                    recipe_id=recipe_data['recipe_id'], 
                     ingredient_id=ingredient['ingredient_id'],
                     quantity_amount_id=ingredient['amount_id'], 
                     quantity_unit_id=ingredient['unit_id'])
 
             return jsonify(recipe_data)
-        return jsonify(recipe_id)
+        return jsonify(recipe_data)
 
     except IntegrityError as e:
         return jsonify({"error": f"add_ingredient error - calling RecipeRepo & ingredients Repo: {e}"}), 400
