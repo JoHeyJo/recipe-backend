@@ -7,9 +7,9 @@ from exceptions import *
 bcrypt = Bcrypt()
 
 def highlight(value,divider):
-    print(divider)
+    print(divider * 10)
     print(value)
-    print(divider)
+    print(divider * 10)
 
 class UserRepo():
     """Facilitate User table interactions"""

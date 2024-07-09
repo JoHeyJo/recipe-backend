@@ -2,7 +2,7 @@ from models import User
 import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
-from repository import UserRepo, RecipeRepo, QuantityAmountRepo, QuantityUnitRepo, RecipeIngredientRepo, IngredientsRepo
+from repository import UserRepo, RecipeRepo, QuantityAmountRepo, QuantityUnitRepo, RecipeIngredientRepo, IngredientsRepo, highlight
 from models import connect_db, db
 from sqlalchemy.exc import IntegrityError
 from flask_migrate import Migrate
@@ -102,7 +102,12 @@ def add_recipe():
             name=recipe_name, preparation=preparation, notes=notes)
         if ingredients:
             ids = IngredientsRepo.add_ingredients(ingredients)
-        # return jsonify({recipe_id,ids})
+            ids.append(recipe_id)
+            return jsonify(ids)
+
+        highlight(recipe_id,'*')
+        highlight(ids,'=')
+        return jsonify(recipe_id)
         
     except IntegrityError as e:
         return jsonify({"error": f"add_ingredient error - calling RecipeRepo & ingredients Repo: {e}"}), 400
