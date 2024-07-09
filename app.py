@@ -100,21 +100,19 @@ def add_recipe():
     try:
         recipe_id = RecipeRepo.add_recipe(
             name=recipe_name, preparation=preparation, notes=notes)
-        highlight(recipe_id,'>')
-        if ingredients:
-            recipe_ids = recipe_id
-            ids = IngredientsRepo.add_ingredients(ingredients)
-            recipe_ids['ids'] = ids
+        if ingredients: 
+            recipe_data = {**recipe_id,**{'recipe_title':recipe_name}}
+            ingredients_data = IngredientsRepo.add_ingredients(ingredients)
+            recipe_data['ids'] = ingredients_data
 
-            for recipe in recipe_ids['ids']:
-                highlight(recipe_id,'=')
+            for ingredient in recipe_data['ids']:
                 RecipeIngredientRepo.create_recipe(
                     recipe_id=recipe_id['recipe_id'], 
-                    ingredient_id=recipe['ingredient_id'],
-                    quantity_amount_id=recipe['amount_id'], 
-                    quantity_unit_id=recipe['unit_id'])
+                    ingredient_id=ingredient['ingredient_id'],
+                    quantity_amount_id=ingredient['amount_id'], 
+                    quantity_unit_id=ingredient['unit_id'])
 
-            return jsonify(recipe_ids)
+            return jsonify(recipe_data)
         return jsonify(recipe_id)
 
     except IntegrityError as e:

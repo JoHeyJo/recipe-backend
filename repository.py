@@ -6,10 +6,12 @@ from exceptions import *
 
 bcrypt = Bcrypt()
 
-def highlight(value,divider):
+
+def highlight(value, divider):
     print(divider * 10)
     print(value)
     print(divider * 10)
+
 
 class UserRepo():
     """Facilitate User table interactions"""
@@ -27,9 +29,9 @@ class UserRepo():
         )
         token = create_access_token(identity=user.user_name)
         try:
-          db.session.add(user)
-          db.session.commit()
-          return token
+            db.session.add(user)
+            db.session.commit()
+            return token
         except IntegrityError as e:
             db.session.rollback()
             if "users_user_name_key" in str(e.orig):
@@ -40,7 +42,7 @@ class UserRepo():
                     "This email is already taken.")
             else:
                 raise SignUpError("An error occurred during signup.")
-            
+
     @staticmethod
     def authenticate(user_name, password):
         """Find user with username and password. Return False for incorrect credentials"""
@@ -52,7 +54,7 @@ class UserRepo():
                 token = create_access_token(
                     identity=user.user_name, additional_claims={"is_admin": user.is_admin})
                 return token
-        return False  
+        return False
 
 
 class RecipeRepo():
@@ -64,12 +66,12 @@ class RecipeRepo():
         try:
             db.session.add(recipe)
             db.session.commit()
-            return {"recipe_id":recipe.id}
+            return {"recipe_id": recipe.id}
         except IntegrityError as e:
             db.session.rollback()
             raise {"error": "error add_recipe"}
-        
-        
+
+
 class RecipeIngredientRepo():
     """Facilitates creation of record that corresponds to a recipe"""
     @staticmethod
@@ -84,8 +86,8 @@ class RecipeIngredientRepo():
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in create_recipe"}
-        
-        
+
+
 class QuantityUnitRepo():
     """Facilitates quantity units table interactions"""
     @staticmethod
@@ -94,7 +96,7 @@ class QuantityUnitRepo():
         value = QuantityUnit.query.filter_by(unit=unit).first()
         if value:
             return value.id
-        
+
         quantity_unit = QuantityUnit(unit=unit)
         try:
             db.session.add(quantity_unit)
@@ -130,11 +132,11 @@ class IngredientRepo():
         value = Ingredient.query.filter_by(ingredient=ingredient).first()
         if value:
             return value.id
-         
+
         ingredient = Ingredient(ingredient=ingredient)
         try:
             db.session.add(ingredient)
-            return {"id":ingredient.id}
+            return {"id": ingredient.id}
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in IngredientRepo - add_ingredient"}
@@ -145,28 +147,31 @@ class IngredientsRepo():
     @staticmethod
     def add_ingredients(ingredients):
         """Adds list of ingredients - calls repo methods to add ingredient components"""
-        ingredients_ids = []
-        # return ingredients
+        ingredients_data = []
         for ingredient in ingredients:
-            # return ingredient
             ingredient_name = ingredient["ingredient"]
             quantity_amount = ingredient["quantity_amount"] or None
             quantity_unit = ingredient["quantity_unit"] or None
-            # return [ingredient_name, quantity_amount,quantity_unit]
 
             try:
                 # should these have individual try/catch???
                 ingredient_id = IngredientRepo.add_ingredient(ingredient_name)
-                highlight(ingredient_id, "*********")
                 if quantity_amount:
-                    amount_id = QuantityAmountRepo.add_quantity_amount(quantity_amount)
+                    amount_id = QuantityAmountRepo.add_quantity_amount(
+                        quantity_amount)
                 if quantity_unit:
                     unit_id = QuantityUnitRepo.add_quantity_unit(quantity_unit)
                 db.session.commit()
 
-                ingredients_ids.append({"ingredient_id":ingredient_id, "amount_id":amount_id, "unit_id":unit_id})
+                ingredients_data.append(
+                    {
+                    "ingredient": ingredient["ingredient"],
+                     "ingredient_id": ingredient_id,
+                     "amount_id": amount_id, 
+                     "unit_id": unit_id
+                     })
 
             except InterruptedError as e:
                 db.rollback()
                 raise {"error": "error in IngredientsRepo - add_ingredients"}
-        return ingredients_ids
+        return ingredients_data
