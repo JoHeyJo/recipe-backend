@@ -142,8 +142,8 @@ class IngredientRepo():
                 return value.id
             else:
                 ingredient = Ingredient(ingredient=ingredient)
-            ingredient = db.session.add(ingredient)
-            highlight(ingredient,'*')
+            db.session.add(ingredient)
+            db.session.commit()
             return ingredient.id
         except InterruptedError as e:
             db.rollback()
@@ -170,7 +170,7 @@ class IngredientsRepo():
                         quantity_amount)
                 if quantity_unit:
                     unit_id = QuantityUnitRepo.add_quantity_unit(quantity_unit)
-                db.session.commit()
+                # db.session.commit()
 
                 ingredients_data.append(
                     {
