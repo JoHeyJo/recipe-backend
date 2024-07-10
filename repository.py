@@ -99,13 +99,14 @@ class QuantityUnitRepo():
     @staticmethod
     def add_quantity_unit(unit):
         """Add quantity unit to database"""
-        value = QuantityUnit.query.filter_by(unit=unit).first()
-        if value:
-            return value.id
-
-        quantity_unit = QuantityUnit(unit=unit)
         try:
+            value = QuantityUnit.query.filter_by(unit=unit).first()
+            if value:
+                return value.id
+
+            quantity_unit = QuantityUnit(unit=unit)
             db.session.add(quantity_unit)
+            db.session.commit()
             return quantity_unit.id
         except InterruptedError as e:
             db.rollback()
@@ -117,13 +118,14 @@ class QuantityAmountRepo():
     @staticmethod
     def add_quantity_amount(amount):
         """Add quantity amount to database"""
-        value = QuantityAmount.query.filter_by(amount=amount).first()
-        if value:
-            return value.id
-
-        quantity_amount = QuantityAmount(amount=amount)
         try:
+            value = QuantityAmount.query.filter_by(amount=amount).first()
+            if value:
+                return value.id
+
+            quantity_amount = QuantityAmount(amount=amount)
             db.session.add(quantity_amount)
+            db.session.commit()
             return quantity_amount.id
         except InterruptedError as e:
             db.rollback()
