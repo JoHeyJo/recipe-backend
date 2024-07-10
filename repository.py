@@ -80,7 +80,10 @@ class RecipeIngredientRepo():
     @staticmethod
     def create_recipe(recipe_id, ingredient_id, quantity_unit_id, quantity_amount_id):
         """Create recipe record"""
-
+        # highlight(recipe_id,'*')
+        # highlight(ingredient_id, '/')  # arg passed is an object {'id': None}
+        # highlight(quantity_unit_id, '>')
+        # highlight(quantity_amount_id, '=')
         recipe = RecipeIngredient(
             recipe_id=recipe_id, ingredient_id=ingredient_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
         try:
@@ -103,7 +106,7 @@ class QuantityUnitRepo():
         quantity_unit = QuantityUnit(unit=unit)
         try:
             db.session.add(quantity_unit)
-            return {"id": quantity_unit.id}
+            return quantity_unit.id
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in add_quantity_unit"}
@@ -121,7 +124,7 @@ class QuantityAmountRepo():
         quantity_amount = QuantityAmount(amount=amount)
         try:
             db.session.add(quantity_amount)
-            return {"id": quantity_amount.id}
+            return quantity_amount.id
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in add_quantity_amount"}
@@ -131,15 +134,17 @@ class IngredientRepo():
     """Facilitates Ingredient table interactions"""
     @staticmethod
     def add_ingredient(ingredient):
-        """Add a list of ingredients to database"""
-        value = Ingredient.query.filter_by(ingredient=ingredient).first()
-        if value:
-            return value.id
-
-        ingredient = Ingredient(ingredient=ingredient)
+        """Adds an ingredient to database"""
         try:
-            db.session.add(ingredient)
-            return {"id": ingredient.id}
+            value = Ingredient.query.filter_by(ingredient=ingredient).first()
+            highlight(value,'@')
+            if value:
+                return value.id
+            else:
+                ingredient = Ingredient(ingredient=ingredient)
+            ingredient = db.session.add(ingredient)
+            highlight(ingredient,'*')
+            return ingredient.id
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in IngredientRepo - add_ingredient"}
@@ -159,6 +164,7 @@ class IngredientsRepo():
             try:
                 # should these have individual try/catch???
                 ingredient_id = IngredientRepo.add_ingredient(ingredient_name)
+                highlight(ingredient_id,'8')
                 if quantity_amount:
                     amount_id = QuantityAmountRepo.add_quantity_amount(
                         quantity_amount)

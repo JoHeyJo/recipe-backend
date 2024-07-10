@@ -98,16 +98,19 @@ def add_recipe():
     ingredients = recipe["ingredients"] or None
 
     try:
-        recipe_data = RecipeRepo.add_recipe(
-            name=recipe_name, preparation=preparation, notes=notes)
         if ingredients: 
             ingredients_data = IngredientsRepo.add_ingredients(ingredients)
+
+            recipe_data = RecipeRepo.add_recipe(
+                name=recipe_name, preparation=preparation, notes=notes)
+
             recipe_data['ingredients'] = ingredients_data
 
             for ingredient in recipe_data['ingredients']:
+                highlight(ingredient,'|')
                 RecipeIngredientRepo.create_recipe(
                     recipe_id=recipe_data['recipe_id'], 
-                    ingredient_id=ingredient['ingredient_id'],
+                    ingredient_id=ingredient['ingredient_id'], # arg passed is an object {'id': None}
                     quantity_amount_id=ingredient['amount_id'], 
                     quantity_unit_id=ingredient['unit_id'])
 
