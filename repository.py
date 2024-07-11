@@ -80,10 +80,6 @@ class RecipeIngredientRepo():
     @staticmethod
     def create_recipe(recipe_id, ingredient_id, quantity_unit_id, quantity_amount_id):
         """Create recipe record"""
-        # highlight(recipe_id,'*')
-        # highlight(ingredient_id, '/')  # arg passed is an object {'id': None}
-        # highlight(quantity_unit_id, '>')
-        # highlight(quantity_amount_id, '=')
         recipe = RecipeIngredient(
             recipe_id=recipe_id, ingredient_id=ingredient_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
         try:
@@ -139,7 +135,6 @@ class IngredientRepo():
         """Adds an ingredient to database"""
         try:
             value = Ingredient.query.filter_by(ingredient=ingredient).first()
-            highlight(value,'@')
             if value:
                 return value.id
             else:
@@ -166,7 +161,6 @@ class IngredientsRepo():
             try:
                 # should these have individual try/catch???
                 ingredient_id = IngredientRepo.add_ingredient(ingredient_name)
-                highlight(ingredient_id,'8')
                 if quantity_amount:
                     amount_id = QuantityAmountRepo.add_quantity_amount(
                         quantity_amount)

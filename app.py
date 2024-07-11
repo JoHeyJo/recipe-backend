@@ -84,7 +84,7 @@ def login():
 @app.post("/add")
 def add_recipe():
     """Consolidates recipe data before calling repo functions. If successful 
-    RecipeIngredients record created"""
+    recipes_ingredients record created"""
     # User data
     user_id = request.json["user_id"]
 
@@ -96,7 +96,7 @@ def add_recipe():
 
     # Ingredient data
     ingredients = recipe["ingredients"] or None
-
+    # First add ingredients if applicable then add recipe
     try:
         if ingredients: 
             ingredients_data = IngredientsRepo.add_ingredients(ingredients)
@@ -107,15 +107,18 @@ def add_recipe():
             recipe_data['ingredients'] = ingredients_data
 
             for ingredient in recipe_data['ingredients']:
-                highlight(ingredient,'|')
                 RecipeIngredientRepo.create_recipe(
                     recipe_id=recipe_data['recipe_id'], 
                     ingredient_id=ingredient['ingredient_id'], # arg passed is an object {'id': None}
                     quantity_amount_id=ingredient['amount_id'], 
                     quantity_unit_id=ingredient['unit_id'])
 
-            return jsonify(recipe_data)
-        return jsonify(recipe_data)
+            return jsonify(recipe_data), 200
+        else:
+            recipe_data = RecipeRepo.add_recipe(
+                name=recipe_name, preparation=preparation, notes=notes)
+            highlight("added just recipe name",'*')
+            return jsonify(recipe_data), 200
 
     except IntegrityError as e:
         return jsonify({"error": f"add_ingredient error - calling RecipeRepo & ingredients Repo: {e}"}), 400
