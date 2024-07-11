@@ -60,8 +60,8 @@ class UserRepo():
 class RecipeRepo():
     """Facilitates recipes table interactions"""
     @staticmethod
-    def add_recipe(name, preparation, notes):
-        """Add initial recipe information to database"""
+    def create_recipe(name, preparation, notes):
+        """Creates recipe instance and adds it to database"""
         recipe = Recipe(name=name, preparation=preparation, notes=notes)
         try:
             db.session.add(recipe)
@@ -72,14 +72,14 @@ class RecipeRepo():
                     "notes": notes}
         except IntegrityError as e:
             db.session.rollback()
-            raise {"error": "error add_recipe"}
+            raise {"error": "error create_recipe"}
 
 
 class RecipeIngredientRepo():
     """Facilitates creation of record that corresponds to a recipe"""
     @staticmethod
     def create_recipe(recipe_id, ingredient_id, quantity_unit_id, quantity_amount_id):
-        """Create recipe record"""
+        """Create recipe record and add to database"""
         recipe = RecipeIngredient(
             recipe_id=recipe_id, ingredient_id=ingredient_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
         try:
@@ -93,8 +93,8 @@ class RecipeIngredientRepo():
 class QuantityUnitRepo():
     """Facilitates quantity_units table interactions"""
     @staticmethod
-    def add_quantity_unit(unit):
-        """Add quantity unit to database"""
+    def create_quantity_unit(unit):
+        """Create quantity unit and add to database"""
         try:
             value = QuantityUnit.query.filter_by(unit=unit).first()
             if value:
@@ -106,14 +106,14 @@ class QuantityUnitRepo():
             return quantity_unit.id
         except InterruptedError as e:
             db.rollback()
-            raise {"error": "error in add_quantity_unit"}
+            raise {"error": "error in create_quantity_unit"}
 
 
 class QuantityAmountRepo():
     """Facilitates quantity_amounts table interactions"""
     @staticmethod
-    def add_quantity_amount(amount):
-        """Add quantity amount to database"""
+    def create_quantity_amount(amount):
+        """Create quantity amount and add to database"""
         try:
             value = QuantityAmount.query.filter_by(amount=amount).first()
             if value:
@@ -125,14 +125,14 @@ class QuantityAmountRepo():
             return quantity_amount.id
         except InterruptedError as e:
             db.rollback()
-            raise {"error": "error in add_quantity_amount"}
+            raise {"error": "error in create_quantity_amount"}
 
 
 class IngredientRepo():
     """Facilitates ingredients table interactions"""
     @staticmethod
-    def add_ingredient(ingredient):
-        """Adds an ingredient to database"""
+    def create_ingredient(ingredient):
+        """Create ingredient and add to database"""
         try:
             value = Ingredient.query.filter_by(ingredient=ingredient).first()
             if value:
@@ -151,7 +151,7 @@ class IngredientsRepo():
     """Directs incoming data to corresponding repo methods"""
     @staticmethod
     def add_ingredients(ingredients):
-        """Adds list of ingredients - calls repo methods to add ingredient components"""
+        """Add list of ingredients to corresponding repo methods"""
         ingredients_data = []
         for ingredient in ingredients:
             ingredient_name = ingredient["ingredient"]
@@ -159,12 +159,12 @@ class IngredientsRepo():
             quantity_unit = ingredient["quantity_unit"] or None
 
             try:
-                ingredient_id = IngredientRepo.add_ingredient(ingredient_name)
+                ingredient_id = IngredientRepo.create_ingredient(ingredient_name)
                 if quantity_amount:
-                    amount_id = QuantityAmountRepo.add_quantity_amount(
+                    amount_id = QuantityAmountRepo.create_quantity_amount(
                         quantity_amount)
                 if quantity_unit:
-                    unit_id = QuantityUnitRepo.add_quantity_unit(quantity_unit)
+                    unit_id = QuantityUnitRepo.create_quantity_unit(quantity_unit)
 
                 ingredients_data.append(
                     {
@@ -183,8 +183,8 @@ class IngredientsRepo():
 class BookRepo():
     """Facilitates books table interactions"""
     @staticmethod
-    def add_book(title):
-        """Adds book title to database"""
+    def create_book(title):
+        """Create book title and add to database"""
         book = Book(title=title)
         try:
             db.session.add(book)
@@ -192,4 +192,12 @@ class BookRepo():
             return {'id':book.id,'title':book.title}
         except InterruptedError as e:
             db.rollback()
-            raise {"error": "error in BookRepo - add_book"}
+            raise {"error": "error in BookRepo - create_book"}
+
+
+class RecipeBook():
+    """Facilitates recipes_books table interactions"""
+    @staticmethod
+    def create_entry(book_id,recipe_id):
+        """Associate recipe with a book"""
+        

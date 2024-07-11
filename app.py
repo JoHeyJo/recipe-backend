@@ -87,6 +87,7 @@ def add_recipe():
     recipes_ingredients record created"""
     # User data
     user_id = request.json["user_id"]
+    book_id = request.json["book_id"]
 
     # Recipe data
     recipe = request.json["recipe"]
@@ -96,6 +97,7 @@ def add_recipe():
 
     # Ingredient data
     ingredients = recipe["ingredients"] or None
+    # ############ RECIPE CREATION ########
     # First add ingredients if applicable then add recipe
     try:
         if ingredients: 
@@ -122,6 +124,9 @@ def add_recipe():
 
     except IntegrityError as e:
         return jsonify({"error": f"add_ingredient error - calling RecipeRepo & ingredients Repo: {e}"}), 400
+    # ############ ADD RECIPE TO BOOK ########
+
+    # ############ ADD BOOK TO USER ########
 
 
 @app.post("/add_book")
