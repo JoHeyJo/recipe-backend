@@ -39,7 +39,7 @@ def index():
 
 @app.post("/signup")
 def signup():
-    """Create new user, add to DB, return token"""
+    """Facilitates new user data to User Repo, return token"""
 
     user_name = request.json["userName"]
     first_name = request.json["firstName"]
@@ -103,7 +103,7 @@ def add_recipe():
         if ingredients: 
             ingredients_data = IngredientsRepo.add_ingredients(ingredients)
 
-            recipe_data = RecipeRepo.add_recipe(
+            recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, preparation=preparation, notes=notes)
 
             recipe_data['ingredients'] = ingredients_data
@@ -117,13 +117,13 @@ def add_recipe():
 
             return jsonify(recipe_data), 200
         else:
-            recipe_data = RecipeRepo.add_recipe(
+            recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, preparation=preparation, notes=notes)
             highlight("added just recipe name",'*')
             return jsonify(recipe_data), 200
 
     except IntegrityError as e:
-        return jsonify({"error": f"add_ingredient error - calling RecipeRepo & ingredients Repo: {e}"}), 400
+        return jsonify({"error": f"adding recipe & ingredients in add_recipe: {e}"}), 400
     # ############ ADD RECIPE TO BOOK ########
 
     # ############ ADD BOOK TO USER ########
@@ -134,9 +134,9 @@ def add_book():
     """Facilitates creation of book containing recipes"""
     title = request.json["title"]
     try:    
-        book_data = BookRepo.add_book(title)
+        book_data = BookRepo.create_book(title)
         return jsonify(book_data), 200
     except IntegrityError as e:
-        return jsonify({"error": f"add_book error{e}"}), 400
+        return jsonify({"error": f"create_book error{e}"}), 400
 
 

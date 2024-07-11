@@ -144,7 +144,7 @@ class IngredientRepo():
             return ingredient.id
         except InterruptedError as e:
             db.rollback()
-            raise {"error": "error in IngredientRepo - add_ingredient"}
+            raise {"error": "error in IngredientRepo - create_ingredient"}
 
 
 class IngredientsRepo():
