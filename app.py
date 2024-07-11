@@ -109,7 +109,7 @@ def add_recipe():
             for ingredient in recipe_data['ingredients']:
                 RecipeIngredientRepo.create_recipe(
                     recipe_id=recipe_data['recipe_id'], 
-                    ingredient_id=ingredient['ingredient_id'], # arg passed is an object {'id': None}
+                    ingredient_id=ingredient['ingredient_id'],
                     quantity_amount_id=ingredient['amount_id'], 
                     quantity_unit_id=ingredient['unit_id'])
 
@@ -127,9 +127,11 @@ def add_recipe():
 @app.post("/add_book")
 def add_book():
     """Facilitates creation of book containing recipes"""
-    title = request.json("title")
+    title = request.json["title"]
     try:    
         book_data = BookRepo.add_book(title)
-        return jsonify(book_data)
+        return jsonify(book_data), 200
     except IntegrityError as e:
         return jsonify({"error": f"add_book error{e}"}), 400
+
+

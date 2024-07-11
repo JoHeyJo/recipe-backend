@@ -159,14 +159,12 @@ class IngredientsRepo():
             quantity_unit = ingredient["quantity_unit"] or None
 
             try:
-                # should these have individual try/catch???
                 ingredient_id = IngredientRepo.add_ingredient(ingredient_name)
                 if quantity_amount:
                     amount_id = QuantityAmountRepo.add_quantity_amount(
                         quantity_amount)
                 if quantity_unit:
                     unit_id = QuantityUnitRepo.add_quantity_unit(quantity_unit)
-                # db.session.commit()
 
                 ingredients_data.append(
                     {
