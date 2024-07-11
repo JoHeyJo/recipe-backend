@@ -2,7 +2,7 @@ from models import User
 import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
-from repository import UserRepo, RecipeRepo, QuantityAmountRepo, QuantityUnitRepo, RecipeIngredientRepo, IngredientsRepo, highlight
+from repository import UserRepo, RecipeRepo, QuantityAmountRepo, QuantityUnitRepo, RecipeIngredientRepo, IngredientsRepo, highlight, BookRepo
 from models import connect_db, db
 from sqlalchemy.exc import IntegrityError
 from flask_migrate import Migrate
@@ -129,6 +129,7 @@ def add_book():
     """Facilitates creation of book containing recipes"""
     title = request.json("title")
     try:    
-        
+        book_data = BookRepo.add_book(title)
+        return jsonify(book_data)
     except IntegrityError as e:
         return jsonify({"error": f"add_book error{e}"}), 400

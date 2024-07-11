@@ -187,11 +187,11 @@ class BookRepo():
     @staticmethod
     def add_book(title):
         """Adds book title to database"""
-        new_title = Book(title=title)
+        book = Book(title=title)
         try:
-            db.session.add(new_title)
+            db.session.add(book)
             db.session.commit()
-            return {'id':new_title.id,'title':new_title}
+            return {'id':book.id,'title':book.title}
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in BookRepo - add_book"}
