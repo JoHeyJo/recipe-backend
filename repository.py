@@ -195,7 +195,7 @@ class BookRepo():
             raise {"error": "error in BookRepo - create_book"}
 
 
-class RecipeBook():
+class RecipeBookRepo():
     """Facilitates recipes_books table interactions"""
     @staticmethod
     def create_entry(book_id,recipe_id):
