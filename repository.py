@@ -1,6 +1,6 @@
 from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
-from models import User, db, Ingredient, Recipe, RecipeIngredient, QuantityUnit, QuantityAmount
+from models import User, db, Ingredient, Recipe, RecipeIngredient, QuantityUnit, QuantityAmount, Book
 from sqlalchemy.exc import IntegrityError
 from exceptions import *
 
@@ -14,7 +14,7 @@ def highlight(value, divider):
 
 
 class UserRepo():
-    """Facilitate User table interactions"""
+    """Facilitate users table interactions"""
     @staticmethod
     def signup(user_name, first_name, last_name, email, password):
         """Sign up user. Hashes password and adds user to system. => Token"""
@@ -91,7 +91,7 @@ class RecipeIngredientRepo():
 
 
 class QuantityUnitRepo():
-    """Facilitates quantity units table interactions"""
+    """Facilitates quantity_units table interactions"""
     @staticmethod
     def add_quantity_unit(unit):
         """Add quantity unit to database"""
@@ -110,7 +110,7 @@ class QuantityUnitRepo():
 
 
 class QuantityAmountRepo():
-    """Facilitates quantity amount table interactions"""
+    """Facilitates quantity_amounts table interactions"""
     @staticmethod
     def add_quantity_amount(amount):
         """Add quantity amount to database"""
@@ -129,7 +129,7 @@ class QuantityAmountRepo():
 
 
 class IngredientRepo():
-    """Facilitates Ingredient table interactions"""
+    """Facilitates ingredients table interactions"""
     @staticmethod
     def add_ingredient(ingredient):
         """Adds an ingredient to database"""
@@ -180,3 +180,18 @@ class IngredientsRepo():
                 db.rollback()
                 raise {"error": "error in IngredientsRepo - add_ingredients"}
         return ingredients_data
+
+
+class BookRepo():
+    """Facilitates books table interactions"""
+    @staticmethod
+    def add_book(title):
+        """Adds book title to database"""
+        new_title = Book(title=title)
+        try:
+            db.session.add(new_title)
+            db.session.commit()
+            return {'id':new_title.id,'title':new_title}
+        except InterruptedError as e:
+            db.rollback()
+            raise {"error": "error in BookRepo - add_book"}

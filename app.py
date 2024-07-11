@@ -81,7 +81,7 @@ def login():
         return jsonify({"error": f"login error: {e}"}), 400
 
 
-@app.post("/add")
+@app.post("/add_recipe")
 def add_recipe():
     """Consolidates recipe data before calling repo functions. If successful 
     recipes_ingredients record created"""
@@ -122,3 +122,13 @@ def add_recipe():
 
     except IntegrityError as e:
         return jsonify({"error": f"add_ingredient error - calling RecipeRepo & ingredients Repo: {e}"}), 400
+
+
+@app.post("/add_book")
+def add_book():
+    """Facilitates creation of book containing recipes"""
+    title = request.json("title")
+    try:    
+        
+    except IntegrityError as e:
+        return jsonify({"error": f"add_book error{e}"}), 400
