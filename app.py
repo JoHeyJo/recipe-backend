@@ -124,7 +124,7 @@ def add_recipe():
 
     except IntegrityError as e:
         return jsonify({"error": f"adding recipe & ingredients in add_recipe: {e}"}), 400
-    # ############ ADD RECIPE TO BOOK ########
+    # ############ ADD RECIPE TO BOOK (recipes_books)########
 
     # ############ ADD BOOK TO USER ########
 

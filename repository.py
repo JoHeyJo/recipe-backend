@@ -1,6 +1,6 @@
 from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
-from models import User, db, Ingredient, Recipe, RecipeIngredient, QuantityUnit, QuantityAmount, Book
+from models import User, db, Ingredient, Recipe, RecipeIngredient, QuantityUnit, QuantityAmount, Book, RecipeBook
 from sqlalchemy.exc import IntegrityError
 from exceptions import *
 
@@ -76,7 +76,7 @@ class RecipeRepo():
 
 
 class RecipeIngredientRepo():
-    """Facilitates creation of record that corresponds to a recipe"""
+    """Facilitates association of recipes & ingredients """
     @staticmethod
     def create_recipe(recipe_id, ingredient_id, quantity_unit_id, quantity_amount_id):
         """Create recipe record and add to database"""
@@ -196,8 +196,13 @@ class BookRepo():
 
 
 class RecipeBookRepo():
-    """Facilitates recipes_books table interactions"""
+    """Facilitates association of recipes & books"""
     @staticmethod
-    def create_entry(book_id,recipe_id):
+    def add_entry(book_id,recipe_id):
         """Associate recipe with a book"""
-        
+        try:
+            RecipeBook(book_id=book_id,recipe_id=recipe_id)
+            
+        except InterruptedError as e:
+            db.rollback()
+            raise {"error": "error in RecipeBookRepo - add_entry"}
