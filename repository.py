@@ -217,8 +217,8 @@ class UserBookRepo():
         """Create recipe and book association -< add to database"""
         try:
             entry = UserBook(user_id=user_id,book_id=book_id)
-            db.session.add()
-            db.session.commit(entry)
+            db.session.add(entry)
+            db.session.commit()
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in UserBookRepo - create_entry"}

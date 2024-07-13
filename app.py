@@ -126,8 +126,9 @@ def add_recipe():
         return jsonify({"error": f"adding recipe & ingredients in add_recipe: {e}"}), 400
     # ############ ADD RECIPE TO BOOK (recipes_books)########
     RecipeBookRepo.create_entry(book_id=book_id,recipe_id=recipe_data["recipe_id"])
-    return jsonify(recipe_data)
     # ############ ADD BOOK TO USER ########
+    UserBookRepo.create_entry(user_id=user_id,book_id=book_id)
+    return jsonify(recipe_data)
 
 
 
