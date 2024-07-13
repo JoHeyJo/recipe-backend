@@ -2,7 +2,7 @@ from models import User
 import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
-from repository import UserRepo, RecipeRepo, QuantityAmountRepo, QuantityUnitRepo, RecipeIngredientRepo, IngredientsRepo, highlight, BookRepo
+from repository import *
 from models import connect_db, db
 from sqlalchemy.exc import IntegrityError
 from flask_migrate import Migrate
@@ -85,6 +85,7 @@ def login():
 def add_recipe():
     """Consolidates recipe data before calling repo functions. If successful 
     recipes_ingredients record created"""
+    recipe_data = None
     # User data
     user_id = request.json["user_id"]
     book_id = request.json["book_id"]
@@ -115,18 +116,19 @@ def add_recipe():
                     quantity_amount_id=ingredient['amount_id'], 
                     quantity_unit_id=ingredient['unit_id'])
 
-            return jsonify(recipe_data), 200
+            recipe_data = recipe_data
         else:
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, preparation=preparation, notes=notes)
-            highlight("added just recipe name",'*')
-            return jsonify(recipe_data), 200
+            recipe_data = recipe_data
 
     except IntegrityError as e:
         return jsonify({"error": f"adding recipe & ingredients in add_recipe: {e}"}), 400
     # ############ ADD RECIPE TO BOOK (recipes_books)########
-
+    RecipeBookRepo.create_entry(book_id=book_id,recipe_id=recipe_data["recipe_id"])
+    return jsonify(recipe_data)
     # ############ ADD BOOK TO USER ########
+
 
 
 @app.post("/add_book")

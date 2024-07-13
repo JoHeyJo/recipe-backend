@@ -1,6 +1,6 @@
 from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
-from models import User, db, Ingredient, Recipe, RecipeIngredient, QuantityUnit, QuantityAmount, Book, RecipeBook
+from models import *
 from sqlalchemy.exc import IntegrityError
 from exceptions import *
 
@@ -207,3 +207,4 @@ class RecipeBookRepo():
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in RecipeBookRepo - add_entry"}
+
