@@ -79,11 +79,11 @@ class RecipeIngredientRepo():
     """Facilitates association of recipes & ingredients """
     @staticmethod
     def create_recipe(recipe_id, ingredient_id, quantity_unit_id, quantity_amount_id):
-        """Create recipe record and add to database"""
-        recipe = RecipeIngredient(
+        """Create recipe and ingredient association -> add to database"""
+        entry = RecipeIngredient(
             recipe_id=recipe_id, ingredient_id=ingredient_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
         try:
-            db.session.add(recipe)
+            db.session.add(entry)
             db.session.commit()
         except InterruptedError as e:
             db.rollback()
@@ -198,11 +198,12 @@ class BookRepo():
 class RecipeBookRepo():
     """Facilitates association of recipes & books"""
     @staticmethod
-    def add_entry(book_id,recipe_id):
-        """Associate recipe with a book"""
+    def create_entry(book_id,recipe_id):
+        """Create recipe and book association -> add to database"""
         try:
-            RecipeBook(book_id=book_id,recipe_id=recipe_id)
-            
+            entry = RecipeBook(book_id=book_id,recipe_id=recipe_id)
+            db.session.add(entry)
+            db.session.commit()
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in RecipeBookRepo - add_entry"}
