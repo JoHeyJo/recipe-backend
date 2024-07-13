@@ -75,21 +75,6 @@ class RecipeRepo():
             raise {"error": "error create_recipe"}
 
 
-class RecipeIngredientRepo():
-    """Facilitates association of recipes & ingredients """
-    @staticmethod
-    def create_recipe(recipe_id, ingredient_id, quantity_unit_id, quantity_amount_id):
-        """Create recipe and ingredient association -> add to database"""
-        entry = RecipeIngredient(
-            recipe_id=recipe_id, ingredient_id=ingredient_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
-        try:
-            db.session.add(entry)
-            db.session.commit()
-        except InterruptedError as e:
-            db.rollback()
-            raise {"error": "error in create_recipe"}
-
-
 class QuantityUnitRepo():
     """Facilitates quantity_units table interactions"""
     @staticmethod
@@ -194,6 +179,23 @@ class BookRepo():
             db.rollback()
             raise {"error": "error in BookRepo - create_book"}
 
+###################### ASSOCIATION TABLES ############################
+
+
+class RecipeIngredientRepo():
+    """Facilitates association of recipes & ingredients """
+    @staticmethod
+    def create_recipe(recipe_id, ingredient_id, quantity_unit_id, quantity_amount_id):
+        """Create recipe and ingredient association -> add to database"""
+        entry = RecipeIngredient(
+            recipe_id=recipe_id, ingredient_id=ingredient_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
+        try:
+            db.session.add(entry)
+            db.session.commit()
+        except InterruptedError as e:
+            db.rollback()
+            raise {"error": "error in create_recipe"}
+
 
 class RecipeBookRepo():
     """Facilitates association of recipes & books"""
@@ -206,5 +208,17 @@ class RecipeBookRepo():
             db.session.commit()
         except InterruptedError as e:
             db.rollback()
-            raise {"error": "error in RecipeBookRepo - add_entry"}
+            raise {"error": "error in RecipeBookRepo - create_entry"}
 
+class UserBookRepo():
+    """Facilitates association of users & books"""
+    @staticmethod
+    def create_entry(user_id,book_id):
+        """Create recipe and book association -< add to database"""
+        try:
+            entry = UserBook(user_id=user_id,book_id=book_id)
+            db.session.add()
+            db.session.commit(entry)
+        except InterruptedError as e:
+            db.rollback()
+            raise {"error": "error in UserBookRepo - create_entry"}
