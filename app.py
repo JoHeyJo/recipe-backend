@@ -143,3 +143,6 @@ def add_book():
         return jsonify({"error": f"create_book error{e}"}), 400
 
 
+def setup_app_context():
+    """Function to setup app context"""
+    app.app_context().push()
