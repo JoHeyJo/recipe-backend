@@ -204,6 +204,7 @@ class RecipeBookRepo():
         """Create recipe and book association -> add to database"""
         try:
             entry = RecipeBook(book_id=book_id,recipe_id=recipe_id)
+            highlight(entry, "*")
             db.session.add(entry)
             db.session.commit()
         except InterruptedError as e:

@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from flask_cors import CORS
 from exceptions import *
 from services.recipe_services import RecipeService
+from utils.error_handler import handle_error
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
 
@@ -84,11 +85,12 @@ def login():
 
 @app.post("/add_recipe")
 def add_recipe():
-    """Consolidates recipe data before calling repo functions. If successful 
+    """Consolidated recipe data passed to RecipeService function. If successful 
     recipes_ingredients record created"""
     try:
         recipe_data = RecipeService.add_recipe(request.json)
-        return jsonify(recipe_data),200
+
+        return jsonify(recipe_data), 200
     except Exception as e:
         return handle_error(e)
 

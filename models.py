@@ -25,10 +25,10 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='users_books', back_populates='users')
     
-    @classmethod
-    def get_all_books(cls, user_id):
-        """Get all books associated with user"""
-        return User.query.filter(user_id=user_id).books
+    # @classmethod
+    # def get_all_books(cls, user_id):
+    #     """Get all books associated with user"""
+    #     return User.query.filter(user_id=user_id).books
 
 
 class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -106,5 +106,5 @@ def connect_db(app):
     db.app = app
     db.init_app(app)
     with app.app_context():
-        # db.drop_all()
+        db.drop_all()
         db.create_all()

@@ -40,12 +40,14 @@ class RecipeService():
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, preparation=preparation, notes=notes)
             recipe_data = recipe_data
+            
+        # ############ ADD RECIPE TO BOOK (recipes_books) ########
+        RecipeBookRepo.create_entry(
+            book_id=book_id, recipe_id=recipe_data["recipe_id"])
+        # ############ ADD BOOK TO USER (users_books) ########
+        UserBookRepo.create_entry(user_id=user_id, book_id=book_id)
+
+        return recipe_data
 
     except IntegrityError as e:
-        return jsonify({"error": f"adding recipe & ingredients in add_recipe: {e}"}), 400
-    # ############ ADD RECIPE TO BOOK (recipes_books) ########
-    RecipeBookRepo.create_entry(
-        book_id=book_id, recipe_id=recipe_data["recipe_id"])
-    # ############ ADD BOOK TO USER (users_books) ########
-    UserBookRepo.create_entry(user_id=user_id, book_id=book_id)
-    return recipe_data
+        raise {"error": f"adding recipe & ingredients in add_recipe: {e}"}
