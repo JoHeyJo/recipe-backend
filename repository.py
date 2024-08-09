@@ -107,7 +107,7 @@ class QuantityAmountRepo():
             quantity_amount = QuantityAmount(amount=amount)
             db.session.add(quantity_amount)
             db.session.commit()
-            return quantity_amount.id
+                
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in create_quantity_amount"}

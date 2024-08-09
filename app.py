@@ -104,6 +104,24 @@ def add_book():
         return jsonify(book_data), 200
     except IntegrityError as e:
         return jsonify({"error": f"create_book error{e}"}), 400
+    
+    
+@app.post("/add_option")
+def add_option():
+    """Facilitates create of ingredient options"""
+    option = request.json["option"]
+    value = request.json["value"]
+    try:
+        if value == "amount":
+            QuantityAmountRepo.create_quantity_amount(unit=option)
+        if value == "unit":
+            QuantityUnitRepo.create_quantity_unit(unit=option)
+        if value == "liquid":
+            IngredientRepo.create_ingredient(ingredient=option)
+
+    except IntegrityError as e:
+        return jsonify({"error": f"add_option error{e}"}), 400
+    
 
 ################################################################################
 def setup_app_context():
