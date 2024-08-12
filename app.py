@@ -42,7 +42,7 @@ def index():
 @app.post("/signup")
 def signup():
     """Facilitates new user data to User Repo, return token"""
-
+    highlight(request,"*")
     user_name = request.json["userName"]
     first_name = request.json["firstName"]
     last_name = request.json["lastName"]
@@ -106,28 +106,27 @@ def add_book():
         return jsonify({"error": f"create_book error{e}"}), 400
     
 
-@app.post("/add_option")
-def add_option():
+@app.post("/add_option/<option>")
+def add_option(option):
     """Facilitates create of ingredient options"""
-    # option = request.json["option"]
-    # value = request.json["value"]
-    value = None
-    option = None
+
+    
+    option = option
+    value = request.json["liquid"]
+    highlight(request,"*")
+    highlight(value,"+")
     try:
-        if value == "amount":
-            QuantityAmountRepo.create_quantity_amount(unit=option)
-        if value == "unit":
-            QuantityUnitRepo.create_quantity_unit(unit=option)
-        if value == "liquid":
-            IngredientRepo.create_ingredient(ingredient=option)
+        # if value == "amount":
+        #     QuantityAmountRepo.create_quantity_amount(unit=value)
+        # if value == "unit":
+        #     QuantityUnitRepo.create_quantity_unit(unit=value)
+        # if value == "ingredient":
+        #     IngredientRepo.create_ingredient(ingredient=value)
         return jsonify({"msg":"success"})
 
     except IntegrityError as e:
         return jsonify({"error": f"add_option error{e}"}), 400
 
-# @app.post("/add_option")
-# def add_option():
-#     return jsonify({"msg":"hello"})
     
 
 ################################################################################
