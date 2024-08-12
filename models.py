@@ -24,7 +24,7 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     #     'Recipe', secondary='user_recipes', back_populates='users')
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='users_books', back_populates='users')
-    
+
     # @classmethod
     # def get_all_books(cls, user_id):
     #     """Get all books associated with user"""
@@ -50,14 +50,20 @@ class RecipeIngredient(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     recipe_id: Mapped[int] = Column(Integer, ForeignKey('recipes.id'))
     ingredient_id: Mapped[int] = Column(Integer, ForeignKey('ingredients.id'))
-    quantity_unit_id: Mapped[int] = Column(Integer, ForeignKey('quantity_units.id'))
-    quantity_amount_id: Mapped[int] = Column(Integer, ForeignKey('quantity_amounts.id'))
+    quantity_unit_id: Mapped[int] = Column(
+        Integer, ForeignKey('quantity_units.id'))
+    quantity_amount_id: Mapped[int] = Column(
+        Integer, ForeignKey('quantity_amounts.id'))
 
 
 class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Quantity Unit table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     unit: Mapped[str_unique_255]
+
+    def serialize(self):
+        """Serialize unit data into dict"""
+        return {"id": self.id, "unit": self.unit}
 
 
 class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -82,7 +88,7 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     users: Mapped[List['User']] = relationship(
         'User', secondary='users_books', back_populates='books')
-    
+
     recipes: Mapped[List['Recipe']] = relationship(
         'Recipe', secondary='recipes_books', back_populates='books')
 
@@ -100,11 +106,12 @@ class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     book_id: Mapped[int] = Column(Integer, ForeignKey("books.id"))
     user_id: Mapped[int] = Column(Integer, ForeignKey("users.id"))
 
+
 def connect_db(app):
     """Connect this database to provided Flask app."""
 
     db.app = app
     db.init_app(app)
     with app.app_context():
-        db.drop_all()
+        # db.drop_all()
         db.create_all()

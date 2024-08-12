@@ -88,10 +88,21 @@ class QuantityUnitRepo():
             quantity_unit = QuantityUnit(unit=unit)
             db.session.add(quantity_unit)
             db.session.commit()
-            return quantity_unit.id
+            return {"id": quantity_unit.id, "unit": quantity_unit.unit}
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in create_quantity_unit"}
+    
+    @staticmethod
+    def get_all_units():
+        """Return all units"""
+        try:
+            units = QuantityUnit.query.all()
+            highlight(units,'#')
+            return units
+        except InterruptedError as e:
+            db.rollback()
+            raise {"error": f"error in get_all_units: {e}"}
 
 
 class QuantityAmountRepo():
@@ -107,7 +118,7 @@ class QuantityAmountRepo():
             quantity_amount = QuantityAmount(amount=amount)
             db.session.add(quantity_amount)
             db.session.commit()
-            return quantity_amount.id
+            return {"id": quantity_amount.id, "amount": quantity_amount.amount}
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in create_quantity_amount"}
@@ -115,7 +126,7 @@ class QuantityAmountRepo():
 
 class IngredientRepo():
     """Facilitates ingredients table interactions"""
-    
+
     @staticmethod
     def create_ingredient(ingredient):
         """Create ingredient and add to database"""
@@ -127,8 +138,7 @@ class IngredientRepo():
                 ingredient = Ingredient(ingredient=ingredient)
             db.session.add(ingredient)
             db.session.commit()
-            highlight(ingredient,'*')
-            return ingredient.id
+            return {"id": ingredient.id, "ingredient": ingredient.ingredient}
         except InterruptedError as e:
             db.rollback()
             raise {"error": f"error in IngredientRepo - create_ingredient: {e}"}
@@ -146,12 +156,14 @@ class IngredientsRepo():
             quantity_unit = ingredient["quantity_unit"] or None
 
             try:
-                ingredient_id = IngredientRepo.create_ingredient(ingredient_name)
+                ingredient_id = IngredientRepo.create_ingredient(
+                    ingredient_name)
                 if quantity_amount:
                     amount_id = QuantityAmountRepo.create_quantity_amount(
                         quantity_amount)
                 if quantity_unit:
-                    unit_id = QuantityUnitRepo.create_quantity_unit(quantity_unit)
+                    unit_id = QuantityUnitRepo.create_quantity_unit(
+                        quantity_unit)
 
                 ingredients_data.append(
                     {
@@ -176,7 +188,7 @@ class BookRepo():
         try:
             db.session.add(book)
             db.session.commit()
-            return {'id':book.id,'title':book.title}
+            return {'id': book.id, 'title': book.title}
         except InterruptedError as e:
             db.rollback()
             raise {"error": f"error in BookRepo - create_book: {e}"}
@@ -202,10 +214,10 @@ class RecipeIngredientRepo():
 class RecipeBookRepo():
     """Facilitates association of recipes & books"""
     @staticmethod
-    def create_entry(book_id,recipe_id):
+    def create_entry(book_id, recipe_id):
         """Create recipe and book association -> add to database"""
         try:
-            entry = RecipeBook(book_id=book_id,recipe_id=recipe_id)
+            entry = RecipeBook(book_id=book_id, recipe_id=recipe_id)
             highlight(entry, "*")
             db.session.add(entry)
             db.session.commit()
@@ -213,13 +225,14 @@ class RecipeBookRepo():
             db.rollback()
             raise {"error": "error in RecipeBookRepo - create_entry"}
 
+
 class UserBookRepo():
     """Facilitates association of users & books"""
     @staticmethod
-    def create_entry(user_id,book_id):
+    def create_entry(user_id, book_id):
         """Create recipe and book association -< add to database"""
         try:
-            entry = UserBook(user_id=user_id,book_id=book_id)
+            entry = UserBook(user_id=user_id, book_id=book_id)
             db.session.add(entry)
             db.session.commit()
         except InterruptedError as e:
