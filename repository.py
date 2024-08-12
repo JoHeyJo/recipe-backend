@@ -98,8 +98,7 @@ class QuantityUnitRepo():
         """Return all units"""
         try:
             units = QuantityUnit.query.all()
-            highlight(units,'#')
-            return units
+            return [QuantityUnit.serialize(unit) for unit in units]
         except InterruptedError as e:
             db.rollback()
             raise {"error": f"error in get_all_units: {e}"}
