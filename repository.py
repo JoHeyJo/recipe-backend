@@ -107,7 +107,7 @@ class QuantityAmountRepo():
             quantity_amount = QuantityAmount(amount=amount)
             db.session.add(quantity_amount)
             db.session.commit()
-                
+            return quantity_amount.id
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in create_quantity_amount"}
@@ -115,6 +115,7 @@ class QuantityAmountRepo():
 
 class IngredientRepo():
     """Facilitates ingredients table interactions"""
+    
     @staticmethod
     def create_ingredient(ingredient):
         """Create ingredient and add to database"""
@@ -126,10 +127,11 @@ class IngredientRepo():
                 ingredient = Ingredient(ingredient=ingredient)
             db.session.add(ingredient)
             db.session.commit()
+            highlight(ingredient,'*')
             return ingredient.id
         except InterruptedError as e:
             db.rollback()
-            raise {"error": "error in IngredientRepo - create_ingredient"}
+            raise {"error": f"error in IngredientRepo - create_ingredient: {e}"}
 
 
 class IngredientsRepo():
@@ -161,7 +163,7 @@ class IngredientsRepo():
 
             except InterruptedError as e:
                 db.rollback()
-                raise {"error": "error in IngredientsRepo - add_ingredients"}
+                raise {"error": f"error in IngredientsRepo - add_ingredients: {e}"}
         return ingredients_data
 
 
@@ -177,7 +179,7 @@ class BookRepo():
             return {'id':book.id,'title':book.title}
         except InterruptedError as e:
             db.rollback()
-            raise {"error": "error in BookRepo - create_book"}
+            raise {"error": f"error in BookRepo - create_book: {e}"}
 
 ###################### ASSOCIATION TABLES ############################
 

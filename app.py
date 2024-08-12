@@ -109,21 +109,16 @@ def add_book():
 @app.post("/add_option/<option>")
 def add_option(option):
     """Facilitates create of ingredient options"""
+    value = request.json[option]
 
-    
-    option = option
-    value = request.json["liquid"]
-    highlight(request,"*")
-    highlight(value,"+")
     try:
-        # if value == "amount":
-        #     QuantityAmountRepo.create_quantity_amount(unit=value)
-        # if value == "unit":
-        #     QuantityUnitRepo.create_quantity_unit(unit=value)
-        # if value == "ingredient":
-        #     IngredientRepo.create_ingredient(ingredient=value)
-        return jsonify({"msg":"success"})
-
+        if option == "amount":
+            return jsonify(QuantityAmountRepo.create_quantity_amount(unit=value))
+        if option == "unit":
+            return jsonify(QuantityUnitRepo.create_quantity_unit(unit=value))
+        if option == "ingredient":
+            return jsonify(IngredientRepo.create_ingredient(ingredient=value))
+        return jsonify(request.json[option])
     except IntegrityError as e:
         return jsonify({"error": f"add_option error{e}"}), 400
 
