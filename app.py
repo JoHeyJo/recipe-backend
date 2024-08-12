@@ -83,7 +83,7 @@ def login():
         return jsonify({"error": f"login error: {e}"}), 400
 
 
-@app.post("/add_recipe")
+@app.post("/recipes")
 def add_recipe():
     """Consolidated recipe data passed to RecipeService function. If successful 
     recipes_ingredients record created"""
@@ -95,7 +95,7 @@ def add_recipe():
         return handle_error(e)
 
 
-@app.post("/add_book")
+@app.post("/books")
 def add_book():
     """Facilitates creation of book containing recipes"""
     title = request.json["title"]
@@ -106,7 +106,7 @@ def add_book():
         return jsonify({"error": f"create_book error{e}"}), 400
     
 
-@app.post("/add_option/<option>")
+@app.post("/options/<option>")
 def add_option(option):
     """Facilitates create of ingredient options"""
     value = request.json[option]
