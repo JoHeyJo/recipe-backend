@@ -4,7 +4,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from annotations import str_255, str_unique_255, str_255_nullable
 from mixins import TableNameMixin, TimestampMixin, ReprMixin, AssociationTableNameMixin
 from typing import Optional, List
-from utils.serializer import serialize
 
 db = SQLAlchemy()
 
@@ -81,10 +80,10 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Ingredient table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     ingredient: Mapped[str_unique_255]
-    props = [id, ingredient]
-    @classmethod
-    def serialize(cls, props):
-        return serialize(cls, props)
+
+    def serialize(self):
+        """Serialize amount table data into dict"""
+        return {"id": self.id, "ingredient": self.ingredient}
 
     recipes: Mapped[List['Ingredient']] = relationship(
         'Recipe', secondary='recipes_ingredients', back_populates='ingredients')
