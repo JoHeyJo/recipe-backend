@@ -106,12 +106,17 @@ def add_book():
         return jsonify({"error": f"create_book error{e}"}), 400
     
 
-@app.get("/options")
-def get_options():
-    """Returns all ingredient options"""
+@app.get("/options/<option>")
+def get_options(option):
+    """Returns options of ingredient components"""
+
     try:
-        units = QuantityUnitRepo.get_all_units()
-        return jsonify(units)
+        if option == "amount":
+            return jsonify(QuantityAmountRepo.get_all_amounts())
+        if option == "unit":
+            return jsonify(QuantityUnitRepo.get_all_units())
+        if option == "ingredient":
+            return jsonify(IngredientRepo.get_all_ingredients())
     except IntegrityError as e:
         return jsonify({"error": f"get_options error{e}"}), 400
 
@@ -136,5 +141,5 @@ def add_option(option):
 
 ################################################################################
 def setup_app_context():
-    """Function to setup app context"""
+    """Function to setup app context. Allows database access via IPython shell"""
     app.app_context().push()

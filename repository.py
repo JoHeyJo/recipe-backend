@@ -121,6 +121,16 @@ class QuantityAmountRepo():
         except InterruptedError as e:
             db.rollback()
             raise {"error": "error in create_quantity_amount"}
+        
+    @staticmethod
+    def get_all_amounts():
+        """Return all amounts"""
+        try:
+            amounts = QuantityAmount.query.all()
+            return [QuantityAmount.serialize(amount) for amount in amounts]
+        except InterruptedError as e:
+            db.rollback()
+            raise {"error": f"error in get_all_amounts: {e}"}
 
 
 class IngredientRepo():
@@ -141,6 +151,16 @@ class IngredientRepo():
         except InterruptedError as e:
             db.rollback()
             raise {"error": f"error in IngredientRepo - create_ingredient: {e}"}
+        
+    @staticmethod
+    def get_all_ingredients():
+        """Return all ingredients"""
+        try:
+            ingredients = Ingredient.query.all()
+            return [Ingredient.serialize(ingredient) for ingredient in ingredients]
+        except InterruptedError as e:
+            db.rollback()
+            raise {"error": f"error in get_all_ingredients: {e}"}
 
 
 class IngredientsRepo():
