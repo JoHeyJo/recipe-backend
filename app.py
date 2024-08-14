@@ -10,7 +10,8 @@ from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from dotenv import load_dotenv
 from flask_cors import CORS
 from exceptions import *
-from services.recipe_services import RecipeService
+from services.recipes_services import RecipeService
+from services.options_services import OptionService
 from utils.error_handler import handle_error
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
@@ -111,12 +112,8 @@ def get_options(option):
     """Returns options of ingredient components"""
 
     try:
-        if option == "amount":
-            return jsonify(QuantityAmountRepo.get_all_amounts())
-        if option == "unit":
-            return jsonify(QuantityUnitRepo.get_all_units())
-        if option == "ingredient":
-            return jsonify(IngredientRepo.get_all_ingredients())
+        options = OptionService.get_options(option)
+        return jsonify(options)
     except IntegrityError as e:
         return jsonify({"error": f"get_options error{e}"}), 400
 
@@ -124,16 +121,11 @@ def get_options(option):
 
 @app.post("/options/<option>")
 def add_option(option):
-    """Facilitates create of ingredient options"""
+    """Facilitates creation of option for ingredient components"""
     value = request.json[option]
 
     try:
-        if option == "amount":
-            return jsonify(QuantityAmountRepo.create_quantity_amount(amount=value))
-        if option == "unit":
-            return jsonify(QuantityUnitRepo.create_quantity_unit(unit=value))
-        if option == "ingredient":
-            return jsonify(IngredientRepo.create_ingredient(ingredient=value))
+        OptionService.add_option(option=option, value=value)
     except IntegrityError as e:
         return jsonify({"error": f"add_option error{e}"}), 400
 
