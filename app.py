@@ -125,7 +125,8 @@ def add_option(option):
     value = request.json[option]
 
     try:
-        OptionService.add_option(option=option, value=value)
+        option = OptionService.add_option(option=option, value=value)
+        return jsonify(option)
     except IntegrityError as e:
         return jsonify({"error": f"add_option error{e}"}), 400
 
