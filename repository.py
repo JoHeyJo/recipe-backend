@@ -1,7 +1,7 @@
 from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
 from models import *
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import SQLAlchemyError
 from exceptions import *
 
 bcrypt = Bcrypt()
@@ -32,7 +32,7 @@ class UserRepo():
             db.session.add(user)
             db.session.commit()
             return token
-        except IntegrityError as e:
+        except SQLAlchemyError as e:
             db.session.rollback()
             if "users_user_name_key" in str(e.orig):
                 raise UsernameAlreadyTakenError(
@@ -70,7 +70,7 @@ class RecipeRepo():
                     "recipe_id": recipe.id,
                     "preparation": preparation,
                     "notes": notes}
-        except IntegrityError as e:
+        except SQLAlchemyError as e:
             db.session.rollback()
             raise {"error": "error create_recipe"}
 
@@ -89,17 +89,17 @@ class QuantityUnitRepo():
             db.session.add(quantity_unit)
             db.session.commit()
             return {"id": quantity_unit.id, "unit": quantity_unit.unit}
-        except InterruptedError as e:
+        except SQLAlchemyError as e:
             db.rollback()
             raise {"error": "error in create_quantity_unit"}
-    
+
     @staticmethod
     def get_all_units():
         """Return all units"""
         try:
             units = QuantityUnit.query.all()
             return [QuantityUnit.serialize(unit) for unit in units]
-        except InterruptedError as e:
+        except SQLAlchemyError as e:
             db.rollback()
             raise {"error": f"error in get_all_units: {e}"}
 
@@ -118,17 +118,17 @@ class QuantityAmountRepo():
             db.session.add(quantity_amount)
             db.session.commit()
             return {"id": quantity_amount.id, "amount": quantity_amount.amount}
-        except InterruptedError as e:
+        except SQLAlchemyError as e:
             db.rollback()
             raise {"error": "error in create_quantity_amount"}
-        
+
     @staticmethod
     def get_all_amounts():
         """Return all amounts"""
         try:
             amounts = QuantityAmount.query.all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
-        except InterruptedError as e:
+        except SQLAlchemyError as e:
             db.rollback()
             raise {"error": f"error in get_all_amounts: {e}"}
 
@@ -148,17 +148,17 @@ class IngredientRepo():
             db.session.add(ingredient)
             db.session.commit()
             return {"id": ingredient.id, "ingredient": ingredient.ingredient}
-        except InterruptedError as e:
+        except SQLAlchemyError as e:
             db.rollback()
             raise {"error": f"error in IngredientRepo - create_ingredient: {e}"}
-        
+
     @staticmethod
     def get_all_ingredients():
         """Return all ingredients"""
         try:
             ingredients = Ingredient.query.all()
             return [Ingredient.serialize(ingredient) for ingredient in ingredients]
-        except InterruptedError as e:
+        except SQLAlchemyError as e:
             db.rollback()
             raise {"error": f"error in get_all_ingredients: {e}"}
 
@@ -192,7 +192,7 @@ class IngredientsRepo():
                         "unit_id": unit_id
                     })
 
-            except InterruptedError as e:
+            except SQLAlchemyError as e:
                 db.rollback()
                 raise {"error": f"error in IngredientsRepo - add_ingredients: {e}"}
         return ingredients_data
@@ -208,9 +208,32 @@ class BookRepo():
             db.session.add(book)
             db.session.commit()
             return {'id': book.id, 'title': book.title}
-        except InterruptedError as e:
+        except SQLAlchemyError as e:
             db.rollback()
             raise {"error": f"error in BookRepo - create_book: {e}"}
+
+
+class InstructionRepo():
+    """Facilitates instructions table interactions"""
+
+    @staticmethod
+    def process_instructions(instructions):
+        """Directs instructions to create_instruction"""
+        for instruction in instructions:
+            InstructionRepo.create_instruction(instruction=instruction)
+
+    @staticmethod
+    def create_instruction(instruction):
+        """Create instruction and add to database"""
+        instruction = Instruction(instruction=instruction)
+        try:
+            db.session.add(instruction)
+            db.session.commit()
+            return {'id': instruction.id, 'instruction': instruction.instruction}
+        except SQLAlchemyError as e:
+            db.rollback()
+            raise {"error": f"error in BookRepo - create_book: {e}"}
+
 
 ###################### ASSOCIATION TABLES ############################
 
@@ -225,7 +248,7 @@ class RecipeIngredientRepo():
         try:
             db.session.add(entry)
             db.session.commit()
-        except InterruptedError as e:
+        except SQLAlchemyError as e:
             db.rollback()
             raise {"error": "error in create_recipe"}
 
@@ -240,7 +263,7 @@ class RecipeBookRepo():
             highlight(entry, "*")
             db.session.add(entry)
             db.session.commit()
-        except InterruptedError as e:
+        except SQLAlchemyError as e:
             db.rollback()
             raise {"error": "error in RecipeBookRepo - create_entry"}
 
@@ -254,6 +277,6 @@ class UserBookRepo():
             entry = UserBook(user_id=user_id, book_id=book_id)
             db.session.add(entry)
             db.session.commit()
-        except InterruptedError as e:
+        except SQLAlchemyError as e:
             db.rollback()
             raise {"error": "error in UserBookRepo - create_entry"}
