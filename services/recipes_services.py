@@ -24,7 +24,7 @@ class RecipeService():
             ingredients_data = IngredientsRepo.add_ingredients(ingredients)
 
             recipe_data = RecipeRepo.create_recipe(
-                name=recipe_name, preparation=preparation, notes=notes)
+                name=recipe_name, notes=notes)
 
             recipe_data['ingredients'] = ingredients_data
 
@@ -38,7 +38,7 @@ class RecipeService():
             recipe_data = recipe_data
         else:
             recipe_data = RecipeRepo.create_recipe(
-                name=recipe_name, preparation=preparation, notes=notes)
+                name=recipe_name, notes=notes)
             recipe_data = recipe_data
             
         # ############ ADD RECIPE TO BOOK (recipes_books) ########

@@ -35,7 +35,6 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Recipe table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     name: Mapped[str_255]
-    preparation: Mapped[str_255_nullable]
     notes: Mapped[str_255_nullable]
 
     ingredients: Mapped[List['Recipe']] = relationship(
@@ -100,6 +99,18 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     recipes: Mapped[List['Recipe']] = relationship(
         'Recipe', secondary='recipes_books', back_populates='books')
 
+    instructions: Mapped[List['Instruction']] = relationship(
+        "Instruction", secondary='book_instructions', back_populates='books')
+
+
+class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+    """Instruction table"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    instruction: Mapped[str_255]
+
+    books: Mapped[List['Book']] = relationship(
+        'Book', secondary="book_instructions", back_populates="instructions")
+
 
 class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for books and recipes"""
@@ -113,6 +124,14 @@ class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     book_id: Mapped[int] = Column(Integer, ForeignKey("books.id"))
     user_id: Mapped[int] = Column(Integer, ForeignKey("users.id"))
+
+
+class BookInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
+    """Association table for books and instructions"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    book_id: Mapped[int] = Column(Integer, ForeignKey("books.id"))
+    instruction_id: Mapped[int] = Column(
+        Integer, ForeignKey("instructions.id"))
 
 
 def connect_db(app):
