@@ -22,6 +22,7 @@ app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True  # change to False for production
+app.config['DEBUG'] = True
 # app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False # does this auto update flask app?
 
 debug = DebugToolbarExtension(app)

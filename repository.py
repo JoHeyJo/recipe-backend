@@ -3,9 +3,9 @@ from flask_bcrypt import Bcrypt
 from models import *
 from sqlalchemy.exc import SQLAlchemyError
 from exceptions import *
+import logging
 
 bcrypt = Bcrypt()
-
 
 def highlight(value, divider):
     print(divider * 10)
@@ -60,17 +60,17 @@ class UserRepo():
 class RecipeRepo():
     """Facilitates recipes table interactions"""
     @staticmethod
-    def create_recipe(name, preparation, notes):
+    def create_recipe(name, notes):
         """Creates recipe instance and adds it to database"""
-        recipe = Recipe(name=name, preparation=preparation, notes=notes)
+        recipe = Recipe(name=name, notes=notes)
         try:
             db.session.add(recipe)
             db.session.commit()
             return {"recipe_title": name,
                     "recipe_id": recipe.id,
-                    "preparation": preparation,
                     "notes": notes}
         except SQLAlchemyError as e:
+            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"create_recipe error:{e}")
 
@@ -90,8 +90,9 @@ class QuantityUnitRepo():
             db.session.commit()
             return {"id": quantity_unit.id, "unit": quantity_unit.unit}
         except SQLAlchemyError as e:
+            highlight(e,"!")
             db.session.rollback()
-            raise Exception({f"create_quantity_unit:{e}"})
+            raise Exception(f"create_quantity_unit:{e}")
 
     @staticmethod
     def get_all_units():
@@ -100,8 +101,9 @@ class QuantityUnitRepo():
             units = QuantityUnit.query.all()
             return [QuantityUnit.serialize(unit) for unit in units]
         except SQLAlchemyError as e:
+            highlight(e,"!")
             db.session.rollback()
-            raise Exception({f"get_all_units error: {e}"})
+            raise Exception(f"get_all_units error: {e}")
 
 
 class QuantityAmountRepo():
@@ -119,8 +121,9 @@ class QuantityAmountRepo():
             db.session.commit()
             return {"id": quantity_amount.id, "amount": quantity_amount.amount}
         except SQLAlchemyError as e:
+            highlight(e,"!")
             db.session.rollback()
-            raise Exception({f"create_quantity_amount:{e}"})
+            raise Exception(f"create_quantity_amount:{e}")
 
     @staticmethod
     def get_all_amounts():
@@ -129,13 +132,13 @@ class QuantityAmountRepo():
             amounts = QuantityAmount.query.all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except SQLAlchemyError as e:
+            highlight(e,"!")
             db.session.rollback()
-            raise Exception({f"get_all_amounts error: {e}"})
+            raise Exception(f"get_all_amounts error: {e}")
 
 
 class IngredientRepo():
     """Facilitates ingredients table interactions"""
-
     @staticmethod
     def create_ingredient(ingredient):
         """Create ingredient and add to database"""
@@ -149,8 +152,9 @@ class IngredientRepo():
             db.session.commit()
             return {"id": ingredient.id, "ingredient": ingredient.ingredient}
         except SQLAlchemyError as e:
+            highlight(e,"!")
             db.session.rollback()
-            raise Exception({f"create_ingredient error: {e}"})
+            raise Exception(f"create_ingredient error: {e}")
 
     @staticmethod
     def get_all_ingredients():
@@ -159,8 +163,9 @@ class IngredientRepo():
             ingredients = Ingredient.query.all()
             return [Ingredient.serialize(ingredient) for ingredient in ingredients]
         except SQLAlchemyError as e:
+            highlight(e,"!")
             db.session.rollback()
-            raise Exception({f"get_all_ingredients error: {e}"})
+            raise Exception(f"get_all_ingredients error: {e}")
 
 
 class IngredientsRepo():
@@ -175,26 +180,27 @@ class IngredientsRepo():
             quantity_unit = ingredient["quantity_unit"] or None
 
             try:
-                ingredient_id = IngredientRepo.create_ingredient(
+                ingredient = IngredientRepo.create_ingredient(
                     ingredient_name)
                 if quantity_amount:
-                    amount_id = QuantityAmountRepo.create_quantity_amount(
+                    amount = QuantityAmountRepo.create_quantity_amount(
                         quantity_amount)
                 if quantity_unit:
-                    unit_id = QuantityUnitRepo.create_quantity_unit(
+                    unit = QuantityUnitRepo.create_quantity_unit(
                         quantity_unit)
 
                 ingredients_data.append(
                     {
-                        "ingredient": ingredient["ingredient"],
-                        "ingredient_id": ingredient_id,
-                        "amount_id": amount_id,
-                        "unit_id": unit_id
+                        # "ingredient": ingredient_name,
+                        "ingredient": ingredient,
+                        "amount": amount,
+                        "unit": unit
                     })
 
             except SQLAlchemyError as e:
+                highlight(e,"!")
                 db.session.rollback()
-                raise Exception({f"add_ingredients error: {e}"})
+                raise Exception(f"add_ingredients error: {e}")
         return ingredients_data
 
 
@@ -209,13 +215,13 @@ class BookRepo():
             db.session.commit()
             return {'id': book.id, 'title': book.title}
         except SQLAlchemyError as e:
+            highlight(e,"!")
             db.session.rollback()
-            raise Exception({f"create_book error: {e}"})
+            raise Exception(f"create_book error: {e}")
 
 
 class InstructionRepo():
     """Facilitates instructions table interactions"""
-
     @staticmethod
     def process_instructions(instructions):
         """Directs instructions to create_instruction"""
@@ -227,8 +233,9 @@ class InstructionRepo():
                 else:
                     InstructionRepo.create_instruction(instruction=instruction)
             except SQLAlchemyError as e:
+                highlight(e,"!")
                 db.session.rollback()
-                raise Exception({f"create_instruction error: {e}"})
+                raise Exception(f"create_instruction error: {e}")
 
     @staticmethod
     def create_instruction(instruction):
@@ -239,8 +246,9 @@ class InstructionRepo():
             db.session.commit()
             return {'id': instruction.id, 'instruction': instruction.instruction}
         except SQLAlchemyError as e:
+            highlight(e,"!")
             db.session.rollback()
-            raise Exception({f"create_instruction error: {e}"})
+            raise Exception(f"create_instruction error: {e}")
 
 
 ###################### ASSOCIATION TABLES ############################
@@ -251,14 +259,16 @@ class RecipeIngredientRepo():
     @staticmethod
     def create_recipe(recipe_id, ingredient_id, quantity_unit_id, quantity_amount_id):
         """Create recipe and ingredient association -> add to database"""
+        highlight('in here',"7")
         entry = RecipeIngredient(
             recipe_id=recipe_id, ingredient_id=ingredient_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
         try:
             db.session.add(entry)
             db.session.commit()
         except SQLAlchemyError as e:
+            highlight(e,"!")
             db.session.rollback()
-            raise Exception({f"create_recipe error:{e}"})
+            raise Exception(f"create_recipe error:{e}")
 
 
 class RecipeBookRepo():
@@ -267,13 +277,14 @@ class RecipeBookRepo():
     def create_entry(book_id, recipe_id):
         """Create recipe and book association -> add to database"""
         try:
+            highlight(entry, "!")
             entry = RecipeBook(book_id=book_id, recipe_id=recipe_id)
-            highlight(entry, "*")
             db.session.add(entry)
             db.session.commit()
         except SQLAlchemyError as e:
+            highlight(e,"!")
             db.session.rollback()
-            raise Exception({f"create_entry error:{e}"})
+            raise Exception(f"create_entry error:{e}")
 
 
 class UserBookRepo():
@@ -286,5 +297,6 @@ class UserBookRepo():
             db.session.add(entry)
             db.session.commit()
         except SQLAlchemyError as e:
+            highlight(e,"!")
             db.session.rollback()
-            raise Exception({f"create_entry:{e}"})
+            raise Exception(f"create_entry:{e}")
