@@ -26,7 +26,7 @@ class RecipeService():
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, notes=notes)
             
-            instructions_data = 
+            # instructions_data = 
 
             recipe_data['ingredients'] = ingredients_data
 

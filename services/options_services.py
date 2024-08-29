@@ -1,5 +1,5 @@
-from flask import jsonify
 from repository import *
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 class OptionService():
     """Handles option view business logic"""

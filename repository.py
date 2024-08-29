@@ -220,7 +220,15 @@ class InstructionRepo():
     def process_instructions(instructions):
         """Directs instructions to create_instruction"""
         for instruction in instructions:
-            InstructionRepo.create_instruction(instruction=instruction)
+            try:
+                value = Ingredient.query.get_or_404(instruction.id)
+                if value:
+                    return value.id
+                else:
+                    InstructionRepo.create_instruction(instruction=instruction)
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                raise Exception({f"create_instruction error: {e}"})
 
     @staticmethod
     def create_instruction(instruction):
