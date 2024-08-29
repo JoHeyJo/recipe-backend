@@ -30,10 +30,6 @@ class RecipeService():
             # associating ingredients to recipe
 
             for ingredient in recipe_data['ingredients']:
-                highlight(ingredient,"@")
-                highlight(ingredient["ingredient"]['id'],"#")
-                highlight(ingredient["amount"]['id'], "#")
-                highlight(ingredient["unit"], "#")
                 RecipeIngredientRepo.create_recipe(
                     recipe_id=recipe_data['recipe_id'],
                     ingredient_id=ingredient["ingredient"]['id'],
@@ -45,11 +41,11 @@ class RecipeService():
             recipe_data = RecipeRepo.create_recipe(name=recipe_name, notes=notes)
             # recipe_data = recipe_data
             
-        # # ############ ADD RECIPE TO BOOK (recipes_books) ########
-        # RecipeBookRepo.create_entry(
-        #     book_id=book_id, recipe_id=recipe_data["recipe_id"])
-        # # ############ ADD BOOK TO USER (users_books) ########
-        # UserBookRepo.create_entry(user_id=user_id, book_id=book_id)
+        # ############ ADD RECIPE TO BOOK (recipes_books) ########
+        RecipeBookRepo.create_entry(
+            book_id=book_id, recipe_id=recipe_data["recipe_id"])
+        # ############ ADD BOOK TO USER (users_books) ########
+        UserBookRepo.create_entry(user_id=user_id, book_id=book_id)
 
         return recipe_data
 

@@ -83,7 +83,7 @@ class QuantityUnitRepo():
         try:
             value = QuantityUnit.query.filter_by(unit=unit).first()
             if value:
-                return value.id
+                return {"id": value.id, "unit": value.unit}
 
             quantity_unit = QuantityUnit(unit=unit)
             db.session.add(quantity_unit)
@@ -114,7 +114,7 @@ class QuantityAmountRepo():
         try:
             value = QuantityAmount.query.filter_by(amount=amount).first()
             if value:
-                return value.id
+                return {"id": value.id, "amount": value.amount}
 
             quantity_amount = QuantityAmount(amount=amount)
             db.session.add(quantity_amount)
@@ -145,7 +145,7 @@ class IngredientRepo():
         try:
             value = Ingredient.query.filter_by(ingredient=ingredient).first()
             if value:
-                return value.id
+                return {"id": value.id, "ingredient": value.ingredient}
             else:
                 ingredient = Ingredient(ingredient=ingredient)
             db.session.add(ingredient)
@@ -259,7 +259,6 @@ class RecipeIngredientRepo():
     @staticmethod
     def create_recipe(recipe_id, ingredient_id, quantity_unit_id, quantity_amount_id):
         """Create recipe and ingredient association -> add to database"""
-        highlight('in here',"7")
         entry = RecipeIngredient(
             recipe_id=recipe_id, ingredient_id=ingredient_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
         try:
