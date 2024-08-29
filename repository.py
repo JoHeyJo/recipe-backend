@@ -267,7 +267,7 @@ class RecipeIngredientRepo():
         except SQLAlchemyError as e:
             highlight(e,"!")
             db.session.rollback()
-            raise Exception(f"create_recipe error:{e}")
+            raise Exception(f"RecipeIngredientRepo-create_recipe error:{e}")
 
 
 class RecipeBookRepo():
@@ -276,21 +276,22 @@ class RecipeBookRepo():
     def create_entry(book_id, recipe_id):
         """Create recipe and book association -> add to database"""
         try:
-            highlight(entry, "!")
+            highlight(book_id, "^")
+            highlight(recipe_id, "^")
             entry = RecipeBook(book_id=book_id, recipe_id=recipe_id)
             db.session.add(entry)
             db.session.commit()
         except SQLAlchemyError as e:
             highlight(e,"!")
             db.session.rollback()
-            raise Exception(f"create_entry error:{e}")
+            raise Exception(f"RecipeBookRep-create_entry error:{e}")
 
 
 class UserBookRepo():
     """Facilitates association of users & books"""
     @staticmethod
     def create_entry(user_id, book_id):
-        """Create recipe and book association -< add to database"""
+        """Create recipe and book association -> add to database"""
         try:
             entry = UserBook(user_id=user_id, book_id=book_id)
             db.session.add(entry)
@@ -298,4 +299,4 @@ class UserBookRepo():
         except SQLAlchemyError as e:
             highlight(e,"!")
             db.session.rollback()
-            raise Exception(f"create_entry:{e}")
+            raise Exception(f"UserBookRepo-create_entry:{e}")
