@@ -13,6 +13,7 @@ class RecipeService():
     recipe = data["recipe"]
     recipe_name = recipe["name"]
     notes = recipe["notes"] or None
+    instructions = data["instructions"] or None
 
     # Ingredient data
     ingredients = recipe["ingredients"] or None
@@ -23,24 +24,22 @@ class RecipeService():
             ingredients_data = IngredientsRepo.add_ingredients(ingredients)
 
             recipe_data = RecipeRepo.create_recipe(name=recipe_name, notes=notes)
-            
-            # instructions_data = 
 
             recipe_data['ingredients'] = ingredients_data
             # associating ingredients to recipe
-
             for ingredient in recipe_data['ingredients']:
                 RecipeIngredientRepo.create_recipe(
                     recipe_id=recipe_data['recipe_id'],
                     ingredient_id=ingredient["ingredient"]['id'],
                     quantity_amount_id=ingredient["amount"]['id'],
                     quantity_unit_id=ingredient["unit"]['id'])
-
-            # recipe_data = recipe_data
-        else:
-            recipe_data = RecipeRepo.create_recipe(name=recipe_name, notes=notes)
-            # recipe_data = recipe_data
+        
+        if instructions:
+            InstructionRepo.process_instructions(instructions=instructions)
             
+
+        else:
+            recipe_data = RecipeRepo.create_recipe(name=recipe_name, notes=notes)            
         # ############ ADD RECIPE TO BOOK (recipes_books) ########
         RecipeBookRepo.create_entry(
             book_id=book_id, recipe_id=recipe_data["recipe_id"])
