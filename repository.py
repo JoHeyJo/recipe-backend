@@ -72,7 +72,7 @@ class RecipeRepo():
                     "notes": notes}
         except SQLAlchemyError as e:
             db.session.rollback()
-            raise {"error": "error create_recipe"}
+            raise Exception(f"create_recipe error:{e}")
 
 
 class QuantityUnitRepo():
@@ -90,8 +90,8 @@ class QuantityUnitRepo():
             db.session.commit()
             return {"id": quantity_unit.id, "unit": quantity_unit.unit}
         except SQLAlchemyError as e:
-            db.rollback()
-            raise {"error": "error in create_quantity_unit"}
+            db.session.rollback()
+            raise Exception({f"create_quantity_unit:{e}"})
 
     @staticmethod
     def get_all_units():
@@ -100,8 +100,8 @@ class QuantityUnitRepo():
             units = QuantityUnit.query.all()
             return [QuantityUnit.serialize(unit) for unit in units]
         except SQLAlchemyError as e:
-            db.rollback()
-            raise {"error": f"error in get_all_units: {e}"}
+            db.session.rollback()
+            raise Exception({f"get_all_units error: {e}"})
 
 
 class QuantityAmountRepo():
@@ -119,8 +119,8 @@ class QuantityAmountRepo():
             db.session.commit()
             return {"id": quantity_amount.id, "amount": quantity_amount.amount}
         except SQLAlchemyError as e:
-            db.rollback()
-            raise {"error": "error in create_quantity_amount"}
+            db.session.rollback()
+            raise Exception({f"create_quantity_amount:{e}"})
 
     @staticmethod
     def get_all_amounts():
@@ -129,8 +129,8 @@ class QuantityAmountRepo():
             amounts = QuantityAmount.query.all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except SQLAlchemyError as e:
-            db.rollback()
-            raise {"error": f"error in get_all_amounts: {e}"}
+            db.session.rollback()
+            raise Exception({f"get_all_amounts error: {e}"})
 
 
 class IngredientRepo():
@@ -149,8 +149,8 @@ class IngredientRepo():
             db.session.commit()
             return {"id": ingredient.id, "ingredient": ingredient.ingredient}
         except SQLAlchemyError as e:
-            db.rollback()
-            raise {"error": f"error in IngredientRepo - create_ingredient: {e}"}
+            db.session.rollback()
+            raise Exception({f"create_ingredient error: {e}"})
 
     @staticmethod
     def get_all_ingredients():
@@ -159,8 +159,8 @@ class IngredientRepo():
             ingredients = Ingredient.query.all()
             return [Ingredient.serialize(ingredient) for ingredient in ingredients]
         except SQLAlchemyError as e:
-            db.rollback()
-            raise {"error": f"error in get_all_ingredients: {e}"}
+            db.session.rollback()
+            raise Exception({f"get_all_ingredients error: {e}"})
 
 
 class IngredientsRepo():
@@ -193,8 +193,8 @@ class IngredientsRepo():
                     })
 
             except SQLAlchemyError as e:
-                db.rollback()
-                raise {"error": f"error in IngredientsRepo - add_ingredients: {e}"}
+                db.session.rollback()
+                raise Exception({f"add_ingredients error: {e}"})
         return ingredients_data
 
 
@@ -209,8 +209,8 @@ class BookRepo():
             db.session.commit()
             return {'id': book.id, 'title': book.title}
         except SQLAlchemyError as e:
-            db.rollback()
-            raise {"error": f"error in BookRepo - create_book: {e}"}
+            db.session.rollback()
+            raise Exception({f"create_book error: {e}"})
 
 
 class InstructionRepo():
@@ -231,8 +231,8 @@ class InstructionRepo():
             db.session.commit()
             return {'id': instruction.id, 'instruction': instruction.instruction}
         except SQLAlchemyError as e:
-            db.rollback()
-            raise {"error": f"error in BookRepo - create_book: {e}"}
+            db.session.rollback()
+            raise Exception({f"create_instruction error: {e}"})
 
 
 ###################### ASSOCIATION TABLES ############################
@@ -249,8 +249,8 @@ class RecipeIngredientRepo():
             db.session.add(entry)
             db.session.commit()
         except SQLAlchemyError as e:
-            db.rollback()
-            raise {"error": "error in create_recipe"}
+            db.session.rollback()
+            raise Exception({f"create_recipe error:{e}"})
 
 
 class RecipeBookRepo():
@@ -264,8 +264,8 @@ class RecipeBookRepo():
             db.session.add(entry)
             db.session.commit()
         except SQLAlchemyError as e:
-            db.rollback()
-            raise {"error": "error in RecipeBookRepo - create_entry"}
+            db.session.rollback()
+            raise Exception({f"create_entry error:{e}"})
 
 
 class UserBookRepo():
@@ -278,5 +278,5 @@ class UserBookRepo():
             db.session.add(entry)
             db.session.commit()
         except SQLAlchemyError as e:
-            db.rollback()
-            raise {"error": "error in UserBookRepo - create_entry"}
+            db.session.rollback()
+            raise Exception({f"create_entry:{e}"})
