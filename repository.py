@@ -238,6 +238,7 @@ class InstructionRepo():
                 highlight(e,"!")
                 db.session.rollback()
                 raise Exception(f"create_instruction error: {e}")
+        return 
 
     @staticmethod
     def create_instruction(instruction):
