@@ -44,17 +44,6 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'Book', secondary='recipes_books', back_populates='recipes')
 
 
-class RecipeIngredient(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
-    """Association table for recipes and ingredients"""
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    recipe_id: Mapped[int] = Column(Integer, ForeignKey('recipes.id'))
-    ingredient_id: Mapped[int] = Column(Integer, ForeignKey('ingredients.id'))
-    quantity_unit_id: Mapped[int] = Column(
-        Integer, ForeignKey('quantity_units.id'))
-    quantity_amount_id: Mapped[int] = Column(
-        Integer, ForeignKey('quantity_amounts.id'))
-
-
 class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Quantity Unit table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
@@ -111,6 +100,18 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     books: Mapped[List['Book']] = relationship(
         'Book', secondary="books_instructions", back_populates="instructions")
 
+###################### ASSOCIATION MODELS ############################
+
+
+class RecipeIngredient(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
+    """Association table for recipes and ingredients"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    recipe_id: Mapped[int] = Column(Integer, ForeignKey('recipes.id'))
+    ingredient_id: Mapped[int] = Column(Integer, ForeignKey('ingredients.id'))
+    quantity_unit_id: Mapped[int] = Column(
+        Integer, ForeignKey('quantity_units.id'))
+    quantity_amount_id: Mapped[int] = Column(
+        Integer, ForeignKey('quantity_amounts.id'))
 
 class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for books and recipes"""

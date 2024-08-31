@@ -293,7 +293,7 @@ class UserBookRepo():
     """Facilitates association of users & books"""
     @staticmethod
     def create_entry(user_id, book_id):
-        """Create recipe and book association -> add to database"""
+        """Create user and book association -> add to database"""
         try:
             entry = UserBook(user_id=user_id, book_id=book_id)
             db.session.add(entry)
@@ -302,3 +302,18 @@ class UserBookRepo():
             highlight(e,"!")
             db.session.rollback()
             raise Exception(f"UserBookRepo-create_entry:{e}")
+
+
+class BookInstructionRepo():
+    """Facilitates association of books & instructions"""
+    @staticmethod
+    def create_entry(book_id, instruction_id):
+        """Create book and instruction association -> add to database"""
+        try:
+            entry = BookInstruction(book_id=book_id, instruction_id=instruction_id)
+            db.session.add(entry)
+            db.session.commit()
+        except SQLAlchemyError as e:
+            highlight(e,"!")
+            db.session.rollback()
+            raise Exception(f"BookInstructionRepo-create_entry:{e}")
