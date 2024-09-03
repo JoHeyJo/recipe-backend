@@ -7,6 +7,7 @@ import logging
 
 bcrypt = Bcrypt()
 
+
 def highlight(value, divider):
     print(divider * 10)
     print(value)
@@ -90,7 +91,7 @@ class QuantityUnitRepo():
             db.session.commit()
             return {"id": quantity_unit.id, "unit": quantity_unit.unit}
         except SQLAlchemyError as e:
-            highlight(e,"!")
+            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"create_quantity_unit:{e}")
 
@@ -101,7 +102,7 @@ class QuantityUnitRepo():
             units = QuantityUnit.query.all()
             return [QuantityUnit.serialize(unit) for unit in units]
         except SQLAlchemyError as e:
-            highlight(e,"!")
+            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"get_all_units error: {e}")
 
@@ -121,7 +122,7 @@ class QuantityAmountRepo():
             db.session.commit()
             return {"id": quantity_amount.id, "amount": quantity_amount.amount}
         except SQLAlchemyError as e:
-            highlight(e,"!")
+            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"create_quantity_amount:{e}")
 
@@ -132,7 +133,7 @@ class QuantityAmountRepo():
             amounts = QuantityAmount.query.all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except SQLAlchemyError as e:
-            highlight(e,"!")
+            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"get_all_amounts error: {e}")
 
@@ -152,7 +153,7 @@ class IngredientRepo():
             db.session.commit()
             return {"id": ingredient.id, "ingredient": ingredient.ingredient}
         except SQLAlchemyError as e:
-            highlight(e,"!")
+            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"create_ingredient error: {e}")
 
@@ -163,7 +164,7 @@ class IngredientRepo():
             ingredients = Ingredient.query.all()
             return [Ingredient.serialize(ingredient) for ingredient in ingredients]
         except SQLAlchemyError as e:
-            highlight(e,"!")
+            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"get_all_ingredients error: {e}")
 
@@ -198,7 +199,7 @@ class IngredientsRepo():
                     })
 
             except SQLAlchemyError as e:
-                highlight(e,"!")
+                highlight(e, "!")
                 db.session.rollback()
                 raise Exception(f"add_ingredients error: {e}")
         return ingredients_data
@@ -215,7 +216,7 @@ class BookRepo():
             db.session.commit()
             return {'id': book.id, 'title': book.title}
         except SQLAlchemyError as e:
-            highlight(e,"!")
+            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"create_book error: {e}")
 
@@ -231,14 +232,16 @@ class InstructionRepo():
             try:
                 value = Ingredient.query.get_or_404(instruction.id)
                 if value:
-                    processed_instructions.append({'id': value.id, 'instruction': value.instruction})
+                    processed_instructions.append(
+                        {'id': value.id, 'instruction': value.instruction})
                 else:
-                    processed_instructions.append(InstructionRepo.create_instruction(instruction=instruction))
+                    processed_instructions.append(
+                        InstructionRepo.create_instruction(instruction=instruction))
             except SQLAlchemyError as e:
-                highlight(e,"!")
+                highlight(e, "!")
                 db.session.rollback()
                 raise Exception(f"create_instruction error: {e}")
-        return 
+        return
 
     @staticmethod
     def create_instruction(instruction):
@@ -249,7 +252,7 @@ class InstructionRepo():
             db.session.commit()
             return {'id': instruction.id, 'instruction': instruction.instruction}
         except SQLAlchemyError as e:
-            highlight(e,"!")
+            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"create_instruction error: {e}")
 
@@ -268,7 +271,7 @@ class RecipeIngredientRepo():
             db.session.add(entry)
             db.session.commit()
         except SQLAlchemyError as e:
-            highlight(e,"!")
+            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"RecipeIngredientRepo-create_recipe error:{e}")
 
@@ -285,7 +288,7 @@ class RecipeBookRepo():
             db.session.add(entry)
             db.session.commit()
         except SQLAlchemyError as e:
-            highlight(e,"!")
+            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"RecipeBookRep-create_entry error:{e}")
 
@@ -300,7 +303,7 @@ class UserBookRepo():
             db.session.add(entry)
             db.session.commit()
         except SQLAlchemyError as e:
-            highlight(e,"!")
+            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"UserBookRepo-create_entry:{e}")
 
@@ -311,10 +314,47 @@ class BookInstructionRepo():
     def create_entry(book_id, instruction_id):
         """Create book and instruction association -> add to database"""
         try:
-            entry = BookInstruction(book_id=book_id, instruction_id=instruction_id)
+            entry = BookInstruction(
+                book_id=book_id, instruction_id=instruction_id)
             db.session.add(entry)
             db.session.commit()
         except SQLAlchemyError as e:
-            highlight(e,"!")
+            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"BookInstructionRepo-create_entry:{e}")
+
+
+obj = {
+    "user_id": "1",
+    "book_id": "1",
+    "recipe": {
+        "name": "Manhattan test",
+        "instructions": [
+                {
+                    "id": "null",
+                    "instruction": "Stir ingredients over ice"
+                },
+                {   "id": "null",
+                    "instruction": "strain in martini glass"
+                },
+                {
+                    "id": "null",
+                    "instruction": "garnish with cherry"
+                }
+        ],
+        "notes": ["Individual ingredients are potent and can cause the drink to be imbalanced if not properly measured."],
+        "ingredients": [
+            {"ingredient": "Rye Whiskey",
+             "quantity_amount": "1.5",
+             "quantity_unit": "oz"},
+
+            {"ingredient": "sweet vermouth",
+             "quantity_amount": ".5",
+             "quantity_unit": "oz"},
+
+            {"ingredient": "Angostura bitters",
+             "quantity_amount": "2",
+             "quantity_unit": "dashes"}
+        ]
+    }
+}
