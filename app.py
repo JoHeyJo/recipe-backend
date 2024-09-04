@@ -89,11 +89,8 @@ def login():
 def add_recipe():
     """Consolidated recipe data passed to RecipeService function. If successful 
     recipes_ingredients record created"""
-
     try:
-        highlight(request.json,"$")
         recipe_data = RecipeService.add_recipe(request.json)
-
         return jsonify(recipe_data), 200
     except Exception as e:
         return handle_error(e)

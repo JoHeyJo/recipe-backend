@@ -137,7 +137,7 @@ class QuantityAmountRepo():
             db.session.rollback()
             raise Exception(f"get_all_amounts error: {e}")
 
-
+# There needs to be two methods for adding. One that creates and one that finds existing ones
 class IngredientRepo():
     """Facilitates ingredients table interactions"""
     @staticmethod
@@ -225,23 +225,21 @@ class InstructionRepo():
     """Facilitates instructions table interactions"""
     @staticmethod
     def process_instructions(instructions):
-        """Directs instructions to create_instruction"""
+        """Consolidates existing instruction object with newly created instruction"""
         processed_instructions = []
-
         for instruction in instructions:
-            try:
-                value = Ingredient.query.get_or_404(instruction.id)
-                if value:
-                    processed_instructions.append(
-                        {'id': value.id, 'instruction': value.instruction})
-                else:
+            is_stored = instruction.get("id")
+            if is_stored:
+                processed_instructions.append(instruction)
+            else:
+                try:
                     processed_instructions.append(
                         InstructionRepo.create_instruction(instruction=instruction))
-            except SQLAlchemyError as e:
-                highlight(e, "!")
-                db.session.rollback()
-                raise Exception(f"create_instruction error: {e}")
-        return
+                except SQLAlchemyError as e:
+                    highlight(e, "!")
+                    db.session.rollback()
+                    raise Exception(f"create_instruction error: {e}")
+        return processed_instructions
 
     @staticmethod
     def create_instruction(instruction):
@@ -323,38 +321,3 @@ class BookInstructionRepo():
             db.session.rollback()
             raise Exception(f"BookInstructionRepo-create_entry:{e}")
 
-
-obj = {
-    "user_id": "1",
-    "book_id": "1",
-    "recipe": {
-        "name": "Manhattan test",
-        "instructions": [
-                {
-                    "id": "null",
-                    "instruction": "Stir ingredients over ice"
-                },
-                {   "id": "null",
-                    "instruction": "strain in martini glass"
-                },
-                {
-                    "id": "null",
-                    "instruction": "garnish with cherry"
-                }
-        ],
-        "notes": ["Individual ingredients are potent and can cause the drink to be imbalanced if not properly measured."],
-        "ingredients": [
-            {"ingredient": "Rye Whiskey",
-             "quantity_amount": "1.5",
-             "quantity_unit": "oz"},
-
-            {"ingredient": "sweet vermouth",
-             "quantity_amount": ".5",
-             "quantity_unit": "oz"},
-
-            {"ingredient": "Angostura bitters",
-             "quantity_amount": "2",
-             "quantity_unit": "dashes"}
-        ]
-    }
-}
