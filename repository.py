@@ -110,7 +110,10 @@ class QuantityUnitRepo():
 class QuantityAmountRepo():
     """Facilitates quantity_amounts table interactions"""
     @staticmethod
-    def create_quantity_amount(amount):
+    def process_amount(amount):
+
+    @staticmethod
+    def create_amount(amount):
         """Create quantity amount and add to database"""
         try:
             value = QuantityAmount.query.filter_by(amount=amount).first()
@@ -124,7 +127,7 @@ class QuantityAmountRepo():
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"create_quantity_amount:{e}")
+            raise Exception(f"create_amount:{e}")
 
     @staticmethod
     def get_all_amounts():
@@ -147,9 +150,10 @@ class IngredientRepo():
         if is_stored:
             return ingredient
         else:
-            new_ingredient = IngredientRepo.create_ingredient(ingredient=ingredient["ingredient"])
+            new_ingredient = IngredientRepo.create_ingredient(
+                ingredient=ingredient["ingredient"])
             return new_ingredient
-        
+
     @staticmethod
     def create_ingredient(ingredient):
         """Create ingredient and add to database"""
@@ -179,7 +183,7 @@ class IngredientsRepo():
     """Directs incoming data to corresponding repo methods"""
     @staticmethod
     def add_ingredients(ingredients):
-        """Add list of ingredients to corresponding repo methods"""
+        """Separate ingredient components - call corresponding repo methods"""
         ingredients_data = []
         for ingredient in ingredients:
             ingredient_name = ingredient["ingredient"]
@@ -190,7 +194,7 @@ class IngredientsRepo():
                 ingredient = IngredientRepo.process_ingredient(
                     ingredient_name)
                 if quantity_amount:
-                    amount = QuantityAmountRepo.create_quantity_amount(
+                    amount = QuantityAmountRepo.create_amount(
                         quantity_amount)
                 if quantity_unit:
                     unit = QuantityUnitRepo.create_quantity_unit(
