@@ -25,18 +25,18 @@ class RecipeService():
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, notes=notes)
 
-            # if ingredients:
-            #     ingredients_data = IngredientsRepo.add_ingredients(ingredients)
+            if ingredients:
+                ingredients_data = IngredientsRepo.add_ingredients(ingredients)
 
 
-            #     recipe_data['ingredients'] = ingredients_data
-            #     # associating ingredients to recipe
-            #     for ingredient in recipe_data['ingredients']:
-            #         RecipeIngredientRepo.create_recipe(
-            #             recipe_id=recipe_data['recipe_id'],
-            #             ingredient_id=ingredient["ingredient"]['id'],
-            #             quantity_amount_id=ingredient["amount"]['id'],
-            #             quantity_unit_id=ingredient["unit"]['id'])
+                recipe_data['ingredients'] = ingredients_data
+                # associating ingredients to recipe
+                for ingredient in recipe_data['ingredients']:
+                    RecipeIngredientRepo.create_recipe(
+                        recipe_id=recipe_data['recipe_id'],
+                        ingredient_id=ingredient["ingredient"]['id'],
+                        quantity_amount_id=ingredient["amount"]['id'],
+                        quantity_unit_id=ingredient["unit"]['id'])
 
             if instructions:
                 recipe_data["instructions_data"] = InstructionRepo.process_instructions(

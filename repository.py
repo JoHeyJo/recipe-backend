@@ -137,18 +137,24 @@ class QuantityAmountRepo():
             db.session.rollback()
             raise Exception(f"get_all_amounts error: {e}")
 
-# There needs to be two methods for adding. One that creates and one that finds existing ones
+
 class IngredientRepo():
-    """Facilitates ingredients table interactions"""
+    """Processes ingredients & facilitates table interactions"""
+    @staticmethod
+    def process_ingredient(ingredient):
+        """Facilitates creation of returned ingredient object"""
+        is_stored = ingredient.get("id")
+        if is_stored:
+            return ingredient
+        else:
+            new_ingredient = IngredientRepo.create_ingredient(ingredient=ingredient["ingredient"])
+            return new_ingredient
+        
     @staticmethod
     def create_ingredient(ingredient):
         """Create ingredient and add to database"""
         try:
-            value = Ingredient.query.filter_by(ingredient=ingredient).first()
-            if value:
-                return {"id": value.id, "ingredient": value.ingredient}
-            else:
-                ingredient = Ingredient(ingredient=ingredient)
+            ingredient = Ingredient(ingredient=ingredient)
             db.session.add(ingredient)
             db.session.commit()
             return {"id": ingredient.id, "ingredient": ingredient.ingredient}
@@ -181,7 +187,7 @@ class IngredientsRepo():
             quantity_unit = ingredient["quantity_unit"] or None
 
             try:
-                ingredient = IngredientRepo.create_ingredient(
+                ingredient = IngredientRepo.process_ingredient(
                     ingredient_name)
                 if quantity_amount:
                     amount = QuantityAmountRepo.create_quantity_amount(
@@ -230,10 +236,8 @@ class InstructionRepo():
         for instruction in instructions:
             is_stored = instruction.get("id")
             if is_stored:
-                highlight(instruction,"*")
                 processed_instructions.append(instruction)
             else:
-                highlight(instruction,"*")
                 processed_instructions.append(
                     InstructionRepo.create_instruction(instruction=instruction["instruction"]))
         return processed_instructions
@@ -241,9 +245,8 @@ class InstructionRepo():
     @staticmethod
     def create_instruction(instruction):
         """Create instruction and add to database"""
-        highlight(instruction, "@")
-        instruction = Instruction(instruction=instruction)
         try:
+            instruction = Instruction(instruction=instruction)
             db.session.add(instruction)
             db.session.commit()
             return {'id': instruction.id, 'instruction': instruction.instruction}
