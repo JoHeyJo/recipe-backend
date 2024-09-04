@@ -230,20 +230,18 @@ class InstructionRepo():
         for instruction in instructions:
             is_stored = instruction.get("id")
             if is_stored:
+                highlight(instruction,"*")
                 processed_instructions.append(instruction)
             else:
-                try:
-                    processed_instructions.append(
-                        InstructionRepo.create_instruction(instruction=instruction))
-                except SQLAlchemyError as e:
-                    highlight(e, "!")
-                    db.session.rollback()
-                    raise Exception(f"create_instruction error: {e}")
+                highlight(instruction,"*")
+                processed_instructions.append(
+                    InstructionRepo.create_instruction(instruction=instruction["instruction"]))
         return processed_instructions
 
     @staticmethod
     def create_instruction(instruction):
         """Create instruction and add to database"""
+        highlight(instruction, "@")
         instruction = Instruction(instruction=instruction)
         try:
             db.session.add(instruction)
