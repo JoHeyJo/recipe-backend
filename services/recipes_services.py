@@ -25,12 +25,11 @@ class RecipeService():
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, notes=notes)
             if ingredients:
-                ingredients_data = IngredientsRepo.process_ingredients(ingredients)
-
+                ingredients_data = IngredientsRepo.process_ingredients(
+                    ingredients)
 
                 recipe_data['ingredients'] = ingredients_data
                 # associating ingredients to recipe
-                return ingredients_data
                 for ingredient in recipe_data['ingredients']:
                     RecipeIngredientRepo.create_recipe(
                         recipe_id=recipe_data['recipe_id'],
@@ -39,16 +38,20 @@ class RecipeService():
                         quantity_unit_id=ingredient["unit"]['id'])
 
             if instructions:
-                recipe_data["instructions_data"] = InstructionRepo.process_instructions(
+                instructions_data = InstructionRepo.process_instructions(
                     instructions=instructions)
+                recipe_data["instructions_data"] = instructions_data
 
             # # ############ ADD RECIPE TO BOOK (recipes_books) ########
-            # RecipeBookRepo.create_entry(
-            #     book_id=book_id, recipe_id=recipe_data["recipe_id"])
+            RecipeBookRepo.create_entry(
+                book_id=book_id, recipe_id=recipe_data["recipe_id"])
             # # ############ ADD BOOK TO USER (users_books) ########
-            # UserBookRepo.create_entry(user_id=user_id, book_id=book_id)
+            UserBookRepo.create_entry(user_id=user_id, book_id=book_id)
+            # # ############ ADD INSTRUCTION TO BOOK (books_instructions) ########
+            for instruction in instructions_data:
+                BookInstructionRepo.create_entry(
+                    book_id=book_id, instruction_id=instruction["id"])
 
-            # return recipe_data
             return recipe_data
 
         except Exception as e:
