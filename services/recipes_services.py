@@ -30,6 +30,7 @@ class RecipeService():
 
                 recipe_data['ingredients'] = ingredients_data
                 # associating ingredients to recipe
+                return ingredients_data
                 for ingredient in recipe_data['ingredients']:
                     RecipeIngredientRepo.create_recipe(
                         recipe_id=recipe_data['recipe_id'],

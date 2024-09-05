@@ -154,10 +154,13 @@ class IngredientRepo():
     @staticmethod
     def process_ingredient(ingredient):
         """Create and returns new ingredient or returns existing ingredient"""
+        highlight(ingredient, ">")
         is_stored = ingredient.get("id")
         if is_stored:
+            highlight(is_stored, "*")
             return ingredient
         else:
+            highlight("in here", "&")
             return IngredientRepo.create_ingredient(ingredient=ingredient["name"])
 
     @staticmethod
