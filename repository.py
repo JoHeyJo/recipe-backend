@@ -79,13 +79,18 @@ class RecipeRepo():
 class QuantityUnitRepo():
     """Facilitates quantity_units table interactions"""
     @staticmethod
+    def process_quantity_unit(amount):
+        """Creates and returns new unit or returns existing unit"""
+        is_stored = amount.get("id")
+        if is_stored:
+            return amount
+        else:
+            return QuantityUnitRepo.create_quantity_unit(amount["value"])
+
+    @staticmethod
     def create_quantity_unit(unit):
         """Create quantity unit and add to database"""
         try:
-            value = QuantityUnit.query.filter_by(unit=unit).first()
-            if value:
-                return {"id": value.id, "unit": value.unit}
-
             quantity_unit = QuantityUnit(unit=unit)
             db.session.add(quantity_unit)
             db.session.commit()
@@ -108,18 +113,20 @@ class QuantityUnitRepo():
 
 
 class QuantityAmountRepo():
-    """Facilitates quantity_amounts table interactions"""
+    """Process amounts & facilitates quantity_amounts table interactions"""
     @staticmethod
     def process_amount(amount):
+        """Creates and returns new amount or return existing amount """
+        is_stored = amount.get("id")
+        if is_stored:
+            return amount
+        else:
+            return QuantityAmountRepo.create_amount(amount=amount["value"])
 
     @staticmethod
     def create_amount(amount):
         """Create quantity amount and add to database"""
         try:
-            value = QuantityAmount.query.filter_by(amount=amount).first()
-            if value:
-                return {"id": value.id, "amount": value.amount}
-
             quantity_amount = QuantityAmount(amount=amount)
             db.session.add(quantity_amount)
             db.session.commit()
@@ -145,14 +152,12 @@ class IngredientRepo():
     """Processes ingredients & facilitates table interactions"""
     @staticmethod
     def process_ingredient(ingredient):
-        """Facilitates creation of returned ingredient object"""
+        """Create and returns new ingredient or returns existing ingredient"""
         is_stored = ingredient.get("id")
         if is_stored:
             return ingredient
         else:
-            new_ingredient = IngredientRepo.create_ingredient(
-                ingredient=ingredient["ingredient"])
-            return new_ingredient
+            return IngredientRepo.create_ingredient(ingredient=ingredient["name"])
 
     @staticmethod
     def create_ingredient(ingredient):
@@ -186,19 +191,19 @@ class IngredientsRepo():
         """Separate ingredient components - call corresponding repo methods"""
         ingredients_data = []
         for ingredient in ingredients:
-            ingredient_name = ingredient["ingredient"]
-            quantity_amount = ingredient["quantity_amount"] or None
-            quantity_unit = ingredient["quantity_unit"] or None
+            ingredient = ingredient["ingredient"]
+            amount = ingredient["amount"]
+            unit = ingredient["unit"]
 
             try:
                 ingredient = IngredientRepo.process_ingredient(
-                    ingredient_name)
-                if quantity_amount:
-                    amount = QuantityAmountRepo.create_amount(
-                        quantity_amount)
-                if quantity_unit:
-                    unit = QuantityUnitRepo.create_quantity_unit(
-                        quantity_unit)
+                    ingredient)
+                if amount:
+                    amount = QuantityAmountRepo.process_amount(
+                        amount)
+                if unit:
+                    unit = QuantityUnitRepo.process_quantity_unit(
+                        unit)
 
                 ingredients_data.append(
                     {
@@ -325,4 +330,3 @@ class BookInstructionRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"BookInstructionRepo-create_entry:{e}")
-
