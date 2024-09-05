@@ -91,6 +91,7 @@ class QuantityUnitRepo():
     def create_quantity_unit(unit):
         """Create quantity unit and add to database"""
         try:
+            highlight(unit,"$")
             quantity_unit = QuantityUnit(unit=unit)
             db.session.add(quantity_unit)
             db.session.commit()
