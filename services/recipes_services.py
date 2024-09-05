@@ -24,9 +24,8 @@ class RecipeService():
         try:
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, notes=notes)
-
             if ingredients:
-                ingredients_data = IngredientsRepo.add_ingredients(ingredients)
+                ingredients_data = IngredientsRepo.process_ingredients(ingredients)
 
 
                 recipe_data['ingredients'] = ingredients_data

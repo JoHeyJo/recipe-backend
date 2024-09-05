@@ -79,13 +79,13 @@ class RecipeRepo():
 class QuantityUnitRepo():
     """Facilitates quantity_units table interactions"""
     @staticmethod
-    def process_quantity_unit(amount):
+    def process_quantity_unit(unit):
         """Creates and returns new unit or returns existing unit"""
-        is_stored = amount.get("id")
+        is_stored = unit.get("id")
         if is_stored:
-            return amount
+            return unit
         else:
-            return QuantityUnitRepo.create_quantity_unit(amount["value"])
+            return QuantityUnitRepo.create_quantity_unit(unit=unit["type"])
 
     @staticmethod
     def create_quantity_unit(unit):
@@ -187,23 +187,19 @@ class IngredientRepo():
 class IngredientsRepo():
     """Directs incoming data to corresponding repo methods"""
     @staticmethod
-    def add_ingredients(ingredients):
+    def process_ingredients(ingredients):
         """Separate ingredient components - call corresponding repo methods"""
         ingredients_data = []
-        for ingredient in ingredients:
-            ingredient = ingredient["ingredient"]
-            amount = ingredient["amount"]
-            unit = ingredient["unit"]
-
+        for i in ingredients:
+            ingredient = i["ingredient"]
+            amount = i["amount"]
+            unit = i["unit"]
             try:
-                ingredient = IngredientRepo.process_ingredient(
-                    ingredient)
+                ingredient = IngredientRepo.process_ingredient(ingredient=ingredient)
                 if amount:
-                    amount = QuantityAmountRepo.process_amount(
-                        amount)
+                    amount = QuantityAmountRepo.process_amount(amount=amount)
                 if unit:
-                    unit = QuantityUnitRepo.process_quantity_unit(
-                        unit)
+                    unit = QuantityUnitRepo.process_quantity_unit(unit=unit)
 
                 ingredients_data.append(
                     {
