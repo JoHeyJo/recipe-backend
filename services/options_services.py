@@ -7,11 +7,11 @@ class OptionService():
     def get_options(option):
         """Retrieves options for ingredient components"""
         try:
-            if option == "amount":
+            if option == "amounts":
                   return QuantityAmountRepo.get_all_amounts()
-            if option == "unit":
+            if option == "units":
                   return QuantityUnitRepo.get_all_units()
-            if option == "ingredient":
+            if option == "items":
                   return IngredientRepo.get_all_ingredients()
         except IntegrityError as e:
             raise {"error": f"Error in OptionService -> get_options: {e}"}

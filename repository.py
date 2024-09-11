@@ -88,13 +88,13 @@ class QuantityUnitRepo():
             return QuantityUnitRepo.create_unit(unit=unit["type"])
 
     @staticmethod
-    def create_unit(unit):
+    def create_unit(type):
         """Create quantity unit and add to database"""
         try:
-            quantity_unit = QuantityUnit(unit=unit)
+            quantity_unit = QuantityUnit(type=type)
             db.session.add(quantity_unit)
             db.session.commit()
-            return {"id": quantity_unit.id, "unit": quantity_unit.unit}
+            return {"id": quantity_unit.id, "type": quantity_unit.type}
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
@@ -121,16 +121,16 @@ class QuantityAmountRepo():
         if is_stored:
             return amount
         else:
-            return QuantityAmountRepo.create_amount(amount=amount["value"])
+            return QuantityAmountRepo.create_amount(value=amount["value"])
 
     @staticmethod
-    def create_amount(amount):
+    def create_amount(value):
         """Create quantity amount and add to database"""
         try:
-            quantity_amount = QuantityAmount(amount=amount)
+            quantity_amount = QuantityAmount(value=value)
             db.session.add(quantity_amount)
             db.session.commit()
-            return {"id": quantity_amount.id, "amount": quantity_amount.amount}
+            return {"id": quantity_amount.id, "value": quantity_amount.value}
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
@@ -151,19 +151,19 @@ class QuantityAmountRepo():
 class IngredientRepo():
     """Processes ingredients & facilitates table interactions"""
     @staticmethod
-    def process_ingredient(ingredient):
+    def process_ingredient(item):
         """Create and returns new ingredient or returns existing ingredient"""
-        is_stored = ingredient.get("id")
+        is_stored = item.get("id")
         if is_stored:
-            return ingredient
+            return item
         else:
-            return IngredientRepo.create_ingredient(ingredient=ingredient["name"])
+            return IngredientRepo.create_ingredient(name=item["name"])
 
     @staticmethod
-    def create_ingredient(ingredient):
+    def create_ingredient(name):
         """Create ingredient and add to database"""
         try:
-            ingredient = Ingredient(ingredient=ingredient)
+            ingredient = Ingredient(name=name)
             db.session.add(ingredient)
             db.session.commit()
             return {"id": ingredient.id, "ingredient": ingredient.ingredient}
@@ -191,6 +191,7 @@ class IngredientsRepo():
         """Separate ingredient components - call corresponding repo methods"""
         ingredients_data = []
         for i in ingredients:
+            highlight(i, "*process_ingredients*")
             ingredient = i["ingredient"]
             amount = i["amount"]
             unit = i["unit"]

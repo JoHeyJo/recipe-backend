@@ -5,6 +5,7 @@ class RecipeService():
     """Handles recipe view business logic"""
     @staticmethod
     def add_recipe(data):
+        highlight(data, '|')
         recipe_data = None
         # User data
         user_id = data["user_id"]
@@ -21,12 +22,15 @@ class RecipeService():
 
         # ############ RECIPE CREATION ########
         # First add ingredients if applicable then add recipe
+        highlight(ingredients,'|')
         try:
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, notes=notes)
+            highlight(ingredients,"@ above")
             if ingredients:
+                highlight(ingredients,"@ below")
                 ingredients_data = IngredientsRepo.process_ingredients(
-                    ingredients)
+                    ingredients=ingredients)
 
                 recipe_data['ingredients'] = ingredients_data
                 # associating ingredients to recipe

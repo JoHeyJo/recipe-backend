@@ -38,7 +38,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     notes: Mapped[str_255_nullable]
 
     ingredients: Mapped[List['Recipe']] = relationship(
-        'Ingredient', secondary='recipes_ingredients', back_populates='recipes')
+        'Item', secondary='recipes_ingredients', back_populates='recipes')
 
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='recipes_books', back_populates='recipes')
@@ -47,33 +47,33 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Quantity Unit table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    unit: Mapped[str_unique_255]
+    type: Mapped[str_unique_255]
 
     def serialize(self):
         """Serialize unit table data into dict"""
-        return {"id": self.id, "unit": self.unit}
+        return {"id": self.id, "type": self.type}
 
 
 class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Quantity Amount table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    amount: Mapped[str_unique_255]
+    value: Mapped[str_unique_255]
 
     def serialize(self):
         """Serialize amount table data into dict"""
-        return {"id": self.id, "amount": self.amount}
+        return {"id": self.id, "value": self.value}
 
 
-class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
-    """Ingredient table"""
+class Item(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+    """Item table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    ingredient: Mapped[str_unique_255]
+    name: Mapped[str_unique_255]
 
     def serialize(self):
         """Serialize amount table data into dict"""
-        return {"id": self.id, "ingredient": self.ingredient}
+        return {"id": self.id, "name": self.name}
 
-    recipes: Mapped[List['Ingredient']] = relationship(
+    recipes: Mapped[List['Item']] = relationship(
         'Recipe', secondary='recipes_ingredients', back_populates='ingredients')
 
 

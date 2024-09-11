@@ -109,8 +109,8 @@ def add_book():
 
 @app.get("/options/<option>")
 def get_options(option):
+    highlight(option,"&")
     """Returns options of ingredient components"""
-
     try:
         options = OptionService.get_options(option)
         return jsonify(options)
@@ -122,8 +122,7 @@ def get_options(option):
 @app.post("/options/<option>")
 def add_option(option):
     """Facilitates creation of option for ingredient components"""
-    value = request.json[option]
-
+    value = request.json
     try:
         option = OptionService.add_option(option=option, value=value)
         return jsonify(option)
