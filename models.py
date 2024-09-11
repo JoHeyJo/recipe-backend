@@ -37,7 +37,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     name: Mapped[str_255]
     notes: Mapped[str_255_nullable]
 
-    ingredients: Mapped[List['Recipe']] = relationship(
+    items: Mapped[List['Recipe']] = relationship(
         'Item', secondary='recipes_ingredients', back_populates='recipes')
 
     books: Mapped[List['Book']] = relationship(
@@ -74,7 +74,7 @@ class Item(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         return {"id": self.id, "name": self.name}
 
     recipes: Mapped[List['Item']] = relationship(
-        'Recipe', secondary='recipes_ingredients', back_populates='ingredients')
+        'Recipe', secondary='recipes_ingredients', back_populates='items')
 
 
 class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -104,10 +104,10 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
 
 class RecipeIngredient(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
-    """Association table for recipes and ingredients"""
+    """Association table for recipes and items"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     recipe_id: Mapped[int] = Column(Integer, ForeignKey('recipes.id'))
-    ingredient_id: Mapped[int] = Column(Integer, ForeignKey('ingredients.id'))
+    ingredient_id: Mapped[int] = Column(Integer, ForeignKey('items.id'))
     quantity_unit_id: Mapped[int] = Column(
         Integer, ForeignKey('quantity_units.id'))
     quantity_amount_id: Mapped[int] = Column(
