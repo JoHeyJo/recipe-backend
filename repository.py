@@ -148,40 +148,40 @@ class QuantityAmountRepo():
             raise Exception(f"get_all_amounts error: {e}")
 
 
-class IngredientRepo():
-    """Processes ingredients & facilitates table interactions"""
+class ItemRepo():
+    """Processes item & facilitates table interactions"""
     @staticmethod
-    def process_ingredient(item):
-        """Create and returns new ingredient or returns existing ingredient"""
+    def process_item(item):
+        """Create and returns new item or returns existing item"""
         is_stored = item.get("id")
         if is_stored:
             return item
         else:
-            return IngredientRepo.create_ingredient(name=item["name"])
+            return ItemRepo.create_item(name=item["name"])
 
     @staticmethod
-    def create_ingredient(name):
-        """Create ingredient and add to database"""
+    def create_item(name):
+        """Create item and add to database"""
         try:
-            ingredient = Ingredient(name=name)
-            db.session.add(ingredient)
+            item = Item(name=name)
+            db.session.add(item)
             db.session.commit()
-            return {"id": ingredient.id, "ingredient": ingredient.ingredient}
+            return {"id": item.id, "item": item.name}
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"create_ingredient error: {e}")
+            raise Exception(f"create_item error: {e}")
 
     @staticmethod
-    def get_all_ingredients():
-        """Return all ingredients"""
+    def get_all_items():
+        """Return all items"""
         try:
-            ingredients = Ingredient.query.all()
-            return [Ingredient.serialize(ingredient) for ingredient in ingredients]
+            items = Item.query.all()
+            return [Item.serialize(item) for item in items]
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"get_all_ingredients error: {e}")
+            raise Exception(f"get_all_item error: {e}")
 
 
 class IngredientsRepo():
@@ -190,13 +190,12 @@ class IngredientsRepo():
     def process_ingredients(ingredients):
         """Separate ingredient components - call corresponding repo methods"""
         ingredients_data = []
-        for i in ingredients:
-            highlight(i, "*process_ingredients*")
-            ingredient = i["ingredient"]
-            amount = i["amount"]
-            unit = i["unit"]
+        for ingredient in ingredients:
+            item = ingredient["item"]
+            amount = ingredient["amount"]
+            unit = ingredient["unit"]
             try:
-                ingredient = IngredientRepo.process_ingredient(ingredient=ingredient)
+                item = ItemRepo.process_item(item=item)
                 if amount:
                     amount = QuantityAmountRepo.process_amount(amount=amount)
                 if unit:
@@ -204,8 +203,7 @@ class IngredientsRepo():
 
                 ingredients_data.append(
                     {
-                        # "ingredient": ingredient_name,
-                        "ingredient": ingredient,
+                        "item": item,
                         "amount": amount,
                         "unit": unit
                     })
