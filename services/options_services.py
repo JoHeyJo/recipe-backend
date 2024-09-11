@@ -21,10 +21,10 @@ class OptionService():
         """Add option to specified ingredient component"""
         try:
            if option == "amount":
-               return QuantityAmountRepo.create_quantity_amount(amount=value)
+               return QuantityAmountRepo.process_amount(amount=value)
            if option == "unit":
-               return QuantityUnitRepo.create_quantity_unit(unit=value)
+               return QuantityUnitRepo.process_unit(unit=value)
            if option == "ingredient":
-               return IngredientRepo.create_ingredient(ingredient=value)
+               return IngredientRepo.process_ingredient(ingredient=value)
         except IntegrityError as e:
              raise {"error": f"Error in OptionService -> get_options: {e}"}

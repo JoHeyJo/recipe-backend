@@ -79,19 +79,18 @@ class RecipeRepo():
 class QuantityUnitRepo():
     """Facilitates quantity_units table interactions"""
     @staticmethod
-    def process_quantity_unit(unit):
+    def process_unit(unit):
         """Creates and returns new unit or returns existing unit"""
         is_stored = unit.get("id")
         if is_stored:
             return unit
         else:
-            return QuantityUnitRepo.create_quantity_unit(unit=unit["type"])
+            return QuantityUnitRepo.create_unit(unit=unit["type"])
 
     @staticmethod
-    def create_quantity_unit(unit):
+    def create_unit(unit):
         """Create quantity unit and add to database"""
         try:
-            highlight(unit,"$")
             quantity_unit = QuantityUnit(unit=unit)
             db.session.add(quantity_unit)
             db.session.commit()
@@ -99,7 +98,7 @@ class QuantityUnitRepo():
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"create_quantity_unit:{e}")
+            raise Exception(f"create_unit:{e}")
 
     @staticmethod
     def get_all_units():
@@ -118,7 +117,7 @@ class QuantityAmountRepo():
     @staticmethod
     def process_amount(amount):
         """Creates and returns new amount or return existing amount """
-        is_stored = amount.get("id")
+        is_stored = amount["id"] or None
         if is_stored:
             return amount
         else:
@@ -154,13 +153,10 @@ class IngredientRepo():
     @staticmethod
     def process_ingredient(ingredient):
         """Create and returns new ingredient or returns existing ingredient"""
-        highlight(ingredient, ">")
         is_stored = ingredient.get("id")
         if is_stored:
-            highlight(is_stored, "*")
             return ingredient
         else:
-            highlight("in here", "&")
             return IngredientRepo.create_ingredient(ingredient=ingredient["name"])
 
     @staticmethod
@@ -203,7 +199,7 @@ class IngredientsRepo():
                 if amount:
                     amount = QuantityAmountRepo.process_amount(amount=amount)
                 if unit:
-                    unit = QuantityUnitRepo.process_quantity_unit(unit=unit)
+                    unit = QuantityUnitRepo.process_unit(unit=unit)
 
                 ingredients_data.append(
                     {
