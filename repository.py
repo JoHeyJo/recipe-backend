@@ -85,7 +85,7 @@ class QuantityUnitRepo():
         if is_stored:
             return unit
         else:
-            return QuantityUnitRepo.create_unit(unit=unit["type"])
+            return QuantityUnitRepo.create_unit(type=unit["type"])
 
     @staticmethod
     def create_unit(type):
