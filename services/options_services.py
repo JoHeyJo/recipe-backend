@@ -12,19 +12,19 @@ class OptionService():
             if option == "units":
                   return QuantityUnitRepo.get_all_units()
             if option == "items":
-                  return IngredientRepo.get_all_ingredients()
+                  return ItemRepo.get_all_items()
         except IntegrityError as e:
             raise {"error": f"Error in OptionService -> get_options: {e}"}
         
     @staticmethod
-    def add_option(option, value):
-        """Add option to specified ingredient component"""
+    def add_option(label, attributes):
+        """Call corresponding ingredient component method for processing"""
         try:
-           if option == "amount":
-               return QuantityAmountRepo.process_amount(amount=value)
-           if option == "unit":
-               return QuantityUnitRepo.process_unit(unit=value)
-           if option == "ingredient":
-               return IngredientRepo.process_ingredient(ingredient=value)
+           if label == "value":
+               return QuantityAmountRepo.process_amount(amount=attributes)
+           if label == "type":
+               return QuantityUnitRepo.process_unit(unit=attributes)
+           if label == "name":
+               return ItemRepo.process_item(item=attributes)
         except IntegrityError as e:
              raise {"error": f"Error in OptionService -> get_options: {e}"}

@@ -123,8 +123,9 @@ def get_options(option):
 def add_option(option):
     """Facilitates creation of option for ingredient components"""
     value = request.json
+    highlight((option,value),"1")
     try:
-        option = OptionService.add_option(option=option, value=value)
+        option = OptionService.add_option(label=option, details=value)
         return jsonify(option)
     except IntegrityError as e:
         return jsonify({"error": f"add_option error{e}"}), 400
