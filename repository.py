@@ -166,7 +166,7 @@ class ItemRepo():
             item = Item(name=name)
             db.session.add(item)
             db.session.commit()
-            return {"id": item.id, "item": item.name}
+            return {"id": item.id, "name": item.name}
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
