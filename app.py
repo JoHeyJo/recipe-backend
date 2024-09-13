@@ -118,7 +118,6 @@ def get_options(option):
         return jsonify({"error": f"get_options error{e}"}), 400
 
 
-
 @app.post("/options/<option>")
 def add_option(option):
     """Facilitates creation of option for ingredient components"""
@@ -128,6 +127,20 @@ def add_option(option):
         return jsonify(option)
     except IntegrityError as e:
         return jsonify({"error": f"add_option error{e}"}), 400
+    
+
+@app.post("/instruction")
+def add_instruction():
+    """Facilitates creation of instruction"""
+    instruction = request.json("instruction")
+    try:
+        instruction = InstructionRepo.create_instruction(instruction=instruction)
+        return jsonify(instruction)
+    except IntegrityError as e:
+        return jsonify({"error": f"add_instruction error{e}"}), 400
+
+
+
 
     
 
