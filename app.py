@@ -44,7 +44,6 @@ def index():
 @app.post("/signup")
 def signup():
     """Facilitates new user data to User Repo, return token"""
-    highlight(request,"*")
     user_name = request.json["userName"]
     first_name = request.json["firstName"]
     last_name = request.json["lastName"]
@@ -106,11 +105,10 @@ def add_book():
     except IntegrityError as e:
         return jsonify({"error": f"create_book error{e}"}), 400
     
-
+########### OPTIONS ###########
 @app.get("/options/<option>")
 def get_options(option):
-    highlight(option,"&")
-    """Returns options of ingredient components"""
+    """Facilitates retrieval of options of ingredient components"""
     try:
         options = OptionService.get_options(option)
         return jsonify(options)
@@ -128,11 +126,11 @@ def add_option(option):
     except IntegrityError as e:
         return jsonify({"error": f"add_option error{e}"}), 400
     
-
-@app.post("/instruction")
+########### INSTRUCTIONS ###########
+@app.post("/instructions/instruction")
 def add_instruction():
     """Facilitates creation of instruction"""
-    instruction = request.json("instruction")
+    instruction = request.json["instruction"]
     try:
         instruction = InstructionRepo.create_instruction(instruction=instruction)
         return jsonify(instruction)
@@ -140,9 +138,19 @@ def add_instruction():
         return jsonify({"error": f"add_instruction error{e}"}), 400
 
 
+@app.get("/instructions")
+def get_instructions():
+    """Facilitates retrieval of instructions """
+    try:
+        instructions = InstructionRepo.get_instructions()
+        return jsonify(instructions)
+    except IntegrityError as e:
+        return jsonify({"error": f"/instructions - get_instructions error{e}"}), 400
 
 
-    
+
+
+
 
 ################################################################################
 def setup_app_context():

@@ -257,7 +257,18 @@ class InstructionRepo():
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"create_instruction error: {e}")
+            raise Exception(f"InstructionRepo - create_instruction error: {e}")
+        
+    @staticmethod
+    def get_instructions():
+        """Return all instructions"""
+        try:
+            instructions =  Instruction.query.all()
+            return [Instruction.serialize(instruction) for instruction in instructions]
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"InstructionRepo - get_instruction error: {e}")
 
 
 ###################### ASSOCIATION TABLES ############################

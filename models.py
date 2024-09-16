@@ -97,8 +97,13 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     instruction: Mapped[str_255]
 
+    def serialize(self):
+        """Serialize instruction table data into dict"""
+        return {"id": self.id, "name": self.instruction}
+
     books: Mapped[List['Book']] = relationship(
         'Book', secondary="books_instructions", back_populates="instructions")
+    
 
 ###################### ASSOCIATION MODELS ############################
 
