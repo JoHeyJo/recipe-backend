@@ -99,7 +99,7 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     def serialize(self):
         """Serialize instruction table data into dict"""
-        return {"id": self.id, "name": self.instruction}
+        return {"id": self.id, "instruction": self.instruction}
 
     books: Mapped[List['Book']] = relationship(
         'Book', secondary="books_instructions", back_populates="instructions")

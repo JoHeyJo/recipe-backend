@@ -28,10 +28,13 @@ class UserRepo():
             password=hashed_pwd,
             is_admin=False
         )
-        token = create_access_token(identity=user.user_name)
         try:
             db.session.add(user)
             db.session.commit()
+            token = create_access_token(
+                identity=user.user_name, 
+                additional_claims={"is_admin": user.is_admin, "user_id":user.id})
+            token = create_access_token()
             return token
         except SQLAlchemyError as e:
             db.session.rollback()
@@ -53,7 +56,8 @@ class UserRepo():
             is_auth = bcrypt.check_password_hash(user.password, password)
             if is_auth:
                 token = create_access_token(
-                    identity=user.user_name, additional_claims={"is_admin": user.is_admin})
+                    identity=user.user_name, 
+                    additional_claims={"is_admin": user.is_admin, "user_id":user.id})
                 return token
         return False
 
@@ -154,6 +158,7 @@ class ItemRepo():
     def process_item(item):
         """Create and returns new item or returns existing item"""
         is_stored = item.get("id")
+        highlight(is_stored,"^")
         if is_stored:
             return item
         else:
