@@ -81,6 +81,11 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Recipe book table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     title: Mapped[str_255]
+    description: Mapped[str_255]
+
+    def serialize(self):
+        """Serialize Book table data into dict"""
+        return {"id":self.id, "title":self.title, "description": self.description}
 
     users: Mapped[List['User']] = relationship(
         'User', secondary='users_books', back_populates='books')
@@ -146,5 +151,5 @@ def connect_db(app):
     db.app = app
     db.init_app(app)
     with app.app_context():
-        # db.drop_all()
+        db.drop_all()
         db.create_all()

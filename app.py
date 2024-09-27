@@ -94,13 +94,14 @@ def add_recipe():
     except Exception as e:
         return handle_error(e)
 
-
+########### BOOKS ###########
 @app.post("/books")
 def add_book():
     """Facilitates creation of book containing recipes"""
     title = request.json["title"]
+    description = request.json["description"]
     try:    
-        book_data = BookRepo.create_book(title)
+        book_data = BookRepo.create_book(title=title, description=description)
         return jsonify(book_data), 200
     except IntegrityError as e:
         return jsonify({"error": f"create_book error{e}"}), 400

@@ -32,8 +32,12 @@ class UserRepo():
             db.session.add(user)
             db.session.commit()
             token = create_access_token(
-                identity=user.user_name, 
-                additional_claims={"is_admin": user.is_admin, "user_id":user.id})
+                identity="user_credentials", 
+                additional_claims={
+                    "user": user.user_name,
+                    "is_admin": user.is_admin,
+                      "user_id":user.id
+                      })
             token = create_access_token()
             return token
         except SQLAlchemyError as e:
@@ -56,8 +60,12 @@ class UserRepo():
             is_auth = bcrypt.check_password_hash(user.password, password)
             if is_auth:
                 token = create_access_token(
-                    identity=user.user_name, 
-                    additional_claims={"is_admin": user.is_admin, "user_id":user.id})
+                    identity="user_credentials", 
+                    additional_claims={
+                        "user": user.user_name,
+                        "is_admin": user.is_admin, 
+                        "user_id":user.id
+                        })
                 return token
         return False
 
@@ -223,13 +231,13 @@ class IngredientsRepo():
 class BookRepo():
     """Facilitates books table interactions"""
     @staticmethod
-    def create_book(title):
-        """Create book title and add to database"""
-        book = Book(title=title)
+    def create_book(title, description):
+        """Create book and add to database"""
+        book = Book(title=title, description=description)
         try:
             db.session.add(book)
             db.session.commit()
-            return {'id': book.id, 'title': book.title}
+            return {'id': book.id, 'title': book.title, "description":book.description}
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
