@@ -50,10 +50,10 @@ def signup():
     last_name = request.json["lastName"]
     password = request.json["password"]
     email = request.json["email"]
-
     try:
         token = UserRepo.signup(user_name, first_name,
                                 last_name, email, password)
+        highlight(token,"@")
         return jsonify({"token": token})
     except UsernameAlreadyTakenError as e:
         # Handle username already taken error

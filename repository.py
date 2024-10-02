@@ -1,9 +1,8 @@
 from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
-from models import *
+from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, RecipeIngredient, RecipeBook, UserBook, BookInstruction
 from sqlalchemy.exc import SQLAlchemyError
 from exceptions import *
-import logging
 
 bcrypt = Bcrypt()
 
@@ -20,14 +19,19 @@ class UserRepo():
     def signup(user_name, first_name, last_name, email, password):
         """Sign up user. Hashes password and adds user to system. => Token"""
         hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
-        user = User(
-            user_name=user_name,
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            password=hashed_pwd,
-            is_admin=False
-        )
+        highlight(hashed_pwd, "@")
+        try:
+            user = User(
+                user_name=user_name,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                password=hashed_pwd,
+                is_admin=False
+            )
+            highlight(user,"#")
+        except Exception as e:
+            print(f"Error during User object creation: {e}")
         try:
             db.session.add(user)
             db.session.commit()
@@ -38,9 +42,9 @@ class UserRepo():
                     "is_admin": user.is_admin,
                     "user_id": user.id
                 })
-            token = create_access_token()
             return token
         except SQLAlchemyError as e:
+            highlight(e, "!")
             db.session.rollback()
             if "users_user_name_key" in str(e.orig):
                 raise UsernameAlreadyTakenError(
