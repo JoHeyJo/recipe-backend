@@ -12,6 +12,7 @@ from flask_cors import CORS
 from exceptions import *
 from services.recipes_services import RecipeService
 from services.options_services import OptionService
+from services.book_services import BookService
 from utils.error_handler import handle_error
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
@@ -95,13 +96,13 @@ def add_recipe():
         return handle_error(e)
 
 ########### BOOKS ###########
-@app.post("/books")
-def add_book():
+@app.post("/books/users/<user_id>")
+def add_book(user_id):
     """Facilitates creation of book containing recipes"""
     title = request.json["title"]
     description = request.json["description"]
     try:    
-        book_data = BookRepo.create_book(title=title, description=description)
+        book_data = BookService.process_new_book(title=title, description=description)
         return jsonify(book_data), 200
     except IntegrityError as e:
         return jsonify({"error": f"create_book error{e}"}), 400

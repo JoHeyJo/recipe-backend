@@ -32,12 +32,12 @@ class UserRepo():
             db.session.add(user)
             db.session.commit()
             token = create_access_token(
-                identity="user_credentials", 
+                identity="user_credentials",
                 additional_claims={
                     "user": user.user_name,
                     "is_admin": user.is_admin,
-                      "user_id":user.id
-                      })
+                    "user_id": user.id
+                })
             token = create_access_token()
             return token
         except SQLAlchemyError as e:
@@ -60,12 +60,12 @@ class UserRepo():
             is_auth = bcrypt.check_password_hash(user.password, password)
             if is_auth:
                 token = create_access_token(
-                    identity="user_credentials", 
+                    identity="user_credentials",
                     additional_claims={
                         "user": user.user_name,
-                        "is_admin": user.is_admin, 
-                        "user_id":user.id
-                        })
+                        "is_admin": user.is_admin,
+                        "user_id": user.id
+                    })
                 return token
         return False
 
@@ -166,7 +166,7 @@ class ItemRepo():
     def process_item(item):
         """Create and returns new item or returns existing item"""
         is_stored = item.get("id")
-        highlight(is_stored,"^")
+        highlight(is_stored, "^")
         if is_stored:
             return item
         else:
@@ -237,7 +237,7 @@ class BookRepo():
         try:
             db.session.add(book)
             db.session.commit()
-            return {'id': book.id, 'title': book.title, "description":book.description}
+            return {'id': book.id, 'title': book.title, "description": book.description}
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
@@ -271,12 +271,12 @@ class InstructionRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"InstructionRepo - create_instruction error: {e}")
-        
+
     @staticmethod
     def get_instructions():
         """Return all instructions"""
         try:
-            instructions =  Instruction.query.all()
+            instructions = Instruction.query.all()
             return [Instruction.serialize(instruction) for instruction in instructions]
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -309,8 +309,6 @@ class RecipeBookRepo():
     def create_entry(book_id, recipe_id):
         """Create recipe and book association -> add to database"""
         try:
-            highlight(book_id, "^")
-            highlight(recipe_id, "^")
             entry = RecipeBook(book_id=book_id, recipe_id=recipe_id)
             db.session.add(entry)
             db.session.commit()
