@@ -19,7 +19,6 @@ class UserRepo():
     def signup(user_name, first_name, last_name, email, password):
         """Sign up user. Hashes password and adds user to system. => Token"""
         hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
-        highlight(hashed_pwd, "@")
         try:
             user = User(
                 user_name=user_name,
@@ -29,10 +28,6 @@ class UserRepo():
                 password=hashed_pwd,
                 is_admin=False
             )
-            highlight(user,"#")
-        except Exception as e:
-            print(f"Error during User object creation: {e}")
-        try:
             db.session.add(user)
             db.session.commit()
             token = create_access_token(
@@ -170,7 +165,6 @@ class ItemRepo():
     def process_item(item):
         """Create and returns new item or returns existing item"""
         is_stored = item.get("id")
-        highlight(is_stored, "^")
         if is_stored:
             return item
         else:
@@ -246,6 +240,14 @@ class BookRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"create_book error: {e}")
+    
+    @staticmethod
+    def get_user_books(user_id):
+        """Returns all books associated to user"""
+        user = User.query.get(user_id)
+        # highlight(user.books,)
+        return [Book.serialize(book) for book in user.books]
+        # return db.session.query(Book).join(UserBook).filter(UserBook.user_id == user_id).all()
 
 
 class InstructionRepo():

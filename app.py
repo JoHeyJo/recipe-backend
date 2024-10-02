@@ -53,7 +53,6 @@ def signup():
     try:
         token = UserRepo.signup(user_name, first_name,
                                 last_name, email, password)
-        highlight(token,"@")
         return jsonify({"token": token})
     except UsernameAlreadyTakenError as e:
         # Handle username already taken error
@@ -104,13 +103,18 @@ def add_book(user_id):
     title = request.json["title"]
     description = request.json["description"]
     book_data = {"title": title, "description": description}
-    highlight(book_data, "&")
     try:
         book_data = BookService.process_new_book(
             book_data=book_data, user_id=user_id)
         return jsonify(book_data), 200
     except IntegrityError as e:
         return jsonify({"error": f"create_book error{e}"}), 400
+    
+@app.get("/books/users/<user_id>")
+def get_user_books(user_id):
+    """Returns all books assocaited with user"""
+    books = BookRepo.get_user_books(user_id=user_id)
+    return jsonify({"books": books})
 
 ########### OPTIONS ###########
 
