@@ -96,18 +96,25 @@ def add_recipe():
         return handle_error(e)
 
 ########### BOOKS ###########
+
+
 @app.post("/books/users/<user_id>")
 def add_book(user_id):
     """Facilitates creation of book containing recipes"""
     title = request.json["title"]
     description = request.json["description"]
-    try:    
-        book_data = BookService.process_new_book(title=title, description=description)
+    book_data = {"title": title, "description": description}
+    highlight(book_data, "&")
+    try:
+        book_data = BookService.process_new_book(
+            book_data=book_data, user_id=user_id)
         return jsonify(book_data), 200
     except IntegrityError as e:
         return jsonify({"error": f"create_book error{e}"}), 400
-    
+
 ########### OPTIONS ###########
+
+
 @app.get("/options/<option>")
 def get_options(option):
     """Facilitates retrieval of options of ingredient components"""
@@ -127,14 +134,17 @@ def add_option(option):
         return jsonify(option)
     except IntegrityError as e:
         return jsonify({"error": f"add_option error{e}"}), 400
-    
+
 ########### INSTRUCTIONS ###########
+
+
 @app.post("/instructions/instruction")
 def add_instruction():
     """Facilitates creation of instruction"""
     instruction = request.json["instruction"]
     try:
-        instruction = InstructionRepo.create_instruction(instruction=instruction)
+        instruction = InstructionRepo.create_instruction(
+            instruction=instruction)
         return jsonify(instruction)
     except IntegrityError as e:
         return jsonify({"error": f"add_instruction error{e}"}), 400
@@ -148,10 +158,6 @@ def get_instructions():
         return jsonify(instructions)
     except IntegrityError as e:
         return jsonify({"error": f"/instructions - get_instructions error{e}"}), 400
-
-
-
-
 
 
 ################################################################################
