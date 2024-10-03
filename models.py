@@ -17,6 +17,7 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     password: Mapped[str_255]
     user_name: Mapped[str_unique_255]
     is_admin: Mapped[bool]
+    book_id: Mapped[int]
 
     # recipes = db.relationship('Recipe', secondary='user_recipes', backref='users')
     ### Instead Use type annotation for better type checking and readability ###

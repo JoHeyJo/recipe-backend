@@ -244,11 +244,14 @@ class BookRepo():
     @staticmethod
     def get_user_books(user_id):
         """Returns all books associated to user"""
-        user = User.query.get(user_id)
-        # highlight(user.books,)
-        return [Book.serialize(book) for book in user.books]
-        # return db.session.query(Book).join(UserBook).filter(UserBook.user_id == user_id).all()
-
+        try:
+            user = User.query.get(user_id)
+            return [book.id for book in user.books]
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"BookRepo - get_user_books error: {e}")
+        
 
 class InstructionRepo():
     """Facilitates instructions table interactions"""
