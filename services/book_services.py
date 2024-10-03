@@ -12,7 +12,6 @@ class BookService():
             UserBookRepo.create_entry(user_id=user_id, book_id=new_book["id"])
         # add book id to default if necessary
         user = User.query.get(user_id)
-        highlight(user,"*")
         if user.book_id == None:
             user.book_id = new_book["id"]
             db.session.add(user)
