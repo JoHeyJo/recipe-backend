@@ -33,6 +33,7 @@ class UserRepo():
             token = create_access_token(
                 identity="user_credentials",
                 additional_claims={
+                    "book_id": user.book_id,
                     "user": user.user_name,
                     "is_admin": user.is_admin,
                     "user_id": user.id
@@ -61,6 +62,7 @@ class UserRepo():
                 token = create_access_token(
                     identity="user_credentials",
                     additional_claims={
+                        "book_id": user.book_id,
                         "user": user.user_name,
                         "is_admin": user.is_admin,
                         "user_id": user.id
