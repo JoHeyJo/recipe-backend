@@ -86,8 +86,8 @@ def login():
 ########### RECIPES ###########
 
 
-@app.post("/recipes/books/<book_id>")
-def add_recipe(book_id):
+@app.post("users/<user_id>/books/<book_id>/recipes")
+def add_recipe(user_id, book_id):
     """Consolidated recipe data passed to RecipeService function. If successful 
     recipes_ingredients record created"""
     try:

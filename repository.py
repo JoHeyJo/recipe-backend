@@ -224,7 +224,8 @@ class IngredientsRepo():
             except SQLAlchemyError as e:
                 highlight(e, "!")
                 db.session.rollback()
-                raise Exception(f"add_ingredients error: {e}")
+                raise Exception(
+                    f"IngredientsRepo -> process_ingredients error: {e}")
         return ingredients_data
 
 
