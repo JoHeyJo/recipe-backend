@@ -36,7 +36,8 @@ class RecipeService():
             #     RecipeIngredientRepo.create_recipe(
             #         recipe_id=recipe_data["recipe_id"],
             #         ingredient_id=ingredient["ingredient"]['id'],
-            #         quantity_amount_id=ingredient["amount"]['id'],
+            #         quantity_amount_id=ingredient["amount"]
+            # ['id'],
             #         quantity_unit_id=ingredient["unit"]['id'])
 
             # if instructions:
@@ -108,10 +109,8 @@ class RecipeService():
     def process_ingredients(ingredients, recipe_id):
         """Adds ingredients and associates each ingredient to recipe"""
         try:
-            highlight(ingredients, "/")
             ingredients_data = IngredientsRepo.process_ingredients(
                 ingredients=ingredients)
-            highlight(ingredients_data, "/")
             if not ingredients_data:
                 raise ValueError(
                     f"No ingredients data returned for recipe {recipe_id}")
@@ -119,7 +118,7 @@ class RecipeService():
             for ingredient in ingredients_data:
                 RecipeIngredientRepo.create_recipe(
                     recipe_id=recipe_id,
-                    ingredient_id=ingredient["ingredient"]['id'],
+                    ingredient_id=ingredient["item"]['id'],
                     quantity_amount_id=ingredient["amount"]['id'],
                     quantity_unit_id=ingredient["unit"]['id'])
 
@@ -147,38 +146,3 @@ class RecipeService():
             raise ValueError(
                 f"Failed to process_instructions for book {book_id}: {e}")
 
-
-[
-    {'ingredient': 
-        {'name': 'Gin', 'id': '4'}, 'amount': {'value': '1.5', 'id': '1'}, 'unit': {'type': 'oz', 'id': '1'}},
-    {'ingredient': 
-        {'name': 'lime', 'id': '5'}, 'amount': {
-    'value': '1.5', 'id': '1'}, 'unit': {'type': 'oz', 'id': '1'}}, 
-    {'ingredient': 
-        {'name': 'Simple', 'id': '6'}, 'amount': {'value': '1', 'id': '4'}, 'unit': {'type': 'oz', 'id': '1'}}]
-
-{
-	"recipe": {
-		"name": string,
-		"instructions": [
-			{
-				"id": string,
-				"instruction": string 
-			}
-		],
-		"notes": [ string ],
-		"ingredients": [
-			{
-				"item": {
-					"name": string, "id": string
-				},
-				"amount": {
-					"value": number, "id": string
-				},
-				"unit": {
-					"type": number, "id": string
-				}
-			}
-		]
-	}
-}
