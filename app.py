@@ -86,12 +86,12 @@ def login():
 ########### RECIPES ###########
 
 
-@app.post("users/<user_id>/books/<book_id>/recipes")
+@app.post("/users/<user_id>/books/<book_id>/recipes")
 def add_recipe(user_id, book_id):
     """Consolidated recipe data passed to RecipeService function. If successful 
     recipes_ingredients record created"""
     try:
-        recipe_data = RecipeService.add_recipe(data=request.json,current_book_id=book_id)
+        recipe_data = RecipeService.process_recipe_data(data=request.json, book_id=book_id, user_id=user_id)
         return jsonify(recipe_data), 200
     except Exception as e:
         return handle_error(e)

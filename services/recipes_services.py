@@ -51,8 +51,8 @@ class RecipeService():
             # UserBookRepo.create_entry(user_id=user_id, book_id=current_book_id)
             # # ############ ADD INSTRUCTION TO BOOK (books_instructions) ########
             # for instruction in instructions_data:
-                # BookInstructionRepo.create_entry(
-                    # book_id=current_book_id, instruction_id=instruction["id"])
+            # BookInstructionRepo.create_entry(
+            # book_id=current_book_id, instruction_id=instruction["id"])
 
             return recipe_data
 
@@ -72,6 +72,8 @@ class RecipeService():
                 f"Failed to extract recipe data for user {book_id}: {e}")
 
         try:
+            highlight("processing", "@")
+
             recipe_data = RecipeService.process_recipe(
                 book_id=book_id, recipe_name=recipe["name"], notes=notes)
 
@@ -82,11 +84,10 @@ class RecipeService():
             if instructions:
                 recipe_data["instructions_data"] = RecipeService.process_instructions(
                     instructions=instructions, book_id=book_id)
-            
+
             return recipe_data
         except Exception as e:
             raise ValueError(f"Failed to process_recipe: {e}")
-
 
     @staticmethod
     def process_recipe(book_id, recipe_name, notes):
@@ -107,12 +108,14 @@ class RecipeService():
     def process_ingredients(ingredients, recipe_id):
         """Adds ingredients and associates each ingredient to recipe"""
         try:
+            highlight(ingredients, "/")
             ingredients_data = IngredientsRepo.process_ingredients(
                 ingredients=ingredients)
-            
+            highlight(ingredients_data, "/")
             if not ingredients_data:
-                    raise ValueError(f"No ingredients data returned for recipe {recipe_id}")
-            
+                raise ValueError(
+                    f"No ingredients data returned for recipe {recipe_id}")
+
             for ingredient in ingredients_data:
                 RecipeIngredientRepo.create_recipe(
                     recipe_id=recipe_id,
@@ -131,10 +134,10 @@ class RecipeService():
         try:
             instructions_data = InstructionRepo.process_instructions(
                 instructions=instructions)
-            
-            if not instructions_data:
-                raise ValueError(f"No instructions data returned for book {book_id}")
 
+            if not instructions_data:
+                raise ValueError(
+                    f"No instructions data returned for book {book_id}")
 
             for instruction in instructions_data:
                 BookInstructionRepo.create_entry(
@@ -143,3 +146,39 @@ class RecipeService():
         except Exception as e:
             raise ValueError(
                 f"Failed to process_instructions for book {book_id}: {e}")
+
+
+[
+    {'ingredient': 
+        {'name': 'Gin', 'id': '4'}, 'amount': {'value': '1.5', 'id': '1'}, 'unit': {'type': 'oz', 'id': '1'}},
+    {'ingredient': 
+        {'name': 'lime', 'id': '5'}, 'amount': {
+    'value': '1.5', 'id': '1'}, 'unit': {'type': 'oz', 'id': '1'}}, 
+    {'ingredient': 
+        {'name': 'Simple', 'id': '6'}, 'amount': {'value': '1', 'id': '4'}, 'unit': {'type': 'oz', 'id': '1'}}]
+
+{
+	"recipe": {
+		"name": string,
+		"instructions": [
+			{
+				"id": string,
+				"instruction": string 
+			}
+		],
+		"notes": [ string ],
+		"ingredients": [
+			{
+				"item": {
+					"name": string, "id": string
+				},
+				"amount": {
+					"value": number, "id": string
+				},
+				"unit": {
+					"type": number, "id": string
+				}
+			}
+		]
+	}
+}
