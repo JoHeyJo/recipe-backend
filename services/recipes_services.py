@@ -63,18 +63,17 @@ class RecipeService():
     def process_recipe_data(data, user_id, book_id):
         """Consolidate multi-step process to create a recipe"""
         try:
-            recipe_data = None
-
             recipe = data["recipe"]
-            notes = recipe["notes"] or None
-            instructions = recipe["instructions"] or None
-            ingredients = recipe["ingredients"] or None
+            notes = recipe.get("notes")
+            instructions = recipe.get("instructions")
+            ingredients = recipe.get("ingredients")
         except Exception as e:
-            raise ValueError(f"Failed to extract recipe data: {e}")
+            raise ValueError(
+                f"Failed to extract recipe data for user {book_id}: {e}")
 
         try:
             recipe_data = RecipeService.process_recipe(
-                    book_id=book_id, recipe_name=recipe["name"])
+                book_id=book_id, recipe_name=recipe["name"], notes=notes)
 
             if ingredients:
                 recipe_data["ingredients"] = RecipeService.process_ingredients(
@@ -83,6 +82,8 @@ class RecipeService():
             if instructions:
                 recipe_data["instructions_data"] = RecipeService.process_instructions(
                     instructions=instructions, book_id=book_id)
+            
+            return recipe_data
         except Exception as e:
             raise ValueError(f"Failed to process_recipe: {e}")
 
@@ -99,7 +100,8 @@ class RecipeService():
 
             return recipe_data
         except Exception as e:
-            raise ValueError(f"Failed to process_recipe: {e}")
+            raise ValueError(
+                f"Failed to process recipe '{recipe_name}' for book {book_id}: {e}")
 
     @staticmethod
     def process_ingredients(ingredients, recipe_id):
@@ -107,7 +109,10 @@ class RecipeService():
         try:
             ingredients_data = IngredientsRepo.process_ingredients(
                 ingredients=ingredients)
-
+            
+            if not ingredients_data:
+                    raise ValueError(f"No ingredients data returned for recipe {recipe_id}")
+            
             for ingredient in ingredients_data:
                 RecipeIngredientRepo.create_recipe(
                     recipe_id=recipe_id,
@@ -117,7 +122,8 @@ class RecipeService():
 
             return ingredients_data
         except Exception as e:
-            raise ValueError(f"Failed to process_ingredients: {e}")
+            raise ValueError(
+                f"Failed to process ingredients for recipe {recipe_id}: {e}")
 
     @staticmethod
     def process_instructions(instructions, book_id):
@@ -125,10 +131,15 @@ class RecipeService():
         try:
             instructions_data = InstructionRepo.process_instructions(
                 instructions=instructions)
+            
+            if not instructions_data:
+                raise ValueError(f"No instructions data returned for book {book_id}")
+
 
             for instruction in instructions_data:
                 BookInstructionRepo.create_entry(
                     book_id=book_id, instruction_id=instruction["id"])
             return instructions_data
         except Exception as e:
-            raise ValueError(f"Failed to process_instructions: {e}")
+            raise ValueError(
+                f"Failed to process_instructions for book {book_id}: {e}")
