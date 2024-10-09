@@ -4,11 +4,12 @@ from repository import *
 class RecipeService():
     """Handles recipe view business logic"""
     @staticmethod
-    def add_recipe(data):
+    def add_recipe(data, current_book_id):
+        """"""
+        highlight(data, "@")
         recipe_data = None
         # User data
         user_id = data["user_id"]
-        book_id = data["book_id"]
 
         # Recipe data
         recipe = data["recipe"]
@@ -21,6 +22,7 @@ class RecipeService():
 
         # ############ RECIPE CREATION ########
         # First add ingredients if applicable then add recipe
+        highlight(data, "2")
         try:
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, notes=notes)
@@ -44,13 +46,13 @@ class RecipeService():
 
             # # ############ ADD RECIPE TO BOOK (recipes_books) ########
             RecipeBookRepo.create_entry(
-                book_id=book_id, recipe_id=recipe_data["recipe_id"])
+                book_id=current_book_id, recipe_id=recipe_data["recipe_id"])
             # # ############ ADD BOOK TO USER (users_books) ########
-            UserBookRepo.create_entry(user_id=user_id, book_id=book_id)
+            UserBookRepo.create_entry(user_id=user_id, book_id=current_book_id)
             # # ############ ADD INSTRUCTION TO BOOK (books_instructions) ########
             for instruction in instructions_data:
                 BookInstructionRepo.create_entry(
-                    book_id=book_id, instruction_id=instruction["id"])
+                    book_id=current_book_id, instruction_id=instruction["id"])
 
             return recipe_data
 

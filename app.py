@@ -83,16 +83,23 @@ def login():
     except IntegrityError as e:
         return jsonify({"error": f"login error: {e}"}), 400
 
+########### RECIPES ###########
 
-@app.post("/recipes")
-def add_recipe():
+
+@app.post("/recipes/books/<book_id>")
+def add_recipe(book_id):
     """Consolidated recipe data passed to RecipeService function. If successful 
     recipes_ingredients record created"""
     try:
-        recipe_data = RecipeService.add_recipe(request.json)
+        recipe_data = RecipeService.add_recipe(data=request.json,current_book_id=book_id)
         return jsonify(recipe_data), 200
     except Exception as e:
         return handle_error(e)
+    
+@app.get("/recipes/users/<user_id>")
+def get_user_recipes(user_id):
+    """Return recipes associated to user"""
+
 
 ########### BOOKS ###########
 
