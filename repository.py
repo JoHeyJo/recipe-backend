@@ -139,7 +139,6 @@ class QuantityAmountRepo():
     @staticmethod
     def create_amount(value):
         """Create quantity amount and add to database"""
-        highlight(value, "AMOUNTISNULL")
         try:
             quantity_amount = QuantityAmount(value=value)
             db.session.add(quantity_amount)
@@ -167,11 +166,8 @@ class ItemRepo():
     @staticmethod
     def process_item(item):
         """Create and returns new item or returns existing item"""
-        highlight(item, "ITEM")
         is_stored = item.get("id")
-        
         if is_stored is not None:
-            highlight(is_stored, "ITEMRETURN")
             return item
         else:
             return ItemRepo.create_item(name=item["name"])
