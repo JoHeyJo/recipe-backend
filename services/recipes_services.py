@@ -70,10 +70,9 @@ class RecipeService():
             ingredients = recipe.get("ingredients")
         except Exception as e:
             raise ValueError(
-                f"Failed to extract recipe data for user {book_id}: {e}")
+                f"Failed to extract recipe data for book {book_id}: {e}")
 
         try:
-            highlight("processing", "@")
 
             recipe_data = RecipeService.process_recipe(
                 book_id=book_id, recipe_name=recipe["name"], notes=notes)
@@ -114,11 +113,11 @@ class RecipeService():
             if not ingredients_data:
                 raise ValueError(
                     f"No ingredients data returned for recipe {recipe_id}")
-
+            highlight(ingredients_data, "@")
             for ingredient in ingredients_data:
                 RecipeIngredientRepo.create_recipe(
                     recipe_id=recipe_id,
-                    ingredient_id=ingredient["item"]['id'],
+                    item_id=ingredient["item"]['id'],
                     quantity_amount_id=ingredient["amount"]['id'],
                     quantity_unit_id=ingredient["unit"]['id'])
 

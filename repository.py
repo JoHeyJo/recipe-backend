@@ -95,7 +95,7 @@ class QuantityUnitRepo():
     def process_unit(unit):
         """Creates and returns new unit or returns existing unit"""
         is_stored = unit.get("id")
-        if is_stored:
+        if is_stored is not None:
             return unit
         else:
             return QuantityUnitRepo.create_unit(type=unit["type"])
@@ -130,8 +130,8 @@ class QuantityAmountRepo():
     @staticmethod
     def process_amount(amount):
         """Creates and returns new amount or return existing amount """
-        is_stored = amount["id"] or None
-        if is_stored:
+        is_stored = amount.get("id")
+        if is_stored is not None:
             return amount
         else:
             return QuantityAmountRepo.create_amount(value=amount["value"])
@@ -139,6 +139,7 @@ class QuantityAmountRepo():
     @staticmethod
     def create_amount(value):
         """Create quantity amount and add to database"""
+        highlight(value, "AMOUNTISNULL")
         try:
             quantity_amount = QuantityAmount(value=value)
             db.session.add(quantity_amount)
@@ -166,8 +167,11 @@ class ItemRepo():
     @staticmethod
     def process_item(item):
         """Create and returns new item or returns existing item"""
+        highlight(item, "ITEM")
         is_stored = item.get("id")
-        if is_stored:
+        
+        if is_stored is not None:
+            highlight(is_stored, "ITEMRETURN")
             return item
         else:
             return ItemRepo.create_item(name=item["name"])
@@ -175,6 +179,7 @@ class ItemRepo():
     @staticmethod
     def create_item(name):
         """Create item and add to database"""
+        highlight(name, "ITEMISNULL")
         try:
             item = Item(name=name)
             db.session.add(item)
@@ -264,7 +269,7 @@ class InstructionRepo():
         processed_instructions = []
         for instruction in instructions:
             is_stored = instruction.get("id")
-            if is_stored:
+            if is_stored is not None:
                 processed_instructions.append(instruction)
             else:
                 processed_instructions.append(
@@ -302,10 +307,10 @@ class InstructionRepo():
 class RecipeIngredientRepo():
     """Facilitates association of recipes & ingredients """
     @staticmethod
-    def create_recipe(recipe_id, ingredient_id, quantity_unit_id, quantity_amount_id):
+    def create_recipe(recipe_id, item_id, quantity_unit_id, quantity_amount_id):
         """Create recipe and ingredient association -> add to database"""
         entry = RecipeIngredient(
-            recipe_id=recipe_id, ingredient_id=ingredient_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
+            recipe_id=recipe_id, item_id=item_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
         try:
             db.session.add(entry)
             db.session.commit()
