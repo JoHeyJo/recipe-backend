@@ -175,7 +175,6 @@ class ItemRepo():
     @staticmethod
     def create_item(name):
         """Create item and add to database"""
-        highlight(name, "ITEMISNULL")
         try:
             item = Item(name=name)
             db.session.add(item)
