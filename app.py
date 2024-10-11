@@ -83,7 +83,9 @@ def login():
     except IntegrityError as e:
         return jsonify({"error": f"login error: {e}"}), 400
 
-########### RECIPES ###########
+
+########### USERS ###########
+############ RECIPES ###########
 
 
 @app.post("/users/<user_id>/books/<book_id>/recipes")

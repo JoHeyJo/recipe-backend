@@ -31,13 +31,14 @@ class UserRepo():
             db.session.add(user)
             db.session.commit()
             token = create_access_token(
-                identity="user_credentials",
-                additional_claims={
-                    "book_id": user.book_id,
-                    "user": user.user_name,
-                    "is_admin": user.is_admin,
-                    "user_id": user.id
-                })
+                identity=user.id
+                # additional_claims={
+                #     # "book_id": user.book_id,
+                #     # "user": user.user_name,
+                #     # "is_admin": user.is_admin,
+                #     # "user_id": user.id
+                # }
+                )
             return token
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -60,13 +61,14 @@ class UserRepo():
             is_auth = bcrypt.check_password_hash(user.password, password)
             if is_auth:
                 token = create_access_token(
-                    identity="user_credentials",
-                    additional_claims={
-                        "book_id": user.book_id,
-                        "user": user.user_name,
-                        "is_admin": user.is_admin,
-                        "user_id": user.id
-                    })
+                    identity=user.id
+                    # additional_claims={
+                    #     # "book_id": user.book_id,
+                    #     # "user": user.user_name,
+                    #     # "is_admin": user.is_admin,
+                    #     # "user_id": user.id
+                    # }
+                    )
                 return token
         return False
 
