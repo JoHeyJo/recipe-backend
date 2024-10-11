@@ -71,7 +71,17 @@ class UserRepo():
                     )
                 return token
         return False
-
+    
+    @staticmethod
+    def fetch_user(user_id):
+        """Fetch user with corresponding id"""
+        try:
+            user = User.query.get(user_id)
+            return User.serialize(user)
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"UserRepo -> fetch_user error:{e}")
 
 class RecipeRepo():
     """Facilitates recipes table interactions"""

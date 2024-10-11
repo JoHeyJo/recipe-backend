@@ -85,6 +85,14 @@ def login():
 
 
 ########### USERS ###########
+@app.get("/users/<user_id>")
+def get_user(user_id):
+    """Retrieve user associated to id"""
+    try:
+        return jsonify(UserRepo.fetch_user(user_id=user_id))
+    except Exception as e:
+        return handle_error(e)
+
 ############ RECIPES ###########
 
 
