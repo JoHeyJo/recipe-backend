@@ -30,13 +30,13 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     def serialize(self):
         """Serialize User table data into dict"""
         return {
-            "id": self.id, 
-            "first_name": self.first_name, 
-            "last_name": self.last_name, 
+            "id": self.id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
             "email": self.email,
-            "user_name":self.user_name,
+            "user_name": self.user_name,
             "book_id": self.book_id
-            }
+        }
 
 
 class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -50,6 +50,10 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='recipes_books', back_populates='recipes')
+
+    def serialize(self):
+        """Serialize Recipe table data into dict"""
+        return {"id": self.id, "name": self.name, "notes": self.notes}
 
 
 class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
