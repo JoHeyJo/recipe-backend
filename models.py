@@ -48,8 +48,8 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     ingredients: Mapped[List['RecipeIngredient']] = relationship(
         'RecipeIngredient', backref='recipe')
     
-    items: Mapped[List['Recipe']] = relationship(
-        'Item', secondary='recipes_ingredients', back_populates='recipes')
+    # items: Mapped[List['Recipe']] = relationship(
+    #     'Item', secondary='recipes_ingredients', back_populates='recipes')
 
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='recipes_books', back_populates='recipes')
@@ -88,8 +88,8 @@ class Item(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         """Serialize amount table data into dict"""
         return {"id": self.id, "name": self.name}
 
-    recipes: Mapped[List['Item']] = relationship(
-        'Recipe', secondary='recipes_ingredients', back_populates='items')
+    # recipes: Mapped[List['Item']] = relationship(
+    #     'Recipe', secondary='recipes_ingredients', back_populates='items')
 
 
 class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):

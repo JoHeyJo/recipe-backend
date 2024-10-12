@@ -88,7 +88,11 @@ class RecipeRepo():
     def fetch_recipes(user_id, book_id):
         """Retrieve recipes corresponding to user's book"""
         try:
-            recipes = Book.query.get(book_id)
+            book = Book.query.get(book_id)
+            highlight(book,"!")
+            recipes = book["recipes"]
+            highlight(recipes,"#")
+            return [Recipe.serialize(recipe) for recipe in recipes]
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
