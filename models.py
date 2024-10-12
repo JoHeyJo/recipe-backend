@@ -45,6 +45,9 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     name: Mapped[str_255]
     notes: Mapped[str_255_nullable]
 
+    ingredients: Mapped[List['RecipeIngredient']] = relationship(
+        'RecipeIngredient', backref='recipe')
+    
     items: Mapped[List['Recipe']] = relationship(
         'Item', secondary='recipes_ingredients', back_populates='recipes')
 
