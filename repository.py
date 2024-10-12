@@ -83,6 +83,16 @@ class RecipeRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"create_recipe error:{e}")
+    
+    @staticmethod
+    def fetch_recipes(user_id, book_id):
+        """Retrieve recipes corresponding to user's book"""
+        try:
+            recipes = Book.query.get(book_id)
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"create_recipe error:{e}")
 
 
 class QuantityUnitRepo():

@@ -109,9 +109,14 @@ def add_recipe(user_id, book_id):
         return handle_error(e)
 
 
-@app.get("/recipes/users/<user_id>")
-def get_user_recipes(user_id):
+@app.get("/users/<user_id>/books/<books_id>/recipes")
+def get_user_recipes(user_id, book_id):
     """Return recipes associated to user"""
+    try:
+        recipes = RecipeRepo.fetch_recipe()
+    except Exception as e:
+        return handle_error(e)
+
 
 
 ########### BOOKS ###########
