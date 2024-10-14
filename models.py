@@ -176,12 +176,3 @@ def connect_db(app):
     with app.app_context():
         # db.drop_all()
         db.create_all()
-
-
-# {'recipe_title': 'Manhattan North', 'recipe_id': 3, 
-#  'notes': ["It's great on the rocks on a hot day!"], 
-#  'ingredients': [{
-#     'item': {'name': 'Whiskey', 'id': '1'}, 'amount': {'value': '1.5', 'id': '1'}, 'unit': {'type': 'oz', 'id': '1'}}, {
-#     'item': {'name': 'lime', 'id': '1'}, 'amount': {'value': '1.5', 'id': '1'}, 'unit': {'type': 'oz', 'id': '1'}}, {
-#     'item': {'name': 'Simple', 'id': '1'}, 'amount': {'value': '1', 'id': '1'}, 'unit': {'type': 'oz', 'id': '1'}}
-#     ]}

@@ -17,19 +17,16 @@ class RecipeService():
 
         try:
 
-            highlight(recipe, "!")
             recipe_data = RecipeService.process_recipe(
                 book_id=book_id, recipe_name=recipe["name"], notes=notes)
-            highlight("return recipe_data", "!")
+            
             if ingredients:
                 recipe_data["ingredients"] = RecipeService.process_ingredients(
                     ingredients=ingredients, recipe_id=recipe_data["recipe_id"])
-            highlight("return ingredients", "!")
-            highlight(recipe_data,"^")
+                
             if instructions:
                 recipe_data["instructions_data"] = RecipeService.process_instructions(
                     recipe_id=recipe_data["recipe_id"], instructions=instructions, book_id=book_id)
-            highlight("return instructions", "!")
 
             return recipe_data
         except Exception as e:
@@ -97,3 +94,45 @@ class RecipeService():
             highlight(e, "!")
             raise ValueError(
                 f"Failed to process_instructions for book {book_id}: {e}")
+
+    @staticmethod
+    def build_recipes(book_id):
+        """Consolidate recipe components"""
+        recipes = Book.query.get()
+        # for recipe in recipes:
+        #     instructions = recipe["instructions_data"]
+        #     ingredients = recipe["ingredients"]
+        #     r = {"id":recipe["id"], "name": recipe["name"], "notes": recipe["notes"],
+        #          "ingredients": ingredients, "instructions": instructions}
+        #     full_recipes.append(r)
+
+
+[{'id': 1,
+  'name': 'Manhattan North',
+  'notes': '{"It\'s great on the rocks on a hot day!"}',
+  'ingredients': [< RecipeIngredient(id=1, recipe_id=1, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 33, 12, 486079)) > ,
+                   < RecipeIngredient(id=2, recipe_id=1, item_id=2, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 33, 12, 490486)) >,
+                   < RecipeIngredient(id=3, recipe_id=1, item_id=3, quantity_unit_id=1, quantity_amount_id=2, created_at=datetime.datetime(2024, 10, 14, 15, 33, 12, 492152)) >],
+  'instructions': []},
+ {'id': 2,
+  'name': 'Manhattan North',
+  'notes': '{"It\'s great on the rocks on a hot day!"}',
+  'ingredients': [],
+  'instructions': []},
+ {'id': 3,
+  'name': 'Manhattan North',
+  'notes': '{"It\'s great on the rocks on a hot day!"}',
+  'ingredients': [< RecipeIngredient(id=4, recipe_id=3, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 35, 11, 779671)) > ,
+                   < RecipeIngredient(id=5, recipe_id=3, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 35, 11, 782093)) >,
+                   < RecipeIngredient(id=6, recipe_id=3, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 35, 11, 783419)) >],
+  'instructions': []},
+ {'id': 4,
+  'name': 'Manhattan North',
+  'notes': '{"It\'s great on the rocks on a hot day!"}',
+  'ingredients': [< RecipeIngredient(id=7, recipe_id=4, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 37, 37, 231507)) > ,
+                   < RecipeIngredient(id=8, recipe_id=4, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 37, 37, 234539)) >,
+                   < RecipeIngredient(id=9, recipe_id=4, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 37, 37, 236958)) >],
+  'instructions': [< Instruction(id=1, instruction='Add ingredients over ice', created_at=datetime.datetime(2024, 10, 14, 15, 37, 37, 239374)) > ,
+                    < Instruction(id=2, instruction='shake ingredients', created_at=datetime.datetime(2024, 10, 14, 15, 37, 37, 242898)) >,
+                    < Instruction(id=3, instruction='strain into glass', created_at=datetime.datetime(2024, 10, 14, 15, 37, 37, 245496)) > ,
+   < Instruction(id=4, instruction='garnish with cherry', created_at=datetime.datetime(2024, 10, 14, 15, 37, 37, 248208))>]}]
