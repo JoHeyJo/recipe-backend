@@ -17,16 +17,19 @@ class RecipeService():
 
         try:
 
+            highlight(recipe, "!")
             recipe_data = RecipeService.process_recipe(
                 book_id=book_id, recipe_name=recipe["name"], notes=notes)
-
+            highlight("return recipe_data", "!")
             if ingredients:
                 recipe_data["ingredients"] = RecipeService.process_ingredients(
                     ingredients=ingredients, recipe_id=recipe_data["recipe_id"])
-
+            highlight("return ingredients", "!")
+            highlight(recipe_data,"^")
             if instructions:
                 recipe_data["instructions_data"] = RecipeService.process_instructions(
-                    recipe_id=recipe_data["id"], instructions=instructions, book_id=book_id)
+                    recipe_id=recipe_data["recipe_id"], instructions=instructions, book_id=book_id)
+            highlight("return instructions", "!")
 
             return recipe_data
         except Exception as e:

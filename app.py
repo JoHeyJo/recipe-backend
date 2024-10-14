@@ -101,7 +101,6 @@ def add_recipe(user_id, book_id):
     """Consolidated recipe data passed to RecipeService function. If successful 
     recipes_ingredients record created"""
     try:
-        highlight(request.json, "*")
         recipe_data = RecipeService.process_recipe_data(
             data={"recipe": request.json}, book_id=book_id, user_id=user_id)
         return jsonify(recipe_data), 200
@@ -139,7 +138,7 @@ def add_book(user_id):
 
 @app.get("/books/users/<user_id>")
 def get_user_books(user_id):
-    """Returns all books assocaited with user"""
+    """Returns all books associated with user"""
     books = BookRepo.get_user_books(user_id=user_id)
     return jsonify({"books": books})
 
