@@ -5,7 +5,7 @@ class RecipeService():
     """Handles recipe view business logic"""
     @staticmethod
     def process_recipe_data(data, user_id, book_id):
-        """Consolidate multi-step process to create a recipe"""
+        """Consolidate 'create recipe' process"""
         try:
             recipe = data["recipe"]
             notes = recipe.get("notes")
@@ -26,7 +26,7 @@ class RecipeService():
 
             if instructions:
                 recipe_data["instructions_data"] = RecipeService.process_instructions(
-                    instructions=instructions, book_id=book_id)
+                    recipe_id=recipe_data["id"], instructions=instructions, book_id=book_id)
 
             return recipe_data
         except Exception as e:
@@ -73,7 +73,7 @@ class RecipeService():
                 f"Failed to process ingredients for recipe {recipe_id}: {e}")
 
     @staticmethod
-    def process_instructions(instructions, book_id):
+    def process_instructions(recipe_id, instructions, book_id):
         """Adds instructions and associates each instruction to book"""
         try:
             instructions_data = InstructionRepo.process_instructions(
@@ -86,9 +86,11 @@ class RecipeService():
             for instruction in instructions_data:
                 BookInstructionRepo.create_entry(
                     book_id=book_id, instruction_id=instruction["id"])
+                RecipeInstructionRepo.create_entry(
+                    recipe_id=recipe_id, instruction_id=instruction["id"])
+
             return instructions_data
         except Exception as e:
             highlight(e, "!")
             raise ValueError(
                 f"Failed to process_instructions for book {book_id}: {e}")
-

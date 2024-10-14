@@ -1,6 +1,6 @@
 from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
-from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, RecipeIngredient, RecipeBook, UserBook, BookInstruction
+from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, RecipeIngredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction
 from sqlalchemy.exc import SQLAlchemyError
 from exceptions import *
 
@@ -89,9 +89,7 @@ class RecipeRepo():
         """Retrieve recipes corresponding to user's book"""
         try:
             book = Book.query.get(book_id)
-            highlight(book,"!")
-            recipes = book["recipes"]
-            highlight(recipes,"#")
+            recipes = book.recipes
             return [Recipe.serialize(recipe) for recipe in recipes]
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -369,3 +367,17 @@ class BookInstructionRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"BookInstructionRepo-create_entry:{e}")
+
+class RecipeInstructionRepo():
+    """Facilitates association of recipes & instructions"""
+    @staticmethod
+    def create_entry(recipe_id, instruction_id):
+        """Create recipe and instruction association -> add to database"""
+        try:
+            entry = RecipeInstruction(recipe_id=recipe_id, instruction_id=instruction_id)
+            db.session.add(entry)
+            db.session.commit()
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"RecipeInstructionRepo-create_entry:{e}")
