@@ -141,6 +141,10 @@ class RecipeIngredient(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.
         Integer, ForeignKey('quantity_amounts.id'))
     
     item: Mapped['Item'] = relationship("Item", backref="recipe_ingredients")
+    amount: Mapped['QuantityAmount'] = relationship(
+        "QuantityAmount", backref="recipe_ingredients")
+    unit: Mapped['QuantityUnit'] = relationship(
+        "QuantityUnit", backref="recipe_ingredients")
 
 
 class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):

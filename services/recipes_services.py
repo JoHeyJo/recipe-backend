@@ -98,15 +98,21 @@ class RecipeService():
     def build_recipes(book_id):
         """Consolidate recipe components"""
         complete_recipes = []
-        recipes_instances = Book.query.get()
-        for recipe in recipes_instances:
+        book = Book.query.get(book_id)
+        recipes_instances = book.recipes
+        for recipe_instance in recipes_instances:
             recipe_build = {}
-            recipe = Recipe.serialize(recipe)
-            instructions = InstructionRepo.get_instructions_from_instance(recipe)
-            ingredients = recipe.ingredients
-            r = {"id":recipe["id"], "name": recipe["name"], "notes": recipe["notes"],
-                 "ingredients": ingredients, "instructions": instructions}
-            full_recipes.append(r)
+            recipe = Recipe.serialize(recipe_instance)
+            recipe_build["recipe_id"] = recipe["id"]
+            recipe_build["recipe_title"] = recipe["name"]
+            recipe_build["recipe_notes"] = recipe["notes"]
+            instructions = InstructionRepo.get_instructions_from_instance(
+                recipe_instance.instructions)
+            recipe_build["instructions"] = instructions
+            ingredients = IngredientsRepo.build_ingredients(recipe_instance)
+            recipe_build["ingredients"] = ingredients
+            complete_recipes.append(recipe_build)
+        return complete_recipes
 
 
 # [{'id': 1,

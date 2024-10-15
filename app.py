@@ -112,8 +112,10 @@ def add_recipe(user_id, book_id):
 def get_user_recipes(user_id, book_id):
     """Return recipes associated to user"""
     try:
-        recipes = RecipeRepo.fetch_recipes(user_id=user_id,book_id=book_id)
+        # recipes = RecipeRepo.fetch_recipes(user_id=user_id,book_id=book_id)
+        recipes = RecipeService.build_recipes(book_id=book_id)
         return jsonify(recipes)
+        # return jsonify(recipes)
     except Exception as e:
         return handle_error(e)
 

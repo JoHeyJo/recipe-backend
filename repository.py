@@ -237,11 +237,21 @@ class IngredientsRepo():
         return ingredients_data
 
     @staticmethod
-    def build_ingredient(instances):
+    def build_ingredients(instance):
         """Build ingredient from corresponding instances(Recipe)"""
-        #  [< RecipeIngredient(id=4, recipe_id=3, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 35, 11, 779671)) > ,
-        for instance in instances:
-            item = instance.get
+        ingredients = []
+        highlight(instance.ingredients, "%")
+        for ingredient in instance.ingredients:
+            amount = QuantityAmount.serialize(ingredient.amount)
+            unit = QuantityUnit.serialize(ingredient.unit)
+            item = Item.serialize(ingredient.item)
+            highlight(ingredient,"&")
+            highlight([amount,unit,item],"!")
+            ingredients.append([amount,unit,item])
+            highlight(ingredients, "&")
+        return ingredients
+
+
 
 
 
@@ -313,10 +323,12 @@ class InstructionRepo():
             raise Exception(f"InstructionRepo - get_instruction error: {e}")
         
     @staticmethod
-    def get_instructions_from_instance(instance):
+    def get_instructions_from_instance(instances):
         """Return all associated instructions"""
-        instructions = instance.instructions
-        return [Instruction.serialize(instruction) for instruction in instructions]
+        if not instances:
+            return []
+        highlight(instances,"!")
+        return [Instruction.serialize(instruction) for instruction in instances]
 
 
 ###################### ASSOCIATION TABLES ############################
