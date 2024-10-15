@@ -55,6 +55,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'Instruction', secondary='recipes_instructions', back_populates='recipes'
     )
 
+
     def serialize(self):
         """Serialize Recipe table data into dict"""
         return {"id": self.id, "name": self.name, "notes": self.notes}
@@ -138,6 +139,8 @@ class RecipeIngredient(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.
         Integer, ForeignKey('quantity_units.id'))
     quantity_amount_id: Mapped[int] = Column(
         Integer, ForeignKey('quantity_amounts.id'))
+    
+    item: Mapped['Item'] = relationship("Item", backref="recipe_ingredients")
 
 
 class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):

@@ -241,6 +241,7 @@ class IngredientsRepo():
         """Build ingredient from corresponding instances(Recipe)"""
         #  [< RecipeIngredient(id=4, recipe_id=3, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 35, 11, 779671)) > ,
         for instance in instances:
+            item = instance.get
 
 
 
