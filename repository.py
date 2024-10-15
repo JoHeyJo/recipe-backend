@@ -236,6 +236,14 @@ class IngredientsRepo():
                     f"IngredientsRepo -> process_ingredients error: {e}")
         return ingredients_data
 
+    @staticmethod
+    def build_ingredient(instances):
+        """Build ingredient from corresponding instances(Recipe)"""
+        #  [< RecipeIngredient(id=4, recipe_id=3, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 35, 11, 779671)) > ,
+        for instance in instances:
+
+
+
 
 class BookRepo():
     """Facilitates books table interactions"""
@@ -302,6 +310,12 @@ class InstructionRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"InstructionRepo - get_instruction error: {e}")
+        
+    @staticmethod
+    def get_instructions_from_instance(instance):
+        """Return all associated instructions"""
+        instructions = instance.instructions
+        return [Instruction.serialize(instruction) for instruction in instructions]
 
 
 ###################### ASSOCIATION TABLES ############################
@@ -310,7 +324,7 @@ class InstructionRepo():
 class RecipeIngredientRepo():
     """Facilitates association of recipes & ingredients """
     @staticmethod
-    def create_recipe(recipe_id, item_id, quantity_unit_id, quantity_amount_id):
+    def create_ingredient(recipe_id, item_id, quantity_unit_id, quantity_amount_id):
         """Create recipe and ingredient association -> add to database"""
         entry = RecipeIngredient(
             recipe_id=recipe_id, item_id=item_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
@@ -320,7 +334,7 @@ class RecipeIngredientRepo():
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"RecipeIngredientRepo-create_recipe error:{e}")
+            raise Exception(f"RecipeIngredientRepo-create_ingredient error:{e}")
 
 
 class RecipeBookRepo():
