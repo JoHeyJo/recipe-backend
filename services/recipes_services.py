@@ -103,9 +103,7 @@ class RecipeService():
         for recipe_instance in recipes_instances:
             recipe_build = {}
             recipe = Recipe.serialize(recipe_instance)
-            recipe_build["recipe_id"] = recipe["id"]
-            recipe_build["recipe_title"] = recipe["name"]
-            recipe_build["recipe_notes"] = recipe["notes"]
+            recipe_build.update(recipe)
             highlight(recipe["name"],"^")
             highlight(recipe["notes"],"^")
             instructions = InstructionRepo.get_instructions_from_instance(
@@ -115,3 +113,4 @@ class RecipeService():
             recipe_build["ingredients"] = ingredients
             complete_recipes.append(recipe_build)
         return complete_recipes
+    
