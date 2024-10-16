@@ -17,10 +17,9 @@ class RecipeService():
                 f"Failed to extract recipe data for book {book_id}: {e}")
 
         try:
-
             recipe_data = RecipeService.process_recipe(
                 book_id=book_id, recipe_name=recipe["name"], notes=notes)
-            highlight(recipe_data,"@")
+            
             if ingredients:
                 recipe_data["ingredients"] = RecipeService.process_ingredients(
                     ingredients=ingredients, recipe_id=recipe_data["id"])
@@ -40,8 +39,10 @@ class RecipeService():
         try:
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, notes=notes)
+            highlight(recipe_data,"#")
             RecipeBookRepo.create_entry(
                 book_id=book_id, recipe_id=recipe_data["id"])
+            
             return recipe_data
         except Exception as e:
             highlight(e, "!")

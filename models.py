@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import BIGINT, String, Integer, Column, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import ARRAY
 from annotations import str_255, str_unique_255, str_255_nullable
 from mixins import TableNameMixin, TimestampMixin, ReprMixin, AssociationTableNameMixin
 from typing import Optional, List
@@ -43,7 +44,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Recipe table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     name: Mapped[str_255]
-    notes: Mapped[str_255_nullable]
+    notes: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
 
     ingredients: Mapped[List['RecipeIngredient']] = relationship(
         'RecipeIngredient', backref='recipe')
@@ -180,5 +181,5 @@ def connect_db(app):
     db.app = app
     db.init_app(app)
     with app.app_context():
-        # db.drop_all()
+        db.drop_all()
         db.create_all()
