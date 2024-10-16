@@ -96,7 +96,7 @@ class RecipeService():
 
     @staticmethod
     def build_recipes(book_id):
-        """Consolidate recipe components"""
+        """Consolidate recipe parts: recipe info, instructions, ingredients"""
         complete_recipes = []
         book = Book.query.get(book_id)
         recipes_instances = book.recipes
@@ -106,6 +106,8 @@ class RecipeService():
             recipe_build["recipe_id"] = recipe["id"]
             recipe_build["recipe_title"] = recipe["name"]
             recipe_build["recipe_notes"] = recipe["notes"]
+            highlight(recipe["name"],"^")
+            highlight(recipe["notes"],"^")
             instructions = InstructionRepo.get_instructions_from_instance(
                 recipe_instance.instructions)
             recipe_build["instructions"] = instructions
@@ -113,34 +115,3 @@ class RecipeService():
             recipe_build["ingredients"] = ingredients
             complete_recipes.append(recipe_build)
         return complete_recipes
-
-
-# [{'id': 1,
-#   'name': 'Manhattan North',
-#   'notes': '{"It\'s great on the rocks on a hot day!"}',
-#   'ingredients': [< RecipeIngredient(id=1, recipe_id=1, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 33, 12, 486079)) > ,
-#                    < RecipeIngredient(id=2, recipe_id=1, item_id=2, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 33, 12, 490486)) >,
-#                    < RecipeIngredient(id=3, recipe_id=1, item_id=3, quantity_unit_id=1, quantity_amount_id=2, created_at=datetime.datetime(2024, 10, 14, 15, 33, 12, 492152)) >],
-#   'instructions': []},
-#  {'id': 2,
-#   'name': 'Manhattan North',
-#   'notes': '{"It\'s great on the rocks on a hot day!"}',
-#   'ingredients': [],
-#   'instructions': []},
-#  {'id': 3,
-#   'name': 'Manhattan North',
-#   'notes': '{"It\'s great on the rocks on a hot day!"}',
-#   'ingredients': [< RecipeIngredient(id=4, recipe_id=3, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 35, 11, 779671)) > ,
-#                    < RecipeIngredient(id=5, recipe_id=3, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 35, 11, 782093)) >,
-#                    < RecipeIngredient(id=6, recipe_id=3, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 35, 11, 783419)) >],
-#   'instructions': []},
-#  {'id': 4,
-#   'name': 'Manhattan North',
-#   'notes': '{"It\'s great on the rocks on a hot day!"}',
-#   'ingredients': [< RecipeIngredient(id=7, recipe_id=4, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 37, 37, 231507)) > ,
-#                    < RecipeIngredient(id=8, recipe_id=4, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 37, 37, 234539)) >,
-#                    < RecipeIngredient(id=9, recipe_id=4, item_id=1, quantity_unit_id=1, quantity_amount_id=1, created_at=datetime.datetime(2024, 10, 14, 15, 37, 37, 236958)) >],
-#   'instructions': [< Instruction(id=1, instruction='Add ingredients over ice', created_at=datetime.datetime(2024, 10, 14, 15, 37, 37, 239374)) > ,
-#                     < Instruction(id=2, instruction='shake ingredients', created_at=datetime.datetime(2024, 10, 14, 15, 37, 37, 242898)) >,
-#                     < Instruction(id=3, instruction='strain into glass', created_at=datetime.datetime(2024, 10, 14, 15, 37, 37, 245496)) > ,
-#    < Instruction(id=4, instruction='garnish with cherry', created_at=datetime.datetime(2024, 10, 14, 15, 37, 37, 248208))>]}]

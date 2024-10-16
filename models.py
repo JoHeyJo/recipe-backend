@@ -55,7 +55,6 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'Instruction', secondary='recipes_instructions', back_populates='recipes'
     )
 
-
     def serialize(self):
         """Serialize Recipe table data into dict"""
         return {"id": self.id, "name": self.name, "notes": self.notes}

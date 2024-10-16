@@ -76,9 +76,7 @@ class RecipeRepo():
         try:
             db.session.add(recipe)
             db.session.commit()
-            return {"recipe_title": name,
-                    "recipe_id": recipe.id,
-                    "notes": notes}
+            return Recipe.serialize(recipe)
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
@@ -115,7 +113,7 @@ class QuantityUnitRepo():
             quantity_unit = QuantityUnit(type=type)
             db.session.add(quantity_unit)
             db.session.commit()
-            return {"id": quantity_unit.id, "type": quantity_unit.type}
+            return QuantityUnit.serialize(quantity_unit)
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
@@ -151,7 +149,7 @@ class QuantityAmountRepo():
             quantity_amount = QuantityAmount(value=value)
             db.session.add(quantity_amount)
             db.session.commit()
-            return {"id": quantity_amount.id, "value": quantity_amount.value}
+            return QuantityAmount.serialize(quantity_amount)
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
@@ -187,7 +185,7 @@ class ItemRepo():
             item = Item(name=name)
             db.session.add(item)
             db.session.commit()
-            return {"id": item.id, "name": item.name}
+            return Item.serialize(item)
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
@@ -240,20 +238,12 @@ class IngredientsRepo():
     def build_ingredients(instance):
         """Build ingredient from corresponding instances(Recipe)"""
         ingredients = []
-        highlight(instance.ingredients, "%")
         for ingredient in instance.ingredients:
             amount = QuantityAmount.serialize(ingredient.amount)
             unit = QuantityUnit.serialize(ingredient.unit)
             item = Item.serialize(ingredient.item)
-            highlight(ingredient,"&")
-            highlight([amount,unit,item],"!")
             ingredients.append([amount,unit,item])
-            highlight(ingredients, "&")
         return ingredients
-
-
-
-
 
 
 class BookRepo():
@@ -265,7 +255,7 @@ class BookRepo():
         try:
             db.session.add(book)
             db.session.commit()
-            return {'id': book.id, 'title': book.title, "description": book.description}
+            return Book.serialize(book)
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
@@ -305,7 +295,7 @@ class InstructionRepo():
             instruction = Instruction(instruction=instruction)
             db.session.add(instruction)
             db.session.commit()
-            return {'id': instruction.id, 'instruction': instruction.instruction}
+            return Instruction.serialize(instruction)
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()

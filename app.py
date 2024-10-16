@@ -112,10 +112,8 @@ def add_recipe(user_id, book_id):
 def get_user_recipes(user_id, book_id):
     """Return recipes associated to user"""
     try:
-        # recipes = RecipeRepo.fetch_recipes(user_id=user_id,book_id=book_id)
         recipes = RecipeService.build_recipes(book_id=book_id)
         return jsonify(recipes)
-        # return jsonify(recipes)
     except Exception as e:
         return handle_error(e)
 
@@ -124,7 +122,7 @@ def get_user_recipes(user_id, book_id):
 ########### BOOKS ###########
 
 
-@app.post("/books/users/<user_id>")
+@app.post("/users/<user_id>/books")
 def add_book(user_id):
     """Facilitates creation of book containing recipes"""
     title = request.json["title"]
@@ -138,7 +136,7 @@ def add_book(user_id):
         return jsonify({"error": f"create_book error{e}"}), 400
 
 
-@app.get("/books/users/<user_id>")
+@app.get("/users/<user_id>/books")
 def get_user_books(user_id):
     """Returns all books associated with user"""
     books = BookRepo.get_user_books(user_id=user_id)
