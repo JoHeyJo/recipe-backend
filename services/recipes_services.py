@@ -39,7 +39,6 @@ class RecipeService():
         try:
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, notes=notes)
-            highlight(recipe_data,"#")
             RecipeBookRepo.create_entry(
                 book_id=book_id, recipe_id=recipe_data["id"])
             
@@ -102,15 +101,17 @@ class RecipeService():
         recipes_instances = book.recipes
         for recipe_instance in recipes_instances:
             recipe_build = {}
+
             recipe = Recipe.serialize(recipe_instance)
             recipe_build.update(recipe)
-            highlight(recipe["name"],"^")
-            highlight(recipe["notes"],"^")
+            
             instructions = InstructionRepo.get_instructions_from_instance(
                 recipe_instance.instructions)
             recipe_build["instructions"] = instructions
+
             ingredients = IngredientsRepo.build_ingredients(recipe_instance)
             recipe_build["ingredients"] = ingredients
+            
             complete_recipes.append(recipe_build)
         return complete_recipes
     

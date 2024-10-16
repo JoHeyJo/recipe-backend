@@ -244,7 +244,7 @@ class IngredientsRepo():
             amount = QuantityAmount.serialize(ingredient.amount)
             unit = QuantityUnit.serialize(ingredient.unit)
             item = Item.serialize(ingredient.item)
-            ingredients.append([amount,unit,item])
+            ingredients.append({"amount": amount, "unit":unit, "item":item})
         return ingredients
 
 
