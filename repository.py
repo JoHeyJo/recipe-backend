@@ -72,7 +72,9 @@ class RecipeRepo():
     @staticmethod
     def create_recipe(name, notes):
         """Creates recipe instance and adds it to database"""
+        highlight(notes, "create_recipe")
         recipe = Recipe(name=name, notes=notes)
+        highlight(recipe.notes,"instantiated")
         try:
             db.session.add(recipe)
             db.session.commit()

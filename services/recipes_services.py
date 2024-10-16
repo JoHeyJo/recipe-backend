@@ -9,6 +9,7 @@ class RecipeService():
         try:
             recipe = data["recipe"]
             notes = recipe.get("notes")
+            highlight(notes, "process_recipe_data")
             instructions = recipe.get("instructions")
             ingredients = recipe.get("ingredients")
         except Exception as e:
@@ -19,14 +20,14 @@ class RecipeService():
 
             recipe_data = RecipeService.process_recipe(
                 book_id=book_id, recipe_name=recipe["name"], notes=notes)
-            
+            highlight(recipe_data,"@")
             if ingredients:
                 recipe_data["ingredients"] = RecipeService.process_ingredients(
-                    ingredients=ingredients, recipe_id=recipe_data["recipe_id"])
+                    ingredients=ingredients, recipe_id=recipe_data["id"])
                 
             if instructions:
                 recipe_data["instructions_data"] = RecipeService.process_instructions(
-                    recipe_id=recipe_data["recipe_id"], instructions=instructions, book_id=book_id)
+                    recipe_id=recipe_data["id"], instructions=instructions, book_id=book_id)
 
             return recipe_data
         except Exception as e:
@@ -39,10 +40,8 @@ class RecipeService():
         try:
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, notes=notes)
-
             RecipeBookRepo.create_entry(
-                book_id=book_id, recipe_id=recipe_data["recipe_id"])
-
+                book_id=book_id, recipe_id=recipe_data["id"])
             return recipe_data
         except Exception as e:
             highlight(e, "!")
