@@ -25,7 +25,7 @@ class RecipeService():
                     ingredients=ingredients, recipe_id=recipe_data["id"])
                 
             if instructions:
-                recipe_data["instructions_data"] = RecipeService.process_instructions(
+                recipe_data["instructions"] = RecipeService.process_instructions(
                     recipe_id=recipe_data["id"], instructions=instructions, book_id=book_id)
 
             return recipe_data
