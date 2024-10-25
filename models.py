@@ -44,7 +44,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Recipe table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     name: Mapped[str_255]
-    notes: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
+    notes: Mapped[str] = mapped_column(String(255), nullable=True)
 
     ingredients: Mapped[List['RecipeIngredient']] = relationship(
         'RecipeIngredient', backref='recipe')
@@ -181,5 +181,5 @@ def connect_db(app):
     db.app = app
     db.init_app(app)
     with app.app_context():
-        # db.drop_all()
+        db.drop_all()
         db.create_all()
