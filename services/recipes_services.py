@@ -73,6 +73,7 @@ class RecipeService():
     @staticmethod
     def process_instructions(recipe_id, instructions, book_id):
         """Adds instructions and associates each instruction to book"""
+        highlight(instructions,"#")
         try:
             instructions_data = InstructionRepo.process_instructions(
                 instructions=instructions)

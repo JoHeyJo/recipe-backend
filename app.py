@@ -117,7 +117,13 @@ def get_user_recipes(user_id, book_id):
     except Exception as e:
         return handle_error(e)
 
-
+@app.delete("/users/<user_id>/books/<book_id>/recipes")
+def get_delete_recipe(user_id, book_id):
+    """Facilitate deletion of recipe record associated to user"""
+    try:
+        return 
+    except Exception as e:
+        return handle_error(e)
 
 ########### BOOKS ###########
 

@@ -46,15 +46,15 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     name: Mapped[str_255]
     notes: Mapped[str_255_nullable]
 
+    # This is a one-many relationship with an association table
     ingredients: Mapped[List['RecipeIngredient']] = relationship(
-        'RecipeIngredient', backref='recipe')
+        'RecipeIngredient', backref='recipe', passive_deletes=True)
 
     books: Mapped[List['Book']] = relationship(
-        'Book', secondary='recipes_books', back_populates='recipes')
+        'Book', secondary='recipes_books', back_populates='recipes', passive_deletes=True)
     
     instructions: Mapped[List['Instruction']] = relationship(
-        'Instruction', secondary='recipes_instructions', back_populates='recipes'
-    )
+        'Instruction', secondary='recipes_instructions', back_populates='recipes', passive_deletes=True)
 
     def serialize(self):
         """Serialize Recipe table data into dict"""
@@ -91,7 +91,7 @@ class Item(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         return {"id": self.id, "name": self.name}
 
 class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
-    """Recipe book table"""
+    """Book table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     title: Mapped[str_255]
     description: Mapped[str_255]
@@ -133,7 +133,8 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 class RecipeIngredient(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for recipes and ingredients"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    recipe_id: Mapped[int] = Column(Integer, ForeignKey('recipes.id'))
+    recipe_id: Mapped[int] = Column(
+        Integer, ForeignKey('recipes.id', ondelete="CASCADE"))
     item_id: Mapped[int] = Column(Integer, ForeignKey('items.id'))
     quantity_unit_id: Mapped[int] = Column(
         Integer, ForeignKey('quantity_units.id'))
@@ -151,7 +152,8 @@ class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model)
     """Association table for books and recipes"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     book_id: Mapped[int] = Column(Integer, ForeignKey("books.id"))
-    recipe_id: Mapped[int] = Column(Integer, ForeignKey("recipes.id"))
+    recipe_id: Mapped[int] = Column(
+        Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
 
 
 class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
@@ -171,7 +173,8 @@ class BookInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.M
 class RecipeInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for books and instructions"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    recipe_id: Mapped[int] = Column(Integer, ForeignKey("recipes.id"))
+    recipe_id: Mapped[int] = Column(
+        Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
     instruction_id: Mapped[int] = Column(Integer, ForeignKey("instructions.id"))
 
 
