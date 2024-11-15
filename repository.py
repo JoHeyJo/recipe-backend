@@ -95,6 +95,18 @@ class RecipeRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"create_recipe error:{e}")
+        
+    @staticmethod
+    def delete_recipe(recipe_id):
+        """Deletes recipe and all references in association tables"""
+        try:
+            recipe = Recipe.query.get(recipe_id)
+            db.session.delete(recipe)
+            db.session.commit()
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"delete_recipe error:{e}")
 
 
 class QuantityUnitRepo():

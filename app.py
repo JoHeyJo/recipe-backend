@@ -117,11 +117,12 @@ def get_user_recipes(user_id, book_id):
     except Exception as e:
         return handle_error(e)
 
-@app.delete("/users/<user_id>/books/<book_id>/recipes")
-def get_delete_recipe(user_id, book_id):
+@app.delete("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
+def get_delete_recipe(user_id, book_id, recipe_id):
     """Facilitate deletion of recipe record associated to user"""
     try:
-        return 
+        RecipeRepo.delete_recipe(recipe_id=recipe_id)
+        return jsonify({"message": "deletion successful"})
     except Exception as e:
         return handle_error(e)
 
