@@ -130,10 +130,13 @@ def get_delete_recipe(user_id, book_id, recipe_id):
 @app.patch("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
 def update_user_recipe(user_id, book_id, recipe_id):
     """Facilitate editing of recipe record associated to user"""
+    name = request.json["name"]
+    
     try:
-        highlight(recipe_id,"&")
         recipe = Recipe.query.get(recipe_id)
-        highlight(recipe,"&")
+        recipe.name = name
+        db.session.commit()
+        # Recipe.serialize(recipe)
         return jsonify({"recipe":recipe.name})
     except Exception as e:
         return handle_error(e)

@@ -1,6 +1,5 @@
 from repository import *
 
-
 class RecipeService():
     """Handles recipe view business logic"""
     @staticmethod
@@ -9,7 +8,6 @@ class RecipeService():
         try:
             recipe = data["recipe"]
             notes = recipe.get("notes")
-            highlight(notes, "process_recipe_data")
             instructions = recipe.get("instructions")
             ingredients = recipe.get("ingredients")
         except Exception as e:
@@ -58,11 +56,12 @@ class RecipeService():
                 raise ValueError(
                     f"No ingredients data returned for recipe {recipe_id}")
             for ingredient in ingredients_data:
-                RecipeIngredientRepo.create_ingredient(
+                id = RecipeIngredientRepo.create_ingredient(
                     recipe_id=recipe_id,
                     item_id=ingredient["item"]['id'],
                     quantity_amount_id=ingredient["amount"]['id'],
                     quantity_unit_id=ingredient["unit"]['id'])
+                # ingredient["ingredient_id"] = id
 
             return ingredients_data
         except Exception as e:

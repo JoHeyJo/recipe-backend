@@ -256,7 +256,7 @@ class IngredientsRepo():
             amount = QuantityAmount.serialize(ingredient.amount)
             unit = QuantityUnit.serialize(ingredient.unit)
             item = Item.serialize(ingredient.item)
-            ingredients.append({"amount": amount, "unit":unit, "item":item})
+            ingredients.append({"ingredient_id": ingredient.id, "amount": amount, "unit": unit, "item": item})
         return ingredients
 
 
@@ -339,7 +339,7 @@ class InstructionRepo():
 
 
 class RecipeIngredientRepo():
-    """Facilitates association of recipes & ingredients """
+    """Facilitates association of recipes & ingredients"""
     @staticmethod
     def create_ingredient(recipe_id, item_id, quantity_unit_id, quantity_amount_id):
         """Create recipe and ingredient association -> add to database"""
@@ -348,6 +348,7 @@ class RecipeIngredientRepo():
         try:
             db.session.add(entry)
             db.session.commit()
+            return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
