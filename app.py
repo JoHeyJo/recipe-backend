@@ -98,8 +98,7 @@ def get_user(user_id):
 
 @app.post("/users/<user_id>/books/<book_id>/recipes")
 def add_recipe(user_id, book_id):
-    """Consolidated recipe data passed to RecipeService function. If successful 
-    recipes_ingredients record created"""
+    """Consolidated recipe data. If successful recipes_ingredients record created"""
     try:
         recipe_data = RecipeService.process_recipe_data(
             data={"recipe": request.json}, book_id=book_id, user_id=user_id)
@@ -117,6 +116,7 @@ def get_user_recipe(user_id, book_id):
     except Exception as e:
         return handle_error(e)
 
+
 @app.delete("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
 def get_delete_recipe(user_id, book_id, recipe_id):
     """Facilitate deletion of recipe record associated to user"""
@@ -130,14 +130,9 @@ def get_delete_recipe(user_id, book_id, recipe_id):
 @app.patch("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
 def update_user_recipe(user_id, book_id, recipe_id):
     """Facilitate editing of recipe record associated to user"""
-    name = request.json["name"]
-    
     try:
-        recipe = Recipe.query.get(recipe_id)
-        recipe.name = name
-        db.session.commit()
-        # Recipe.serialize(recipe)
-        return jsonify({"recipe":recipe.name})
+        recipe = RecipeService(data=request.json, recipe_id=recipe_id)
+        return jsonify(recipe)
     except Exception as e:
         return handle_error(e)
 

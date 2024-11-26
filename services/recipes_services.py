@@ -115,3 +115,27 @@ class RecipeService():
             complete_recipes.append(recipe_build)
         return complete_recipes
     
+    @staticmethod
+    def process_edit(data, recipe_id):
+        """Consolidates recipe edit process"""
+        try:
+            name = data["name"]
+            ingredient = data["ingredient"]
+            instructions = data["instructions"]
+            notes = data["notes"]
+        except Exception as e:
+            raise ValueError(
+                f"Failed to extract recipe edit data for recipe {recipe_id}: {e}")
+        
+        try:
+            if name or notes:
+                recipe = Recipe.query.get(recipe_id)
+                if name:
+                    recipe.name = name
+                if notes:
+                    recipe.notes = notes
+                db.session.commit()
+                return recipe
+        except Exception as e:
+            highlight(e, "!")
+            raise ValueError(f"Failed to process_edit: {e}")
