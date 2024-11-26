@@ -131,7 +131,7 @@ def get_delete_recipe(user_id, book_id, recipe_id):
 def update_user_recipe(user_id, book_id, recipe_id):
     """Facilitate editing of recipe record associated to user"""
     try:
-        recipe = RecipeService(data=request.json, recipe_id=recipe_id)
+        recipe = RecipeService.process_edit(data=request.json, recipe_id=recipe_id)
         return jsonify(recipe)
     except Exception as e:
         return handle_error(e)

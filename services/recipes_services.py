@@ -119,10 +119,11 @@ class RecipeService():
     def process_edit(data, recipe_id):
         """Consolidates recipe edit process"""
         try:
-            name = data["name"]
-            ingredient = data["ingredient"]
-            instructions = data["instructions"]
-            notes = data["notes"]
+            name = data.get("name")
+            ingredient = data.get("ingredient")
+            instructions = data.get("instructions")
+            notes = data.get("notes")
+            highlight(data, "*")
         except Exception as e:
             raise ValueError(
                 f"Failed to extract recipe edit data for recipe {recipe_id}: {e}")
