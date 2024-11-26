@@ -61,7 +61,7 @@ class RecipeService():
                     item_id=ingredient["item"]['id'],
                     quantity_amount_id=ingredient["amount"]['id'],
                     quantity_unit_id=ingredient["unit"]['id'])
-                # ingredient["ingredient_id"] = id
+                ingredient["ingredient_id"] = id
 
             return ingredients_data
         except Exception as e:
