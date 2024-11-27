@@ -327,8 +327,9 @@ class InstructionRepo():
             raise Exception(f"InstructionRepo - get_instruction error: {e}")
         
     @staticmethod
-    def get_instructions_from_instance(instances):
-        """Return all associated instructions"""
+    def build_instructions(instances):
+        """Return all associated instructions from recipe instance and join with 
+        recipe_instruction identifier"""
         if not instances:
             return []
         highlight(instances,"!")
@@ -409,6 +410,7 @@ class RecipeInstructionRepo():
             entry = RecipeInstruction(recipe_id=recipe_id, instruction_id=instruction_id)
             db.session.add(entry)
             db.session.commit()
+            return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()

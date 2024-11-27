@@ -126,6 +126,9 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         "Recipe", secondary="recipes_instructions", back_populates="instructions"
     )
 
+    recipe_instructions: Mapped[List['RecipeInstruction']] = relationship(
+        "RecipeInstruction", back_populates="instruction"
+    )
 
 ###################### ASSOCIATION MODELS ############################
 
@@ -176,6 +179,9 @@ class RecipeInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db
     recipe_id: Mapped[int] = Column(
         Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
     instruction_id: Mapped[int] = Column(Integer, ForeignKey("instructions.id"))
+    
+    instruction: Mapped['Instruction'] = relationship(
+        "Instruction", back_populates="recipe_instructions")
 
 
 def connect_db(app):

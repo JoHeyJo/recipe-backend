@@ -84,8 +84,9 @@ class RecipeService():
             for instruction in instructions_data:
                 BookInstructionRepo.create_entry(
                     book_id=book_id, instruction_id=instruction["id"])
-                RecipeInstructionRepo.create_entry(
+                id = RecipeInstructionRepo.create_entry(
                     recipe_id=recipe_id, instruction_id=instruction["id"])
+                instruction["instruction_id"] = id
 
             return instructions_data
         except Exception as e:
@@ -105,9 +106,10 @@ class RecipeService():
             recipe = Recipe.serialize(recipe_instance)
             recipe_build.update(recipe)
             
-            instructions = InstructionRepo.get_instructions_from_instance(
+            instructions = InstructionRepo.build_instructions(
                 recipe_instance.instructions)
             recipe_build["instructions"] = instructions
+            highlight(instructions,"*")
 
             ingredients = IngredientsRepo.build_ingredients(recipe_instance)
             recipe_build["ingredients"] = ingredients
