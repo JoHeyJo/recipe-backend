@@ -109,7 +109,6 @@ class RecipeService():
             instructions = InstructionRepo.build_instructions(
                 recipe_instance.instructions)
             recipe_build["instructions"] = instructions
-            highlight(instructions,"*")
 
             ingredients = IngredientsRepo.build_ingredients(recipe_instance)
             recipe_build["ingredients"] = ingredients
