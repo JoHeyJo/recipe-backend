@@ -330,10 +330,17 @@ class InstructionRepo():
     def build_instructions(instances):
         """Return all associated instructions from recipe instance and join with 
         recipe_instruction identifier"""
+        instructions = []
         if not instances:
-            return []
-        highlight(instances,"!")
-        return [Instruction.serialize(instruction) for instruction in instances]
+            return [] 
+        # return [Instruction.serialize(instruction) for instruction in instances]
+        for instruction_instance in instances:
+            instruction = Instruction.serialize(instruction_instance)
+            # inject PK from recipes_instructions association table
+            association_id = instruction_instance.recipe_instruction.id
+            instruction["association_id"] = association_id
+            instructions.append(instruction)
+        return instructions
 
 
 ###################### ASSOCIATION TABLES ############################
