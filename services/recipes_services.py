@@ -120,10 +120,9 @@ class RecipeService():
         """Consolidates recipe edit process"""
         try:
             name = data.get("name")
-            ingredient = data.get("ingredient")
+            ingredients = data.get("ingredients")
             instructions = data.get("instructions")
             notes = data.get("notes")
-            highlight(data, "*")
         except Exception as e:
             raise ValueError(
                 f"Failed to extract recipe edit data for recipe {recipe_id}: {e}")
@@ -136,7 +135,25 @@ class RecipeService():
                 if notes:
                     recipe.notes = notes
                 db.session.commit()
-                return recipe
         except Exception as e:
             highlight(e, "!")
-            raise ValueError(f"Failed to process_edit: {e}")
+            raise ValueError(f"Failed to process_edit - name or notes: {e}")
+        
+        try:
+            if ingredients:
+                for ingredient in ingredients:
+                    highlight(ingredients,"1")
+                    highlight(ingredient,"2")
+                    recipe_ingredient = RecipeIngredient.query.get(ingredient["ingredient_id"])
+                    if ingredient.get("item"):
+                        recipe_ingredient.item_id = ingredient["item"]["id"]
+                    if ingredient.get("amount"):
+                        recipe_ingredient.quantity_amount_id = ingredient["amount"]["id"]
+                    if ingredient.get("unit"):
+                        recipe_ingredient.quantity_unit_id = ingredient["unit"]["id"]
+            db.session.commit()
+            return ingredients
+        except Exception as e:
+            highlight(e, "!")
+            raise ValueError(f"Failed to process_edit - ingredients: {e}")
+
