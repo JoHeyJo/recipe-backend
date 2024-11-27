@@ -142,8 +142,6 @@ class RecipeService():
         try:
             if ingredients:
                 for ingredient in ingredients:
-                    highlight(ingredients,"1")
-                    highlight(ingredient,"2")
                     recipe_ingredient = RecipeIngredient.query.get(ingredient["ingredient_id"])
                     if ingredient.get("item"):
                         recipe_ingredient.item_id = ingredient["item"]["id"]
@@ -155,5 +153,14 @@ class RecipeService():
         except Exception as e:
             highlight(e, "!")
             raise ValueError(f"Failed to process_edit - ingredients: {e}")
+        
+        try:
+            if instructions:
+                for instruction in instructions:
+                    None
+                    # recipe_instruction = RecipeInstruction.query.get(instruction[])
+        except Exception as e:
+            highlight(e, "!")
+            raise ValueError(f"Failed to process_edit - instructions: {e}")
         return {"msg":"edit successful"}
 
