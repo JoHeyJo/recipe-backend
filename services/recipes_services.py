@@ -152,8 +152,8 @@ class RecipeService():
                     if ingredient.get("unit"):
                         recipe_ingredient.quantity_unit_id = ingredient["unit"]["id"]
             db.session.commit()
-            return ingredients
         except Exception as e:
             highlight(e, "!")
             raise ValueError(f"Failed to process_edit - ingredients: {e}")
+        return {"msg":"edit successful"}
 
