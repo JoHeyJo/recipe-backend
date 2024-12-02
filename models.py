@@ -54,7 +54,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'Book', secondary='recipes_books', back_populates='recipes', passive_deletes=True)
     
     instructions: Mapped[List['Instruction']] = relationship(
-        'Instruction', secondary='recipes_instructions', back_populates='recipes', passive_deletes=True)
+        'Instruction', secondary='recipes_instructions', back_populates='recipes', passive_deletes=True, order_by="RecipeInstruction.id")
 
     def serialize(self):
         """Serialize Recipe table data into dict"""

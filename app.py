@@ -108,7 +108,7 @@ def add_recipe(user_id, book_id):
 
 
 @app.get("/users/<user_id>/books/<book_id>/recipes")
-def get_user_recipe(user_id, book_id):
+def get_user_recipes(user_id, book_id):
     """Return recipes associated to user"""
     try:
         recipes = RecipeService.build_recipes(book_id=book_id)
@@ -129,7 +129,7 @@ def get_delete_recipe(user_id, book_id, recipe_id):
 
 @app.patch("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
 def update_user_recipe(user_id, book_id, recipe_id):
-    """Facilitate editing of recipe record associated to user"""
+    """Facilitate editing of recipe and records associated to book"""
     try:
         recipe = RecipeService.process_edit(data=request.json, recipe_id=recipe_id)
         return jsonify(recipe)
