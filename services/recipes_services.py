@@ -158,8 +158,9 @@ class RecipeService():
         try:
             if instructions:
                 for instruction in instructions:
-                    None
-                    # recipe_instruction = RecipeInstruction.query.get(instruction[])
+                    recipe_instruction = RecipeInstruction.query.get(instruction["associationId"])
+                    recipe_instruction.instruction_id = instruction["id"]
+                db.session.commit()
         except Exception as e:
             highlight(e, "!")
             raise ValueError(f"Failed to process_edit - instructions: {e}")
