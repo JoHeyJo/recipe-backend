@@ -127,42 +127,61 @@ class RecipeService():
         except Exception as e:
             raise ValueError(
                 f"Failed to extract recipe edit data for recipe {recipe_id}: {e}")
-        
+
         try:
             if name or notes:
-                recipe = Recipe.query.get(recipe_id)
-                if name:
-                    recipe.name = name
-                if notes:
-                    recipe.notes = notes
-                db.session.commit()
-        except Exception as e:
-            highlight(e, "!")
-            raise ValueError(f"Failed to process_edit - name or notes: {e}")
-        
-        try:
-            if ingredients:
-                for ingredient in ingredients:
-                    recipe_ingredient = RecipeIngredient.query.get(ingredient["ingredient_id"])
-                    if ingredient.get("item"):
-                        recipe_ingredient.item_id = ingredient["item"]["id"]
-                    if ingredient.get("amount"):
-                        recipe_ingredient.quantity_amount_id = ingredient["amount"]["id"]
-                    if ingredient.get("unit"):
-                        recipe_ingredient.quantity_unit_id = ingredient["unit"]["id"]
-            db.session.commit()
-        except Exception as e:
-            highlight(e, "!")
-            raise ValueError(f"Failed to process_edit - ingredients: {e}")
-        
-        try:
-            if instructions:
-                for instruction in instructions:
-                    recipe_instruction = RecipeInstruction.query.get(instruction["associationId"])
-                    recipe_instruction.instruction_id = instruction["id"]
-                db.session.commit()
-        except Exception as e:
-            highlight(e, "!")
-            raise ValueError(f"Failed to process_edit - instructions: {e}")
-        return {"msg":"edit successful"}
+                RecipeService.process_edit_recipe(name=name, notes=notes, recipe_id=recipe_id)
 
+            if ingredients:
+                RecipeService.process_edit_ingredients(ingredients=ingredients)
+
+            if instructions:
+                RecipeService.process_edit_instructions(instructions=instructions)
+
+            db.session.commit()
+            return {"msg":"edit successful"}
+        except Exception as e:
+                highlight(e, "!")
+                raise ValueError(f"Failed to process_edit: {e}")
+
+    @staticmethod
+    def process_edit_recipe(name, notes, recipe_id):
+        """Edits recipe name and notes"""
+        try:
+            recipe = Recipe.query.get(recipe_id)
+            if name:
+                recipe.name = name
+            if notes:
+                recipe.notes = notes
+        except Exception as e:
+            highlight(e, "!")
+            raise ValueError(
+                f"Failed to process_edit_ingredients: {e}")
+        
+    @staticmethod
+    def process_edit_ingredients(ingredients):
+        """Edits recipe's ingredients by modifying RecipeIngredient association"""
+        try:
+            for ingredient in ingredients:
+                recipe_ingredient = RecipeIngredient.query.get(
+                    ingredient["ingredient_id"])
+                if ingredient.get("item"):
+                    recipe_ingredient.item_id = ingredient["item"]["id"]
+                if ingredient.get("amount"):
+                    recipe_ingredient.quantity_amount_id = ingredient["amount"]["id"]
+                if ingredient.get("unit"):
+                    recipe_ingredient.quantity_unit_id = ingredient["unit"]["id"]
+        except Exception as e:
+            highlight(e, "!")
+            raise ValueError(f"Failed to process_edit_ingredients: {e}")
+
+    @staticmethod
+    def process_edit_instructions(instructions):
+        """Edits recipe's instructions by modifying RecipeInstruction association"""
+        try:
+            for instruction in instructions:
+                recipe_instruction = RecipeInstruction.query.get(instruction["associationId"])
+                recipe_instruction.instruction_id = instruction["newID"]
+        except Exception as e:
+                highlight(e, "!")
+                raise ValueError(f"Failed to process_edit_instructions: {e}")
