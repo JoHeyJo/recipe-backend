@@ -48,7 +48,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     # This is a one-many relationship with an association table
     ingredients: Mapped[List['RecipeIngredient']] = relationship(
-        'RecipeIngredient', backref='recipe', passive_deletes=True)
+        'RecipeIngredient', backref='recipe', passive_deletes=True, order_by="RecipeIngredient.id")
 
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='recipes_books', back_populates='recipes', passive_deletes=True)
