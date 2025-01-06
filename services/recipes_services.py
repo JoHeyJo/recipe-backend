@@ -170,19 +170,23 @@ class RecipeService():
                 amount = ingredient.get("amount")
                 unit = ingredient.get("unit")
 
-                item_id = item["id"]
-                quantity_amount_id = amount["id"]
-                quantity_unit_id = unit["id"]
+                item_id = item.get("id")
+                quantity_amount_id = amount.get("id")
+                quantity_unit_id = unit.get("id")
 
                 if ingredient["id"]:
                     recipe_ingredient = RecipeIngredient.query.get(ingredient["id"])
                     if amount:
-                        recipe_ingredient.quantity_amount_id = quantity_amount_id
+                        recipe_ingredient.quantity_amount_id = amount["id"]
                     if unit:
-                        recipe_ingredient.quantity_unit_id = quantity_unit_id
+                        recipe_ingredient.quantity_unit_id = unit["id"]
                     if item:
-                        recipe_ingredient.item_id = item_id
+                        recipe_ingredient.item_id = item["id"]
                 else:
+                    quantity_amount_id = amount["id"] if amount else None
+                    quantity_unit_id = unit["id"] if unit else None
+                    item_id = item["id"] if item else None
+
                     RecipeIngredientRepo.create_ingredient(
                         recipe_id=recipe_id, 
                         item_id=item_id,
