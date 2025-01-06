@@ -330,7 +330,6 @@ class InstructionRepo():
     def build_instructions(instances):
         """Return all associated instructions from recipe instance and join with 
         recipe_instruction identifier"""
-        highlight(instances, "%")
         instructions = []
         if not instances:
             return [] 

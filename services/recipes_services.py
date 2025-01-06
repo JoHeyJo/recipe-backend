@@ -72,7 +72,6 @@ class RecipeService():
     @staticmethod
     def process_instructions(recipe_id, instructions, book_id):
         """Adds instructions and associates each instruction to book"""
-        highlight(instructions,"#")
         try:
             instructions_data = InstructionRepo.process_instructions(
                 instructions=instructions)
@@ -125,16 +124,18 @@ class RecipeService():
             ingredients = data.get("ingredients")
             instructions = data.get("instructions")
             notes = data.get("notes")
+            highlight([name,ingredients,instructions,notes],"#")
         except Exception as e:
             raise ValueError(
                 f"Failed to extract recipe edit data for recipe {recipe_id}: {e}")
 
         try:
             if name or notes:
-                RecipeService.process_edit_recipe(name=name, notes=notes, recipe_id=recipe_id)
+                RecipeService.process_edit_recipe_info(name=name, notes=notes, recipe_id=recipe_id)
 
             if ingredients:
-                RecipeService.process_edit_ingredients(ingredients=ingredients)
+                RecipeService.process_edit_ingredients(
+                    ingredients=ingredients, recipe_id=recipe_id)
 
             if instructions:
                 RecipeService.process_edit_instructions(instructions=instructions)
@@ -146,7 +147,7 @@ class RecipeService():
                 raise ValueError(f"Failed to process_edit: {e}")
 
     @staticmethod
-    def process_edit_recipe(name, notes, recipe_id):
+    def process_edit_recipe_info(name, notes, recipe_id):
         """Edits recipe name and notes"""
         try:
             recipe = Recipe.query.get(recipe_id)
@@ -157,21 +158,36 @@ class RecipeService():
         except Exception as e:
             highlight(e, "!")
             raise ValueError(
-                f"Failed to process_edit_ingredients: {e}")
+                f"Failed to process_edit_recipe_info: {e}")
         
     @staticmethod
-    def process_edit_ingredients(ingredients):
-        """Edits recipe's ingredients by modifying RecipeIngredient association"""
+    def process_edit_ingredients(ingredients, recipe_id):
+        """Edits recipe's ingredients by modifying RecipeIngredient association 
+        or creating a new association for new ingredient"""
         try:
             for ingredient in ingredients:
-                recipe_ingredient = RecipeIngredient.query.get(
-                    ingredient["ingredient_id"])
-                if ingredient.get("item"):
-                    recipe_ingredient.item_id = ingredient["item"]["id"]
-                if ingredient.get("amount"):
-                    recipe_ingredient.quantity_amount_id = ingredient["amount"]["id"]
-                if ingredient.get("unit"):
-                    recipe_ingredient.quantity_unit_id = ingredient["unit"]["id"]
+                item = ingredient.get("item")
+                amount = ingredient.get("amount")
+                unit = ingredient.get("unit")
+
+                item_id = item["id"]
+                quantity_amount_id = amount["id"]
+                quantity_unit_id = unit["id"]
+
+                if ingredient["id"]:
+                    recipe_ingredient = RecipeIngredient.query.get(ingredient["id"])
+                    if amount:
+                        recipe_ingredient.quantity_amount_id = quantity_amount_id
+                    if unit:
+                        recipe_ingredient.quantity_unit_id = quantity_unit_id
+                    if item:
+                        recipe_ingredient.item_id = item_id
+                else:
+                    RecipeIngredientRepo.create_ingredient(
+                        recipe_id=recipe_id, 
+                        item_id=item_id,
+                        quantity_unit_id=quantity_unit_id,
+                        quantity_amount_id=quantity_amount_id)
         except Exception as e:
             highlight(e, "!")
             raise ValueError(f"Failed to process_edit_ingredients: {e}")
