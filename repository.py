@@ -336,8 +336,12 @@ class InstructionRepo():
         for instruction_instance in instances:
             instruction = Instruction.serialize(instruction_instance)
             # inject PK from recipes_instructions association table
+            RecipeInstruction.query.filter_by(recipe_id=)
             association_id = instruction_instance.recipe_instruction.id
             instruction["association_id"] = association_id
+            highlight(instruction_instance.recipe_instruction, "@")
+            highlight(instruction,"@")
+            highlight(instruction_instance.recipe_instruction, "@")
             instructions.append(instruction)
         return instructions
 

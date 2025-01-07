@@ -120,7 +120,6 @@ def get_user_recipes(user_id, book_id):
 def update_user_recipe(user_id, book_id, recipe_id):
     """Facilitate editing of recipe and records associated to book"""
     try:
-        highlight(request.json,"@")
         recipe = RecipeService.process_edit(data=request.json, recipe_id=recipe_id)
         return jsonify(recipe)
     except Exception as e:
