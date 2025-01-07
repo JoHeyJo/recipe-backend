@@ -327,7 +327,7 @@ class InstructionRepo():
             raise Exception(f"InstructionRepo - get_instruction error: {e}")
         
     @staticmethod
-    def build_instructions(instances):
+    def build_instructions(instances, recipe_id):
         """Return all associated instructions from recipe instance and join with 
         recipe_instruction identifier"""
         instructions = []
@@ -336,8 +336,9 @@ class InstructionRepo():
         for instruction_instance in instances:
             instruction = Instruction.serialize(instruction_instance)
             # inject PK from recipes_instructions association table
-            RecipeInstruction.query.filter_by(recipe_id=)
-            association_id = instruction_instance.recipe_instruction.id
+            association_id = RecipeInstruction.query.filter_by(
+                recipe_id=recipe_id, 
+                instruction_id=instruction["id"]).scalar().id
             instruction["association_id"] = association_id
             highlight(instruction_instance.recipe_instruction, "@")
             highlight(instruction,"@")

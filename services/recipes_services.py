@@ -106,7 +106,7 @@ class RecipeService():
             recipe_build.update(recipe)
             
             instructions = InstructionRepo.build_instructions(
-                recipe_instance.instructions)
+                instances=recipe_instance.instructions, recipe_id=recipe["id"])
 
             recipe_build["instructions"] = instructions
 
