@@ -98,7 +98,7 @@ def get_user(user_id):
 
 @app.post("/users/<user_id>/books/<book_id>/recipes")
 def add_recipe(user_id, book_id):
-    """Consolidated recipe data. If successful recipes_ingredients record created"""
+    """Consolidate recipe data. If successful recipes_ingredients record created"""
     try:
         recipe_data = RecipeService.process_recipe_data(
             data={"recipe": request.json}, book_id=book_id, user_id=user_id)
