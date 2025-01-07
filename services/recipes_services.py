@@ -1,5 +1,6 @@
 from repository import *
 
+
 class RecipeService():
     """Handles recipe view business logic"""
     @staticmethod
@@ -17,11 +18,11 @@ class RecipeService():
         try:
             recipe_data = RecipeService.process_recipe(
                 book_id=book_id, recipe_name=recipe["name"], notes=notes)
-            
+
             if ingredients:
                 recipe_data["ingredients"] = RecipeService.process_ingredients(
                     ingredients=ingredients, recipe_id=recipe_data["id"])
-                
+
             if instructions:
                 recipe_data["instructions"] = RecipeService.process_instructions(
                     recipe_id=recipe_data["id"], instructions=instructions, book_id=book_id)
@@ -39,7 +40,7 @@ class RecipeService():
                 name=recipe_name, notes=notes)
             RecipeBookRepo.create_entry(
                 book_id=book_id, recipe_id=recipe_data["id"])
-            
+
             return recipe_data
         except Exception as e:
             highlight(e, "!")
@@ -104,7 +105,7 @@ class RecipeService():
 
             recipe = Recipe.serialize(recipe_instance)
             recipe_build.update(recipe)
-            
+
             instructions = InstructionRepo.build_instructions(
                 instances=recipe_instance.instructions, recipe_id=recipe["id"])
 
@@ -112,10 +113,10 @@ class RecipeService():
 
             ingredients = IngredientsRepo.build_ingredients(recipe_instance)
             recipe_build["ingredients"] = ingredients
-            
+
             complete_recipes.append(recipe_build)
         return complete_recipes
-    
+
     @staticmethod
     def process_edit(data, recipe_id):
         """Consolidates recipe edit process"""
@@ -124,27 +125,29 @@ class RecipeService():
             ingredients = data.get("ingredients")
             instructions = data.get("instructions")
             notes = data.get("notes")
-            highlight([name,ingredients,instructions,notes],"#")
+            highlight([name, ingredients, instructions, notes], "#")
         except Exception as e:
             raise ValueError(
                 f"Failed to extract recipe edit data for recipe {recipe_id}: {e}")
 
         try:
             if name or notes:
-                RecipeService.process_edit_recipe_info(name=name, notes=notes, recipe_id=recipe_id)
+                RecipeService.process_edit_recipe_info(
+                    name=name, notes=notes, recipe_id=recipe_id)
 
             if ingredients:
                 RecipeService.process_edit_ingredients(
                     ingredients=ingredients, recipe_id=recipe_id)
 
             if instructions:
-                RecipeService.process_edit_instructions(instructions=instructions)
+                RecipeService.process_edit_instructions(
+                    instructions=instructions, recipe_id=recipe_id)
 
             db.session.commit()
-            return {"msg":"edit successful"}
+            return {"msg": "edit successful"}
         except Exception as e:
-                highlight(e, "!")
-                raise ValueError(f"Failed to process_edit: {e}")
+            highlight(e, "!")
+            raise ValueError(f"Failed to process_edit: {e}")
 
     @staticmethod
     def process_edit_recipe_info(name, notes, recipe_id):
@@ -159,7 +162,7 @@ class RecipeService():
             highlight(e, "!")
             raise ValueError(
                 f"Failed to process_edit_recipe_info: {e}")
-        
+
     @staticmethod
     def process_edit_ingredients(ingredients, recipe_id):
         """Edits recipe's ingredients by modifying RecipeIngredient association 
@@ -175,7 +178,8 @@ class RecipeService():
                 item_id = item["id"] if item else None
 
                 if ingredient["id"]:
-                    recipe_ingredient = RecipeIngredient.query.get(ingredient["id"])
+                    recipe_ingredient = RecipeIngredient.query.get(
+                        ingredient["id"])
                     if amount:
                         recipe_ingredient.quantity_amount_id = quantity_amount_id
                     if unit:
@@ -184,7 +188,7 @@ class RecipeService():
                         recipe_ingredient.item_id = item_id
                 else:
                     RecipeIngredientRepo.create_ingredient(
-                        recipe_id=recipe_id, 
+                        recipe_id=recipe_id,
                         item_id=item_id,
                         quantity_unit_id=quantity_unit_id,
                         quantity_amount_id=quantity_amount_id)
@@ -193,12 +197,18 @@ class RecipeService():
             raise ValueError(f"Failed to process_edit_ingredients: {e}")
 
     @staticmethod
-    def process_edit_instructions(instructions):
+    def process_edit_instructions(instructions,recipe_id):
         """Edits recipe's instructions by modifying RecipeInstruction association"""
         try:
             for instruction in instructions:
-                recipe_instruction = RecipeInstruction.query.get(instruction["associationId"])
-                recipe_instruction.instruction_id = instruction["newID"]
+                if instruction["associationId"]:
+                    recipe_instruction = RecipeInstruction.query.get(
+                        instruction["associationId"])
+                    recipe_instruction.instruction_id = instruction["newId"]
+                else:
+                    RecipeInstructionRepo.create_entry(
+                        recipe_id=recipe_id,
+                        instruction_id=instruction["newId"])
         except Exception as e:
-                highlight(e, "!")
-                raise ValueError(f"Failed to process_edit_instructions: {e}")
+            highlight(e, "!")
+            raise ValueError(f"Failed to process_edit_instructions: {e}")

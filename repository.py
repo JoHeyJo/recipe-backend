@@ -340,9 +340,6 @@ class InstructionRepo():
                 recipe_id=recipe_id, 
                 instruction_id=instruction["id"]).scalar().id
             instruction["association_id"] = association_id
-            highlight(instruction_instance.recipe_instruction, "@")
-            highlight(instruction,"@")
-            highlight(instruction_instance.recipe_instruction, "@")
             instructions.append(instruction)
         return instructions
 
