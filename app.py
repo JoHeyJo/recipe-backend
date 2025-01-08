@@ -6,7 +6,7 @@ from repository import *
 from models import connect_db, db
 from sqlalchemy.exc import IntegrityError
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, verify_jwt_in_request
 from dotenv import load_dotenv
 from flask_cors import CORS
 from exceptions import *
@@ -16,9 +16,11 @@ from services.book_services import BookService
 from utils.error_handler import handle_error
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
+import jwt
 
 app = Flask(__name__)
 load_dotenv()  # This loads the variables from .env into the environment
+app.config["JWT_SECRET_KEY"] = os.environ['JWT_SECRET_KEY']
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -154,8 +156,13 @@ def add_book(user_id):
 
 
 @app.get("/users/<user_id>/books")
+# @jwt_required()
 def get_user_books(user_id):
     """Returns all books associated with user"""
+    headers = request.headers
+    decoded = jwt.decode(headers, options={"verify_signature": False})
+    print(decoded)
+    highlight(headers,"@")
     books = BookRepo.get_user_books(user_id=user_id)
     return jsonify({"books": books})
 

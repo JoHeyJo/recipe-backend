@@ -108,12 +108,10 @@ class RecipeService():
 
             instructions = InstructionRepo.build_instructions(
                 instances=recipe_instance.instructions, recipe_id=recipe["id"])
-            highlight(instructions,"@")
             recipe_build["instructions"] = instructions
 
             ingredients = IngredientsRepo.build_ingredients(recipe_instance)
             recipe_build["ingredients"] = ingredients
-            highlight(ingredients, "@")
 
             complete_recipes.append(recipe_build)
         return complete_recipes
