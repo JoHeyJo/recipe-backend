@@ -280,7 +280,7 @@ class BookRepo():
         """Returns all books associated to user"""
         try:
             user = User.query.get(user_id)
-            return [book.id for book in user.books]
+            return [Book.serialize(book) for book in user.books]
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()

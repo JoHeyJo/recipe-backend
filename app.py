@@ -14,6 +14,8 @@ from services.recipes_services import RecipeService
 from services.options_services import OptionService
 from services.book_services import BookService
 from utils.error_handler import handle_error
+from datetime import timedelta
+
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
 
@@ -24,6 +26,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True  # change to False for production
 app.config['DEBUG'] = True
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
 # app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False # does this auto update flask app?
 
 debug = DebugToolbarExtension(app)
@@ -35,10 +38,14 @@ connect_db(app)
 # CORS(app, resources={r"/*": {"origins": "*"}})
 
 CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT ^^^^^
+# CORS(app, supports_credentials=True, expose_headers=["Authorization"])
 
 
 @app.get("/")
+@jwt_required()
 def index():
+    header = request.headers
+    highlight(header,"@")
     return "hello"
 
 
@@ -154,10 +161,18 @@ def add_book(user_id):
 
 
 @app.get("/users/<user_id>/books")
+@jwt_required()
 def get_user_books(user_id):
     """Returns all books associated with user"""
     books = BookRepo.get_user_books(user_id=user_id)
-    return jsonify({"books": books})
+    return jsonify(books)
+
+
+# @app.get("users/<user_id>/books/<book_id>")
+# @jwt_required()
+# def get_user_book(user_id, book_id):
+#     """Return user book associated to book id"""
+#     return
 
 ########### OPTIONS ###########
 
