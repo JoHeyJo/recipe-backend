@@ -116,8 +116,8 @@ def add_recipe(user_id, book_id):
 
 
 @app.get("/users/<user_id>/books/<book_id>/recipes")
-def get_user_recipes(user_id, book_id):
-    """Return recipes associated to user"""
+def get_book_recipes(user_id, book_id):
+    """Return recipes associated to user's book"""
     try:
         recipes = RecipeService.build_recipes(book_id=book_id)
         return jsonify(recipes)
