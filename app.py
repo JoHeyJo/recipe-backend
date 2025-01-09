@@ -18,7 +18,6 @@ from datetime import timedelta
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
-import jwt
 
 app = Flask(__name__)
 load_dotenv()  # This loads the variables from .env into the environment
@@ -166,10 +165,6 @@ def add_book(user_id):
 @jwt_required()
 def get_user_books(user_id):
     """Returns all books associated with user"""
-    headers = request.headers
-    decoded = jwt.decode(headers, options={"verify_signature": False})
-    print(decoded)
-    highlight(headers,"@")
     books = BookRepo.get_user_books(user_id=user_id)
     return jsonify(books)
 
