@@ -37,10 +37,7 @@ migrate = Migrate(app, db)
 
 connect_db(app)
 # CORS(app, resources={r"/*": {"origins": "*"}})
-
 CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT ^^^^^
-# CORS(app, supports_credentials=True, expose_headers=["Authorization"])
-
 
 @app.get("/")
 @jwt_required()

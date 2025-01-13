@@ -18,7 +18,7 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     password: Mapped[str_255]
     user_name: Mapped[str_unique_255]
     is_admin: Mapped[bool]
-    book_id: Mapped[Optional[int]] = mapped_column(
+    default_book_id: Mapped[Optional[int]] = mapped_column(
         BIGINT, ForeignKey("books.id"))
 
     # recipes = db.relationship('Recipe', secondary='user_recipes', backref='users')
@@ -36,7 +36,7 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
             "last_name": self.last_name,
             "email": self.email,
             "user_name": self.user_name,
-            "book_id": self.book_id
+            "default_book_id": self.default_book_id
         }
 
 
