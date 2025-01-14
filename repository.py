@@ -60,8 +60,10 @@ class UserRepo():
     def fetch_user(user_id):
         """Fetch user with corresponding id"""
         try:
-            user = User.query.get(user_id)
-            return User.serialize(user)
+            user = User.serialize(User.query.get(user_id))
+            default_book = Book.serialize(Book.query.get(user["default_book_id"]))
+            user["default_book"] = default_book
+            return user
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
