@@ -91,8 +91,13 @@ def login():
 
 ########### USERS ###########
 @app.get("/users/<user_id>")
+@jwt_required()
 def get_user(user_id):
     """Retrieve user associated to id"""
+
+    identity = get_jwt_identity()
+    if identity != user_id:
+        return jsonify({"msg": "Unauthorized access"})
     try:
         return jsonify(UserRepo.fetch_user(user_id=user_id))
     except Exception as e:
