@@ -1,4 +1,3 @@
-from models import User
 import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
@@ -15,6 +14,7 @@ from services.options_services import OptionService
 from services.book_services import BookService
 from utils.error_handler import handle_error
 from datetime import timedelta
+from utils.verify_user import check_user_identity
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
@@ -91,13 +91,9 @@ def login():
 
 ########### USERS ###########
 @app.get("/users/<user_id>")
-@jwt_required()
+@check_user_identity
 def get_user(user_id):
     """Retrieve user associated to id"""
-
-    # identity = get_jwt_identity()
-    # if identity != user_id:
-        # return jsonify({"msg": "Unauthorized access"})
     try:
         return jsonify(UserRepo.fetch_user(user_id=user_id))
     except Exception as e:
