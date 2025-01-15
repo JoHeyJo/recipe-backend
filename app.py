@@ -160,30 +160,35 @@ def add_book(user_id):
 
 
 @app.get("/users/<user_id>/books")
-@jwt_required()
+@check_user_identity
 def get_user_books(user_id):
     """Returns all books associated with user"""
     books = BookRepo.get_user_books(user_id=user_id)
     return jsonify(books)
 
 
-# @app.get("users/<user_id>/books/<book_id>")
-# @jwt_required()
-# def get_user_book(user_id, book_id):
-#     """Return user book associated to book id"""
-#     return
-
 ########### OPTIONS ###########
 
 
 @app.get("/options/<option>")
+@jwt_required()
 def get_options(option):
-    """Facilitates retrieval of options of ingredient components"""
+    """Facilitates retrieval of ALL options of ingredient components"""
     try:
         options = OptionService.get_options(option)
+        highlight(options,"@")
         return jsonify(options)
     except IntegrityError as e:
         return jsonify({"error": f"get_options error{e}"}), 400
+    
+@app.get("users/user_id/options/<option>")
+@check_user_identity
+def get_user_options(user_id, option):
+    """Facilitates retrieval of ingredient options associated to User"""
+    try:
+        options = OptionService.get_user_options(user_id=user_id,option=option)
+    except IntegrityError as e:
+        return jsonify({"error": f"get_user_options error{e}"}), 400
 
 
 @app.post("/options/<option>")
