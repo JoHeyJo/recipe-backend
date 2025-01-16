@@ -147,7 +147,7 @@ def get_delete_recipe(user_id, book_id, recipe_id):
 
 @app.post("/users/<user_id>/books")
 def add_book(user_id):
-    """Facilitates creation of book containing recipes"""
+    """Facilitates creation of book"""
     title = request.json["title"]
     description = request.json["description"]
     book_data = {"title": title, "description": description}
@@ -181,15 +181,14 @@ def get_options(option):
     except IntegrityError as e:
         return jsonify({"error": f"get_options error{e}"}), 400
     
-@app.get("users/user_id/options/<option>")
-@check_user_identity
-def get_user_options(user_id, option):
-    """Facilitates retrieval of ingredient options associated to User"""
-    try:
-        options = OptionService.get_user_options(user_id=user_id,option=option)
-    except IntegrityError as e:
-        return jsonify({"error": f"get_user_options error{e}"}), 400
-
+# @app.get("users/user_id/options/<option>")
+# @check_user_identity
+# def get_user_options(user_id, option):
+#     """Facilitates retrieval of ingredient options associated to User"""
+#     try:
+#         options = OptionService.get_user_options(user_id=user_id,option=option)
+#     except IntegrityError as e:
+#         return jsonify({"error": f"get_user_options error{e}"}), 400
 
 @app.post("/options/<option>")
 def add_option(option):

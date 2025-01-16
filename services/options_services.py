@@ -31,12 +31,12 @@ class OptionService():
         except IntegrityError as e:
             raise {"error": f"Error in OptionService -> get_options: {e}"}
 
-    @staticmethod
-    def get_user_options(user_id, option):
-        """Retrieves user options for ingredient components"""
-        try:
-            if option === "amount":
-                return QuantityAmount.get_user_amount()
+    # @staticmethod
+    # def get_user_options(user_id, option):
+    #     """Retrieves user options for ingredient components"""
+    #     try:
+    #         if option == "amount":
+    #             return QuantityAmount.get_user_amount()
 
-        except IntegrityError as e:
-            raise {"error": f"Error in OptionService -> get_user_options: {e}"}
+    #     except IntegrityError as e:
+    #         raise {"error": f"Error in OptionService -> get_user_options: {e}"}

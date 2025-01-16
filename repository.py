@@ -61,8 +61,10 @@ class UserRepo():
         """Fetch user with corresponding id"""
         try:
             user = User.serialize(User.query.get(user_id))
-            default_book = Book.serialize(Book.query.get(user["default_book_id"]))
-            user["default_book"] = default_book
+            default_book_id = user.get("default_book_id")
+            if default_book_id:
+                default_book = Book.serialize(Book.query.get(user["default_book_id"]))
+                user["default_book"] = default_book
             return user
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -182,15 +184,15 @@ class QuantityAmountRepo():
             db.session.rollback()
             raise Exception(f"get_all_amounts error: {e}")
 
-    @staticmethod
-    def get_user_amounts():
-        """Return user amounts"""
-        try:
-            amounts = 
-        except SQLAlchemyError as e:
-            highlight(e, "!")
-            db.session.rollback()
-            raise Exception(f"get_user_amounts error: {e}")
+    # @staticmethod
+    # def get_user_amounts():
+    #     """Return user amounts"""
+    #     try:
+    #         amounts = 
+    #     except SQLAlchemyError as e:
+    #         highlight(e, "!")
+    #         db.session.rollback()
+    #         raise Exception(f"get_user_amounts error: {e}")
 
 class ItemRepo():
     """Processes item & facilitates table interactions"""

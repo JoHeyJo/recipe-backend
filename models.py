@@ -179,6 +179,13 @@ class RecipeInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db
     recipe_id: Mapped[int] = Column(
         Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
     instruction_id: Mapped[int] = Column(Integer, ForeignKey("instructions.id"))
+
+
+# class UsersInstructions(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
+#     """Association table for users and instructions"""
+#     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+#     user_id: Mapped[int] = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"))
+#     instruction_id: Mapped[int] = Column(Integer, ForeignKey("instructions.id"))
     
 
 def connect_db(app):
