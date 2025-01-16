@@ -356,7 +356,7 @@ class InstructionRepo():
                 UserBook, BookInstruction.book_id == UserBook.book_id
                 ).filter(UserBook.user_id == user_id).all()
             highlight(instructions,"@")
-            return instructions
+            return [Instruction.serialize(instruction) for instruction in instructions]
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()

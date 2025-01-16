@@ -228,8 +228,8 @@ def get_instructions():
 
 
 @app.get("/users/<user_id>/instructions")
-@check_user_identity
-def get_user_instructions(user_id, book_id):
+# @check_user_identity
+def get_user_instructions(user_id):
     """Facilitates retrieval of user instructions"""
     try:
         instructions = InstructionService.fetch_user_instructions(user_id=user_id)
