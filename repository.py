@@ -325,10 +325,10 @@ class InstructionRepo():
         """this needs to be broken up, association needs to be moved to its service function"""
         try:
             instruction = Instruction(instruction=instruction)
-            BookInstructionRepo.create_entry(
-                book_id=book_id, instruction_id=instruction.id)
             db.session.add(instruction)
             db.session.commit()
+            BookInstructionRepo.create_entry(
+                book_id=book_id, instruction_id=instruction.id)
             return Instruction.serialize(instruction)
         except SQLAlchemyError as e:
             highlight(e, "!")
