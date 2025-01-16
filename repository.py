@@ -58,7 +58,7 @@ class UserRepo():
 
     @staticmethod
     def fetch_user(user_id):
-        """Fetch user with corresponding id"""
+        """Fetch user corresponding with id"""
         try:
             user = User.serialize(User.query.get(user_id))
             default_book_id = user.get("default_book_id")
@@ -345,6 +345,23 @@ class InstructionRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"InstructionRepo - get_instruction error: {e}")
+
+    @staticmethod
+    def query_user_instructions(user_id):
+        """Query all instructions associated with a user"""
+        try:
+            instructions = db.session.query(Instruction).join(
+                BookInstruction, Instruction.id == BookInstruction.instruction_id
+                ).join(
+                UserBook, BookInstruction.book_id == UserBook.book_id
+                ).filter(UserBook.user_id == user_id).all()
+            highlight(instructions,"@")
+            return instructions
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(
+                f"InstructionRepo - get_user_instructions error: {e}")
 
     @staticmethod
     def build_instructions(instances, recipe_id):

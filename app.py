@@ -12,6 +12,7 @@ from exceptions import *
 from services.recipes_services import RecipeService
 from services.options_services import OptionService
 from services.book_services import BookService
+from services.instructions_services import InstructionService
 from utils.error_handler import handle_error
 from datetime import timedelta
 from utils.verify_user import check_user_identity
@@ -218,13 +219,23 @@ def add_instruction(user_id, book_id):
 
 @app.get("/instructions")
 def get_instructions():
-    """Facilitates retrieval of instructions """
+    """Facilitates retrieval of instructions"""
     try:
         instructions = InstructionRepo.get_instructions()
         return jsonify(instructions)
     except IntegrityError as e:
         return jsonify({"error": f"/instructions - get_instructions error{e}"}), 400
 
+
+@app.get("/users/<user_id>/instructions")
+@check_user_identity
+def get_user_instructions(user_id, book_id):
+    """Facilitates retrieval of user instructions"""
+    try:
+        instructions = InstructionService.fetch_user_instructions(user_id=user_id)
+        return jsonify(instructions)
+    except IntegrityError as e:
+        return jsonify({"error": f"/instructions - get_instructions error{e}"}), 400
 
 ################################################################################
 def setup_app_context():

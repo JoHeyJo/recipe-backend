@@ -72,7 +72,7 @@ class RecipeService():
 
     @staticmethod
     def process_instructions(recipe_id, instructions, book_id):
-        """Adds instructions and associates each instruction to book"""
+        """Adds instructions and associates each instruction to Recipe"""
         try:
             instructions_data = InstructionRepo.process_instructions(
                 instructions=instructions)
@@ -82,8 +82,7 @@ class RecipeService():
                     f"No instructions data returned for book {book_id}")
 
             for instruction in instructions_data:
-                # BookInstructionRepo.create_entry(
-                #     book_id=book_id, instruction_id=instruction["id"])
+                # Can potentially associate instruction to User here...
                 id = RecipeInstructionRepo.create_entry(
                     recipe_id=recipe_id, instruction_id=instruction["id"])
                 instruction["instruction_id"] = id

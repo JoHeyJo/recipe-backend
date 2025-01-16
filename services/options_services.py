@@ -3,7 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 
 class OptionService():
-    """Handles option view business logic"""
+    """Handles options view business logic"""
     @staticmethod
     def get_options(option):
         """Retrieves options for ingredient components"""
