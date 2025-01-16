@@ -82,8 +82,8 @@ class RecipeService():
                     f"No instructions data returned for book {book_id}")
 
             for instruction in instructions_data:
-                BookInstructionRepo.create_entry(
-                    book_id=book_id, instruction_id=instruction["id"])
+                # BookInstructionRepo.create_entry(
+                #     book_id=book_id, instruction_id=instruction["id"])
                 id = RecipeInstructionRepo.create_entry(
                     recipe_id=recipe_id, instruction_id=instruction["id"])
                 instruction["instruction_id"] = id

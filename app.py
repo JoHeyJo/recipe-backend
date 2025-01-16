@@ -203,7 +203,7 @@ def add_option(option):
 ########### INSTRUCTIONS ###########
 
 
-@app.post("user/<user_id>/book/<book_id>/instructions/instruction")
+@app.post("users/<user_id>/books/<book_id>/instructions")
 @check_user_identity
 def add_instruction(user_id, book_id):
     """Facilitates creation of instruction"""

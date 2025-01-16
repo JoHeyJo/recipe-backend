@@ -322,6 +322,7 @@ class InstructionRepo():
     @staticmethod
     def create_instruction(instruction, book_id):
         """Create instruction, add to database and associate to book"""
+        """this needs to be broken up, association needs to be moved to its service function"""
         try:
             instruction = Instruction(instruction=instruction)
             BookInstructionRepo.create_entry(
