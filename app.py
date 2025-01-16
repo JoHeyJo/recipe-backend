@@ -228,7 +228,7 @@ def get_instructions():
 
 
 @app.get("/users/<user_id>/instructions")
-# @check_user_identity
+@check_user_identity
 def get_user_instructions(user_id):
     """Facilitates retrieval of user instructions"""
     try:
