@@ -203,13 +203,14 @@ def add_option(option):
 ########### INSTRUCTIONS ###########
 
 
-@app.post("/instructions/instruction")
-def add_instruction():
+@app.post("user/<user_id>/book/<book_id>/instructions/instruction")
+@check_user_identity
+def add_instruction(user_id, book_id):
     """Facilitates creation of instruction"""
     instruction = request.json["instruction"]
     try:
         instruction = InstructionRepo.create_instruction(
-            instruction=instruction)
+            instruction=instruction, book_id=book_id)
         return jsonify(instruction)
     except IntegrityError as e:
         return jsonify({"error": f"add_instruction error{e}"}), 400

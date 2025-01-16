@@ -55,7 +55,7 @@ class UserRepo():
                 token = create_access_token(identity=user.id)
                 return token
         return False
-    
+
     @staticmethod
     def fetch_user(user_id):
         """Fetch user with corresponding id"""
@@ -63,13 +63,15 @@ class UserRepo():
             user = User.serialize(User.query.get(user_id))
             default_book_id = user.get("default_book_id")
             if default_book_id:
-                default_book = Book.serialize(Book.query.get(user["default_book_id"]))
+                default_book = Book.serialize(
+                    Book.query.get(user["default_book_id"]))
                 user["default_book"] = default_book
             return user
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"UserRepo -> fetch_user error:{e}")
+
 
 class RecipeRepo():
     """Facilitates recipes table interactions"""
@@ -78,7 +80,7 @@ class RecipeRepo():
         """Creates recipe instance and adds it to database"""
         highlight(notes, "create_recipe")
         recipe = Recipe(name=name, notes=notes)
-        highlight(recipe.notes,"instantiated")
+        highlight(recipe.notes, "instantiated")
         try:
             db.session.add(recipe)
             db.session.commit()
@@ -87,7 +89,7 @@ class RecipeRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"create_recipe error:{e}")
-    
+
     @staticmethod
     def fetch_recipes(user_id, book_id):
         """Retrieve recipes corresponding to user's book"""
@@ -99,7 +101,7 @@ class RecipeRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"create_recipe error:{e}")
-        
+
     @staticmethod
     def delete_recipe(recipe_id):
         """Deletes recipe and all references in association tables"""
@@ -188,11 +190,12 @@ class QuantityAmountRepo():
     # def get_user_amounts():
     #     """Return user amounts"""
     #     try:
-    #         amounts = 
+    #         amounts =
     #     except SQLAlchemyError as e:
     #         highlight(e, "!")
     #         db.session.rollback()
     #         raise Exception(f"get_user_amounts error: {e}")
+
 
 class ItemRepo():
     """Processes item & facilitates table interactions"""
@@ -269,7 +272,8 @@ class IngredientsRepo():
             amount = QuantityAmount.serialize(ingredient.amount)
             unit = QuantityUnit.serialize(ingredient.unit)
             item = Item.serialize(ingredient.item)
-            ingredients.append({"ingredient_id": ingredient.id, "amount": amount, "unit": unit, "item": item})
+            ingredients.append(
+                {"ingredient_id": ingredient.id, "amount": amount, "unit": unit, "item": item})
         return ingredients
 
 
@@ -287,7 +291,7 @@ class BookRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"create_book error: {e}")
-    
+
     @staticmethod
     def get_user_books(user_id):
         """Returns all books associated to user"""
@@ -298,7 +302,7 @@ class BookRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"BookRepo - get_user_books error: {e}")
-        
+
 
 class InstructionRepo():
     """Facilitates instructions table interactions"""
@@ -316,10 +320,12 @@ class InstructionRepo():
         return processed_instructions
 
     @staticmethod
-    def create_instruction(instruction):
-        """Create instruction and add to database"""
+    def create_instruction(instruction, book_id):
+        """Create instruction, add to database and associate to book"""
         try:
             instruction = Instruction(instruction=instruction)
+            BookInstructionRepo.create_entry(
+                book_id=book_id, instruction_id=instruction.id)
             db.session.add(instruction)
             db.session.commit()
             return Instruction.serialize(instruction)
@@ -338,19 +344,19 @@ class InstructionRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"InstructionRepo - get_instruction error: {e}")
-        
+
     @staticmethod
     def build_instructions(instances, recipe_id):
         """Return all associated instructions from recipe instance and join with 
         recipe_instruction identifier"""
         instructions = []
         if not instances:
-            return [] 
+            return []
         for instruction_instance in instances:
             instruction = Instruction.serialize(instruction_instance)
             # inject PK from recipes_instructions association table
             association_id = RecipeInstruction.query.filter_by(
-                recipe_id=recipe_id, 
+                recipe_id=recipe_id,
                 instruction_id=instruction["id"]).scalar().id
             instruction["association_id"] = association_id
             instructions.append(instruction)
@@ -374,7 +380,8 @@ class RecipeIngredientRepo():
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"RecipeIngredientRepo-create_ingredient error:{e}")
+            raise Exception(
+                f"RecipeIngredientRepo-create_ingredient error:{e}")
 
 
 class RecipeBookRepo():
@@ -422,13 +429,15 @@ class BookInstructionRepo():
             db.session.rollback()
             raise Exception(f"BookInstructionRepo-create_entry:{e}")
 
+
 class RecipeInstructionRepo():
     """Facilitates association of recipes & instructions"""
     @staticmethod
     def create_entry(recipe_id, instruction_id):
         """Create recipe and instruction association -> add to database"""
         try:
-            entry = RecipeInstruction(recipe_id=recipe_id, instruction_id=instruction_id)
+            entry = RecipeInstruction(
+                recipe_id=recipe_id, instruction_id=instruction_id)
             db.session.add(entry)
             db.session.commit()
             return entry.id
