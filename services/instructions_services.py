@@ -1,7 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 from repository import InstructionRepo
-from models import User
-from repository import highlight
+from models import db, User
+from repository import highlight, UserBook
 
 class InstructionService():
   """Handles instructions view business logic """
@@ -28,9 +28,11 @@ class InstructionService():
   def check_user_access(user_id, book_id):
      """Verifies/denies user access to book"""
      try:
-        user_books = User.query.get(user_id).books
-        highlight(user_books,"@")
-        if book_id in user_books:
+        # user_books = User.query.get(user_id).books.select(User.id)
+        book_ids = [book_id[0] for book_id in db.session.query(
+            UserBook.book_id).filter(UserBook.user_id == user_id).all()]
+        highlight((book_id,book_ids), "@")
+        if int(book_id) in book_ids:
            return True
         else:
            return False
