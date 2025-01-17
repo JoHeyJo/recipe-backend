@@ -348,7 +348,7 @@ class InstructionRepo():
 
     @staticmethod
     def query_user_instructions(user_id):
-        """Query all instructions associated with a user"""
+        """Query all instructions associated with a user - relying on table join"""
         try:
             instructions = db.session.query(Instruction).join(
                 BookInstruction, Instruction.id == BookInstruction.instruction_id
@@ -362,6 +362,19 @@ class InstructionRepo():
             db.session.rollback()
             raise Exception(
                 f"InstructionRepo - get_user_instructions error: {e}")
+    
+    @staticmethod
+    def query_book_instructions(book_id):
+        """Query all instructions associated with a book"""
+        try:
+            book = Book.query.get(book_id)
+            instructions = book.instructions
+            return [Instruction.serialize(instruction) for instruction in instructions]
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(
+                f"InstructionRepo - query_book_instructions error: {e}")
 
     @staticmethod
     def build_instructions(instances, recipe_id):
