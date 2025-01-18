@@ -40,11 +40,12 @@ connect_db(app)
 # CORS(app, resources={r"/*": {"origins": "*"}})
 CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT ^^^^^
 
+
 @app.get("/")
 @jwt_required()
 def index():
     header = request.headers
-    highlight(header,"@")
+    highlight(header, "@")
     return "hello"
 
 
@@ -123,14 +124,17 @@ def get_book_recipes(user_id, book_id):
     except Exception as e:
         return handle_error(e)
 
+
 @app.patch("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
 def update_user_recipe(user_id, book_id, recipe_id):
     """Facilitate editing of recipe and records associated to book"""
     try:
-        recipe = RecipeService.process_edit(data=request.json, recipe_id=recipe_id)
+        recipe = RecipeService.process_edit(
+            data=request.json, recipe_id=recipe_id)
         return jsonify(recipe)
     except Exception as e:
         return handle_error(e)
+
 
 @app.delete("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
 def get_delete_recipe(user_id, book_id, recipe_id):
@@ -140,7 +144,6 @@ def get_delete_recipe(user_id, book_id, recipe_id):
         return jsonify({"message": "deletion successful"})
     except Exception as e:
         return handle_error(e)
-
 
 
 ########### BOOKS ###########
@@ -177,11 +180,11 @@ def get_options(option):
     """Facilitates retrieval of ALL options of ingredient components"""
     try:
         options = OptionService.get_options(option)
-        highlight(options,"@")
+        highlight(options, "@")
         return jsonify(options)
     except IntegrityError as e:
         return jsonify({"error": f"get_options error{e}"}), 400
-    
+
 # @app.get("users/user_id/options/<option>")
 # @check_user_identity
 # def get_user_options(user_id, option):
@@ -190,6 +193,7 @@ def get_options(option):
 #         options = OptionService.get_user_options(user_id=user_id,option=option)
 #     except IntegrityError as e:
 #         return jsonify({"error": f"get_user_options error{e}"}), 400
+
 
 @app.post("/options/<option>")
 def add_option(option):
@@ -217,6 +221,20 @@ def add_instruction(user_id, book_id):
         return jsonify({"error": f"add_instruction error{e}"}), 400
 
 
+@app.post("/users/<user_id>/books/<book_id>/instructions/<instruction_id>")
+@check_user_identity
+def add_instruction_association(book_id, instruction_id):
+    """Facilitates association of existing instruction to book 
+    e.g. adds one book's instructions to another"""
+    try:
+        InstructionService.post_instruction_association(
+            book_id=book_id, instruction_id=instruction_id)
+        return jsonify({"message": 
+                        f"Successful association of instruction{instruction_id} to {book_id}!"})
+    except IntegrityError as e:
+        return jsonify({"error": f"add_instruction_association error{e}"}), 400
+
+
 @app.get("/instructions")
 @jwt_required()
 def get_instructions():
@@ -233,7 +251,8 @@ def get_instructions():
 def get_user_instructions(user_id):
     """Facilitates retrieval of user instructions"""
     try:
-        instructions = InstructionService.fetch_user_instructions(user_id=user_id)
+        instructions = InstructionService.fetch_user_instructions(
+            user_id=user_id)
         return jsonify(instructions)
     except IntegrityError as e:
         return jsonify({"error": f"/instructions - get_user_instructions error{e}"}), 400
@@ -243,17 +262,22 @@ def get_user_instructions(user_id):
 @check_user_identity
 def get_book_instructions(user_id, book_id):
     """Facilitates retrieval of book instructions"""
-    try: 
-        has_access = InstructionService.check_user_access(user_id=user_id, book_id=book_id)
+    try:
+        highlight(["user_id=", user_id, "book_id=", book_id], "@")
+        has_access = InstructionService.check_user_access(
+            user_id=user_id, book_id=book_id)
         if has_access:
-            instructions = InstructionService.fetch_book_instructions(book_id=book_id)
+            instructions = InstructionService.fetch_book_instructions(
+                book_id=book_id)
             return jsonify(instructions)
         else:
-            return jsonify({"message":"user does not have access to book"})
+            return jsonify({"message": "user does not have access to book"})
     except IntegrityError as e:
         return jsonify({"error": f"/instructions - get_book_instructions error{e}"}), 400
 
 ################################################################################
+
+
 def setup_app_context():
     """Function to setup app context. Allows database access via IPython shell"""
     app.app_context().push()

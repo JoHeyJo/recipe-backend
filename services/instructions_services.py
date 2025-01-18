@@ -1,7 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 from repository import InstructionRepo
 from models import db, User
-from repository import highlight, UserBook
+from repository import highlight, UserBook, BookInstructionRepo
 
 class InstructionService():
   """Handles instructions view business logic """
@@ -36,3 +36,12 @@ class InstructionService():
            return False
      except IntegrityError as e:
          raise {"error": f"Error in InstructionService -> check_user_access: {e}"}
+     
+  @staticmethod
+  def post_instruction_association(book_id, instruction_id):
+     """Add instruction to association table"""
+     try:
+        BookInstructionRepo.create_entry(book_id=book_id, instruction_id=instruction_id)
+     except IntegrityError as e:
+         raise {
+             "error": f"Error in InstructionService -> post_instruction_association: {e}"}
