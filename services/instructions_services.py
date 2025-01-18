@@ -28,10 +28,8 @@ class InstructionService():
   def check_user_access(user_id, book_id):
      """Verifies/denies user access to book"""
      try:
-        # user_books = User.query.get(user_id).books.select(User.id)
         book_ids = [book_id[0] for book_id in db.session.query(
             UserBook.book_id).filter(UserBook.user_id == user_id).all()]
-        highlight((book_id,book_ids), "@")
         if int(book_id) in book_ids:
            return True
         else:
