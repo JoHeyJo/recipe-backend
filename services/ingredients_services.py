@@ -5,7 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 class IngredientService():
     """Handles ingredients view business logic"""
     @staticmethod
-    def get_ingredients(ingredient):
+    def fetch_ingredients(ingredient):
         """Retrieves ingredient components"""
         try:
             if ingredient == "amounts":
@@ -19,7 +19,7 @@ class IngredientService():
         # WIP: needs to be refactored to associate added ingredient to user and/or book
 
     @staticmethod
-    def get_user_options(user_id, ingredient):
+    def fetch_user_ingredients(user_id, ingredient):
         """Retrieves user ingredients for ingredient components"""
         try:
             if ingredient == "amount":

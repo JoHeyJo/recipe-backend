@@ -25,8 +25,8 @@ class InstructionService():
          raise {"error": f"Error in InstructionService -> fetch_book_instructions: {e}"}
      
   @staticmethod
-  def check_user_access(user_id, book_id):
-     """Verifies/denies user access to book"""
+  def check_book_access(user_id, book_id):
+     """Authorizes user access to book"""
      try:
         book_ids = [book_id[0] for book_id in db.session.query(
             UserBook.book_id).filter(UserBook.user_id == user_id).all()]

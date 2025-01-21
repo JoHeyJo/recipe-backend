@@ -179,7 +179,7 @@ def get_user_books(user_id):
 def get_ingredients(ingredient):
     """Facilitates retrieval of ALL ingredients of ingredient components"""
     try:
-        ingredients = IngredientService.get_ingredients(ingredient)
+        ingredients = IngredientService.fetch_ingredients(ingredient)
         highlight(ingredients, "@")
         return jsonify(ingredients)
     except IntegrityError as e:
@@ -191,7 +191,7 @@ def get_ingredients(ingredient):
 def get_user_ingredients(user_id, ingredient):
     """Facilitates retrieval of ingredients associated to User"""
     try:
-        ingredients = IngredientService.get_user_ingredients(
+        ingredients = IngredientService.fetch_user_ingredients(
             user_id=user_id, ingredient=ingredient)
     except IntegrityError as e:
         return jsonify({"error": f"get_user_ingredients error{e}"}), 400
@@ -274,7 +274,7 @@ def get_book_instructions(user_id, book_id):
     """Facilitates retrieval of book instructions"""
     try:
         highlight(["user_id=", user_id, "book_id=", book_id], "@")
-        has_access = InstructionService.check_user_access(
+        has_access = InstructionService.check_book_access(
             user_id=user_id, book_id=book_id)
         if has_access:
             instructions = InstructionService.fetch_book_instructions(
