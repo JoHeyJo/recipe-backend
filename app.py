@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from flask_cors import CORS
 from exceptions import *
 from services.recipes_services import RecipeService
-from services.options_services import OptionService
+from services.ingredients_services import IngredientService
 from services.book_services import BookService
 from services.instructions_services import InstructionService
 from utils.error_handler import handle_error
@@ -171,45 +171,48 @@ def get_user_books(user_id):
     return jsonify(books)
 
 
-########### OPTIONS ###########
+########### INGREDIENTS ###########
 
 
-@app.get("/options/<option>")
+@app.get("/ingredients/<ingredient>")
 @jwt_required()
-def get_options(option):
-    """Facilitates retrieval of ALL options of ingredient components"""
+def get_ingredients(ingredient):
+    """Facilitates retrieval of ALL ingredients of ingredient components"""
     try:
-        options = OptionService.get_options(option)
-        highlight(options, "@")
-        return jsonify(options)
+        ingredients = IngredientService.get_ingredients(ingredient)
+        highlight(ingredients, "@")
+        return jsonify(ingredients)
     except IntegrityError as e:
-        return jsonify({"error": f"get_options error{e}"}), 400
+        return jsonify({"error": f"get_ingredients error{e}"}), 400
 
-# @app.get("users/user_id/options/<option>")
+
+@app.get("/users/<user_id>/ingredients/<ingredient>")
+@check_user_identity
+def get_user_ingredients(user_id, ingredient):
+    """Facilitates retrieval of ingredients associated to User"""
+    try:
+        ingredients = IngredientService.get_user_ingredients(
+            user_id=user_id, ingredient=ingredient)
+    except IntegrityError as e:
+        return jsonify({"error": f"get_user_ingredients error{e}"}), 400
+    
+
+# @app.post("users/<user_id>/books/<book_id>/ingredients/<ingredient>")
 # @check_user_identity
-# def get_user_options(user_id, option):
-#     """Facilitates retrieval of ingredient options associated to User"""
-#     try:o
-#         options = OptionService.get_user_options(user_id=user_id,option=option)
-#     except IntegrityError as e:
-#         return jsonify({"error": f"get_user_options error{e}"}), 400
+# def get_book_ingredients(book_id):
+#     """Facilitates retrieval of user ingredients"""
 
 
-@app.post("/options/<option>")
-def add_option(option):
+@app.post("/ingredients/<ingredient>")
+def add_option(ingredient):
     """Facilitates creation of ingredient"""
     value = request.json
     try:
-        option = OptionService.add_option(label=option, attributes=value)
-        return jsonify(option)
+        ingredient = IngredientService.add_ingredient(
+            label=ingredient, attributes=value)
+        return jsonify(ingredient)
     except IntegrityError as e:
         return jsonify({"error": f"add_option error{e}"}), 400
-    
-    
-@app.post("users/<user_id>/books/<book_id>/options/<option>")
-@check_user_identity
-def get_user_options(book_id):
-    """Facilitates retrieval of user options"""
 
 
 ########### INSTRUCTIONS ###########
@@ -236,7 +239,7 @@ def add_instruction_association(book_id, instruction_id):
     try:
         InstructionService.post_instruction_association(
             book_id=book_id, instruction_id=instruction_id)
-        return jsonify({"message": 
+        return jsonify({"message":
                         f"Successful association of instruction{instruction_id} to {book_id}!"})
     except IntegrityError as e:
         return jsonify({"error": f"add_instruction_association error{e}"}), 400
