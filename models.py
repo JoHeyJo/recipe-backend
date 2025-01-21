@@ -134,7 +134,9 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
 
 class RecipeIngredient(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
-    """Association table for recipes and ingredients"""
+    """Association table for recipes and ingredients - Also, acts as the Ingredient
+    table allowing queries of whole ingredient instances and their individual parts
+    e.g. item, amount, unit"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     recipe_id: Mapped[int] = Column(
         Integer, ForeignKey('recipes.id', ondelete="CASCADE"))

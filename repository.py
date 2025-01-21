@@ -186,15 +186,15 @@ class QuantityAmountRepo():
             db.session.rollback()
             raise Exception(f"get_all_amounts error: {e}")
 
-    # @staticmethod
-    # def get_user_amounts():
-    #     """Return user amounts"""
-    #     try:
-    #         amounts =
-    #     except SQLAlchemyError as e:
-    #         highlight(e, "!")
-    #         db.session.rollback()
-    #         raise Exception(f"get_user_amounts error: {e}")
+    @staticmethod
+    def get_user_amounts():
+        """Return user amounts"""
+        try:
+            amounts =
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"get_user_amounts error: {e}")
 
 
 class ItemRepo():

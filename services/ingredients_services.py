@@ -6,7 +6,7 @@ class IngredientService():
     """Handles ingredients view business logic"""
     @staticmethod
     def fetch_ingredients(ingredient):
-        """Retrieves ingredient components"""
+        """Retrieves individual ingredient components"""
         try:
             if ingredient == "amounts":
                 return QuantityAmountRepo.get_all_amounts()
@@ -20,17 +20,21 @@ class IngredientService():
 
     @staticmethod
     def fetch_user_ingredients(user_id, ingredient):
-        """Retrieves user ingredients for ingredient components"""
+        """Retrieves user's individual ingredient components"""
         try:
-            if ingredient == "amount":
-                return QuantityAmount.get_user_amount()
+            if ingredient == "amounts":
+                return QuantityAmountRepo.get_all_amounts()
+            if ingredient == "units":
+                return QuantityUnitRepo.get_all_units()
+            if ingredient == "items":
+                return ItemRepo.get_all_items()
 
         except IntegrityError as e:
             raise {"error": f"Error in IngredientService -> get_user_options: {e}"}
 
     @staticmethod
     def add_ingredient(label, attributes):
-        """Call corresponding ingredient component method for processing"""
+        """Calls corresponding ingredient component method for processing"""
         try:
             if label == "value":
                 return QuantityAmountRepo.process_amount(amount=attributes)
