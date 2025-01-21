@@ -189,7 +189,7 @@ def get_options(option):
 # @check_user_identity
 # def get_user_options(user_id, option):
 #     """Facilitates retrieval of ingredient options associated to User"""
-#     try:
+#     try:o
 #         options = OptionService.get_user_options(user_id=user_id,option=option)
 #     except IntegrityError as e:
 #         return jsonify({"error": f"get_user_options error{e}"}), 400
@@ -197,13 +197,20 @@ def get_options(option):
 
 @app.post("/options/<option>")
 def add_option(option):
-    """Facilitates creation of option for ingredient components"""
+    """Facilitates creation of ingredient"""
     value = request.json
     try:
         option = OptionService.add_option(label=option, attributes=value)
         return jsonify(option)
     except IntegrityError as e:
         return jsonify({"error": f"add_option error{e}"}), 400
+    
+    
+@app.post("users/<user_id>/books/<book_id>/options/<option>")
+@check_user_identity
+def get_user_options(book_id):
+    """Facilitates retrieval of user options"""
+
 
 ########### INSTRUCTIONS ###########
 
