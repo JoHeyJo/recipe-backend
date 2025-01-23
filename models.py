@@ -183,6 +183,13 @@ class RecipeInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db
     instruction_id: Mapped[int] = Column(Integer, ForeignKey("instructions.id"))
 
 
+class BookIngredient(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
+    """Association table for books and ingredients"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    recipe_id: Mapped[int] = mapped_column(BIGINT, ForeignKey("recipe_id"))
+    ingredient_id: Mapped[int] = mapped_column(BIGINT, ForeignKey("ingredient_id"))
+
+
 # class UsersInstructions(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
 #     """Association table for users and instructions"""
 #     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)

@@ -204,7 +204,8 @@ def get_user_ingredients(user_id, ingredient):
 
 
 @app.post("/ingredients/<ingredient>")
-def add_option(ingredient):
+# should identity be checked here?
+def add_ingredient(ingredient):
     """Facilitates creation of ingredient"""
     value = request.json
     try:
@@ -212,7 +213,7 @@ def add_option(ingredient):
             label=ingredient, attributes=value)
         return jsonify(ingredient)
     except IntegrityError as e:
-        return jsonify({"error": f"add_option error{e}"}), 400
+        return jsonify({"error": f"add_ingredient error{e}"}), 400
 
 
 ########### INSTRUCTIONS ###########
