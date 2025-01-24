@@ -184,6 +184,8 @@ class RecipeInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db
         Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
     instruction_id: Mapped[int] = Column(
         Integer, ForeignKey("instructions.id"))
+    
+
 
 
 # class UsersInstructions(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
