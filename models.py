@@ -69,6 +69,9 @@ class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     def serialize(self):
         """Serialize unit table data into dict"""
         return {"id": self.id, "type": self.type}
+    
+    books: Mapped[List['Book']] = relationship(
+        "Book", secondary='units_books', back_populates='quantity_units')
 
 
 class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -79,6 +82,9 @@ class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     def serialize(self):
         """Serialize amount table data into dict"""
         return {"id": self.id, "value": self.value}
+    
+    books: Mapped[List['Book']] = relationship(
+            "Book", secondary='amounts_books', back_populates='quantity_amounts')
 
 
 class Item(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -89,6 +95,9 @@ class Item(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     def serialize(self):
         """Serialize amount table data into dict"""
         return {"id": self.id, "name": self.name}
+
+    books: Mapped[List['Book']] = relationship(
+        "Book", secondary='items_books', back_populates='items')
 
 
 class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -109,6 +118,15 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     instructions: Mapped[List['Instruction']] = relationship(
         "Instruction", secondary='books_instructions', back_populates='books')
+    
+    items: Mapped[List['Item']] = relationship(
+        "Item", secondary='items_books', back_populates='books')
+
+    units: Mapped[List['QuantityUnit']] = relationship(
+        "QuantityUnit", secondary='units_books', back_populates='books')
+
+    amounts: Mapped[List['QuantityAmount']] = relationship(
+        "QuantityAmount", secondary='amounts_books', back_populates='books')
 
 
 class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -184,8 +202,33 @@ class RecipeInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db
         Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
     instruction_id: Mapped[int] = Column(
         Integer, ForeignKey("instructions.id"))
-    
 
+
+class AmountBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
+    """Association table for amounts and books"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    amount_id: Mapped[int] = Column(
+        Integer, ForeignKey("amounts.id", ondelete="CASCADE"))
+    book_id: Mapped[int] = Column(
+        Integer, ForeignKey("books.id", ondelete="CASCADE"))
+
+
+class UnitBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
+    """Association table for unit and books"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    unit_id: Mapped[int] = Column(
+        Integer, ForeignKey("units.id", ondelete="CASCADE"))
+    book_id: Mapped[int] = Column(
+        Integer, ForeignKey("books.id", ondelete="CASCADE"))
+
+
+class ItemBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
+    """Association table for items and books"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    items_id: Mapped[int] = Column(
+        Integer, ForeignKey("items.id", ondelete="CASCADE"))
+    book_id: Mapped[int] = Column(
+        Integer, ForeignKey("books.id", ondelete="CASCADE"))
 
 
 # class UsersInstructions(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
