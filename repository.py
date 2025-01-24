@@ -190,7 +190,7 @@ class QuantityAmountRepo():
     def get_user_amounts():
         """Return user amounts"""
         try:
-            amounts =
+            amounts = None
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
