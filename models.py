@@ -122,10 +122,10 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     items: Mapped[List['Item']] = relationship(
         "Item", secondary='items_books', back_populates='books')
 
-    units: Mapped[List['QuantityUnit']] = relationship(
+    quantity_units: Mapped[List['QuantityUnit']] = relationship(
         "QuantityUnit", secondary='units_books', back_populates='books')
 
-    amounts: Mapped[List['QuantityAmount']] = relationship(
+    quantity_amounts: Mapped[List['QuantityAmount']] = relationship(
         "QuantityAmount", secondary='amounts_books', back_populates='books')
 
 
@@ -208,7 +208,7 @@ class AmountBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model)
     """Association table for amounts and books"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     amount_id: Mapped[int] = Column(
-        Integer, ForeignKey("amounts.id", ondelete="CASCADE"))
+        Integer, ForeignKey("quantity_amounts.id", ondelete="CASCADE"))
     book_id: Mapped[int] = Column(
         Integer, ForeignKey("books.id", ondelete="CASCADE"))
 
@@ -217,7 +217,7 @@ class UnitBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for unit and books"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     unit_id: Mapped[int] = Column(
-        Integer, ForeignKey("units.id", ondelete="CASCADE"))
+        Integer, ForeignKey("quantity_units.id", ondelete="CASCADE"))
     book_id: Mapped[int] = Column(
         Integer, ForeignKey("books.id", ondelete="CASCADE"))
 
@@ -225,7 +225,7 @@ class UnitBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
 class ItemBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for items and books"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    items_id: Mapped[int] = Column(
+    item_id: Mapped[int] = Column(
         Integer, ForeignKey("items.id", ondelete="CASCADE"))
     book_id: Mapped[int] = Column(
         Integer, ForeignKey("books.id", ondelete="CASCADE"))
