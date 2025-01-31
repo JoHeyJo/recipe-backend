@@ -1,4 +1,4 @@
-"""changed RecipeIngredient col ingredient_id to item_id
+"""changed Ingredient col ingredient_id to item_id
 
 Revision ID: 23665af94eb4
 Revises: 6c1cf522471c

@@ -47,8 +47,8 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     notes: Mapped[str_255_nullable]
 
     # This is a one-many relationship with an association table
-    ingredients: Mapped[List['RecipeIngredient']] = relationship(
-        'RecipeIngredient', backref='recipe', passive_deletes=True, order_by="RecipeIngredient.id")
+    ingredients: Mapped[List['Ingredient']] = relationship(
+        'Ingredient', backref='recipe', passive_deletes=True, order_by="Ingredient.id")
 
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='recipes_books', back_populates='recipes', passive_deletes=True)
@@ -152,7 +152,7 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 ###################### ASSOCIATION MODELS ############################
 
 
-class RecipeIngredient(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
+class Ingredient(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for recipes and ingredients - Also, acts as the Ingredient
     table allowing queries of whole ingredient instances and their individual parts
     e.g. item, amount, unit"""

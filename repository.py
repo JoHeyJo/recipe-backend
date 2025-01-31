@@ -1,6 +1,6 @@
 from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
-from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, RecipeIngredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction
+from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, Ingredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction
 from sqlalchemy.exc import SQLAlchemyError
 from exceptions import *
 
@@ -402,7 +402,7 @@ class RecipeIngredientRepo():
     @staticmethod
     def create_ingredient(recipe_id, item_id, quantity_unit_id, quantity_amount_id):
         """Create recipe and ingredient association -> add to database"""
-        entry = RecipeIngredient(
+        entry = Ingredient(
             recipe_id=recipe_id, item_id=item_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
         try:
             db.session.add(entry)

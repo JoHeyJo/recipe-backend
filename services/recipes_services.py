@@ -163,7 +163,7 @@ class RecipeService():
 
     @staticmethod
     def process_edit_ingredients(ingredients, recipe_id):
-        """Edits recipe's ingredients by modifying RecipeIngredient association 
+        """Edits recipe's ingredients by modifying Ingredient association 
         or creating a new association for new ingredient"""
         try:
             for ingredient in ingredients:
@@ -176,7 +176,7 @@ class RecipeService():
                 item_id = item["id"] if item else None
 
                 if ingredient["id"]:
-                    recipe_ingredient = RecipeIngredient.query.get(
+                    recipe_ingredient = Ingredient.query.get(
                         ingredient["id"])
                     if amount:
                         recipe_ingredient.quantity_amount_id = quantity_amount_id
