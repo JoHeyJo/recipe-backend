@@ -203,7 +203,7 @@ def add_book_ingredient(book_id, ingredient):
     """Facilitates creation of book's ingredients"""
     value = request.json
     try:
-        IngredientService.add_ingredient(option=ingredient, value=value)
+        IngredientService.add_ingredient(option=ingredient, value=value, book_id=book_id)
     except IntegrityError as e:
         return jsonify({"error": f"add_book_ingredient error{e}"}), 400
 

@@ -154,14 +154,24 @@ class QuantityUnitRepo():
 class QuantityAmountRepo():
     """Process amounts & facilitates quantity_amounts table interactions"""
     @staticmethod
-    def process_amount(amount):
+    def process_amount(amount,book_id):
         """Creates and returns new amount or return existing amount """
+        # if amount has id it means that it exists 
+        # if amount has no id it needs to be created
+        # afterward amount needs to be associated to book
         is_stored = amount.get("id")
-        if is_stored is not None:
-            return amount
-        else:
-            new_amount = QuantityAmountRepo.create_amount(value=amount["value"])
+        # how is the instance and the object returned below?
+        # if is_stored is not None:
+            # return amount
+        # else:
+            # If there is no id associate amount to book
+            # QuantityAmountRepo.create_amount(value=amount["value"])
 
+        if is_stored is None:
+            amount = QuantityAmountRepo.create_amount(value=amount["value"])
+        AmountBookRepo.create_entry(amount_id=amount.id, book_id=book_id)
+        
+        return amount
 
     @staticmethod
     def create_amount(value):
@@ -484,4 +494,12 @@ class AmountBookRepo():
     def create_entry(amount_id, book_id):
         """Create amount and book association -> add to database"""
         try:
-            entry = AmountBook()
+            entry = AmountBook(amount_id=amount_id, book_id=book_id)
+            db.session.add(entry)
+            db.session.commit()
+            return entry.id
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"AmountBookRepo-create_entry:{e}")
+        

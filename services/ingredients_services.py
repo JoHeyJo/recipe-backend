@@ -33,11 +33,11 @@ class IngredientService():
             raise {"error": f"Error in IngredientService -> get_user_options: {e}"}
 
     @staticmethod
-    def add_ingredient(option, value):
+    def add_ingredient(option, value, book_id):
         """Calls corresponding ingredient component method for processing"""
         try:
             if option == "value":
-                return QuantityAmountRepo.process_amount(amount=value)
+                return QuantityAmountRepo.process_amount(amount=value, book_id=book_id)
             if option == "type":
                 return QuantityUnitRepo.process_unit(unit=value)
             if option == "name":
