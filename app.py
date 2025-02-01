@@ -197,7 +197,7 @@ def get_user_ingredients(user_id, ingredient):
         return jsonify({"error": f"get_user_ingredients error{e}"}), 400
     
 
-@app.post("users/<user_id>/books/<book_id>/ingredients/<ingredient>")
+@app.post("/users/<user_id>/books/<book_id>/ingredients/<ingredient>")
 @check_user_identity
 def add_book_ingredient(book_id, ingredient):
     """Facilitates creation of book's ingredients"""

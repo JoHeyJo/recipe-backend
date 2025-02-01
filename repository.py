@@ -1,6 +1,6 @@
 from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
-from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, Ingredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction
+from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, Ingredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction, AmountBook
 from sqlalchemy.exc import SQLAlchemyError
 from exceptions import *
 
@@ -160,7 +160,8 @@ class QuantityAmountRepo():
         if is_stored is not None:
             return amount
         else:
-            return QuantityAmountRepo.create_amount(value=amount["value"])
+            new_amount = QuantityAmountRepo.create_amount(value=amount["value"])
+
 
     @staticmethod
     def create_amount(value):
@@ -476,3 +477,11 @@ class RecipeInstructionRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"RecipeInstructionRepo-create_entry:{e}")
+
+class AmountBookRepo():
+    """Facilitates association of amounts & books"""
+    @staticmethod
+    def create_entry(amount_id, book_id):
+        """Create amount and book association -> add to database"""
+        try:
+            entry = AmountBook()
