@@ -31,12 +31,12 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
             "user_name": self.user_name,
             "default_book_id": self.default_book_id
         }
-    
+
     # recipes = db.relationship('Recipe', secondary='user_recipes', backref='users')
     ### Instead Use type annotation for better type checking and readability ###
     # recipes: Mapped[List['Recipe']] = relationship(
     #     'Recipe', secondary='user_recipes', back_populates='users')
-    
+
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='users_books', back_populates='users')
 
@@ -50,28 +50,29 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     def serialize(self):
         """Serialize Recipe table data into dict"""
         return {"id": self.id, "name": self.name, "notes": self.notes}
-    
+
     # opens up access to data spread across multiple primary tables
     # (amounts, units, items) consolidated in Ingredient
     ingredients: Mapped[List['Ingredient']] = relationship(
         'Ingredient', backref='recipe', passive_deletes=True, order_by="Ingredient.id")
 
     books: Mapped[List['Book']] = relationship(
-        'Book', secondary='recipes_books', back_populates='recipes', 
+        'Book', secondary='recipes_books', back_populates='recipes',
         passive_deletes=True)
 
     instructions: Mapped[List['Instruction']] = relationship(
-        'Instruction', secondary='recipes_instructions', back_populates='recipes', 
+        'Instruction', secondary='recipes_instructions', back_populates='recipes',
         passive_deletes=True, order_by="RecipeInstruction.id")
-    
+
     quantity_units: Mapped[List['QuantityUnit']] = relationship(
         "QuantityUnit", secondary='ingredients', back_populates='recipes')
 
     quantity_amounts: Mapped[List['QuantityAmount']] = relationship(
         "QuantityAmount", secondary='ingredients', back_populates='recipes')
-    
+
     items: Mapped[List['Item']] = relationship(
         "Item", secondary='ingredients', back_populates='recipes')
+
 
 class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Quantity Unit table"""
@@ -84,7 +85,7 @@ class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     books: Mapped[List['Book']] = relationship(
         "Book", secondary='units_books', back_populates='quantity_units')
-    
+
     recipes: Mapped[List['Recipe']] = relationship(
         "Recipe", secondary='ingredients', back_populates='quantity_units')
 
@@ -172,25 +173,26 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
 ###################### ASSOCIATION MODELS ############################
 
+
 class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
-        """Enhanced association table for recipes and [amounts, units, items] - Allows 
-        queries of whole ingredient instances and their individual parts 
-        e.g. item, amount, unit"""
-        id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-        recipe_id: Mapped[int] = Column(
-            Integer, ForeignKey('recipes.id', ondelete="CASCADE"))
-        item_id: Mapped[int] = Column(Integer, ForeignKey('items.id'))
-        quantity_unit_id: Mapped[int] = Column(
-            Integer, ForeignKey('quantity_units.id'))
-        quantity_amount_id: Mapped[int] = Column(
-            Integer, ForeignKey('quantity_amounts.id'))
-        
-        # enhanced association table attributes
-        amount: Mapped['QuantityAmount'] = relationship(
-            "QuantityAmount", backref="ingredients")
-        unit: Mapped['QuantityUnit'] = relationship(
-            "QuantityUnit", backref="ingredients")
-        item: Mapped['Item'] = relationship("Item", backref="ingredients")   
+    """Enhanced association table for recipes and [amounts, units, items] - Allows 
+    queries of whole ingredient instances and their individual parts 
+    e.g. item, amount, unit"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    recipe_id: Mapped[int] = Column(
+        Integer, ForeignKey('recipes.id', ondelete="CASCADE"))
+    item_id: Mapped[int] = Column(Integer, ForeignKey('items.id'))
+    quantity_unit_id: Mapped[int] = Column(
+        Integer, ForeignKey('quantity_units.id'))
+    quantity_amount_id: Mapped[int] = Column(
+        Integer, ForeignKey('quantity_amounts.id'))
+
+    # enhanced association table attributes
+    amount: Mapped['QuantityAmount'] = relationship(
+        "QuantityAmount", backref="ingredients")
+    unit: Mapped['QuantityUnit'] = relationship(
+        "QuantityUnit", backref="ingredients")
+    item: Mapped['Item'] = relationship("Item", backref="ingredients")
 
 
 class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
@@ -250,13 +252,6 @@ class ItemBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
         Integer, ForeignKey("items.id", ondelete="CASCADE"))
     book_id: Mapped[int] = Column(
         Integer, ForeignKey("books.id", ondelete="CASCADE"))
-
-
-# class UsersInstructions(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
-#     """Association table for users and instructions"""
-#     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-#     user_id: Mapped[int] = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"))
-#     instruction_id: Mapped[int] = Column(Integer, ForeignKey("instructions.id"))
 
 
 def connect_db(app):
