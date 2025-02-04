@@ -36,7 +36,7 @@ class IngredientService():
     def add_ingredient(component, option, book_id):
         """Calls corresponding ingredient component method for processing"""
         try:
-            if component == "option":
+            if component == "value":
                 return QuantityAmountRepo.process_amount(amount=option, book_id=book_id)
             if component == "type":
                 return QuantityUnitRepo.process_unit(unit=option)

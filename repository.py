@@ -156,22 +156,19 @@ class QuantityAmountRepo():
     """Process amounts & facilitates quantity_amounts table interactions"""
     @staticmethod
     def process_amount(amount, book_id):
-        """Creates and returns new amount or return existing amount """
-        # if amount has id it means that it exists
-        # if amount has no id it needs to be created
-        # afterward amount needs to be associated to book
+        """Creates and returns new amount or return existing amount. Associates amount to book """
         is_stored = amount.get("id")
-        # how is the instance and the object returned below?
-        if is_stored is not None:
-            return amount
-        else:
-            return QuantityAmountRepo.create_amount(value=amount["value"])
+        if is_stored is None:
+            amount = QuantityAmountRepo.create_amount(value=amount["value"])
+        AmountBookRepo.create_entry(amount_id=amount["id"],book_id=book_id)
+        return amount
 
 
     @staticmethod
     def create_amount(value):
         """Create quantity amount and add to database. Leveraging SQLAlchemy core to 
         implement 'insert-first' data entry method. Caching could eliminate  the need to do this"""
+        highlight(value,"@")
         try:
             stmt = (
                 insert(QuantityAmount)
@@ -191,7 +188,7 @@ class QuantityAmountRepo():
                 quantity_amount = QuantityAmount(id=result.id, value=result.value)
 
             # Serialize and return the result
-            db.session.add(quantity_amount)
+            highlight(quantity_amount,"#")
             db.session.commit()
             return QuantityAmount.serialize(quantity_amount)
         except SQLAlchemyError as e:
