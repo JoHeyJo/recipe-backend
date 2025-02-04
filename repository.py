@@ -3,6 +3,7 @@ from flask_bcrypt import Bcrypt
 from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, Ingredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction, AmountBook
 from sqlalchemy.exc import SQLAlchemyError
 from exceptions import *
+from sqlalchemy.dialects.postgresql import insert
 
 bcrypt = Bcrypt()
 
@@ -154,30 +155,42 @@ class QuantityUnitRepo():
 class QuantityAmountRepo():
     """Process amounts & facilitates quantity_amounts table interactions"""
     @staticmethod
-    def process_amount(amount,book_id):
+    def process_amount(amount, book_id):
         """Creates and returns new amount or return existing amount """
-        # if amount has id it means that it exists 
+        # if amount has id it means that it exists
         # if amount has no id it needs to be created
         # afterward amount needs to be associated to book
         is_stored = amount.get("id")
         # how is the instance and the object returned below?
-        # if is_stored is not None:
-            # return amount
-        # else:
-            # If there is no id associate amount to book
-            # QuantityAmountRepo.create_amount(value=amount["value"])
+        if is_stored is not None:
+            return amount
+        else:
+            return QuantityAmountRepo.create_amount(value=amount["value"])
 
-        if is_stored is None:
-            amount = QuantityAmountRepo.create_amount(value=amount["value"])
-        AmountBookRepo.create_entry(amount_id=amount.id, book_id=book_id)
-        
-        return amount
 
     @staticmethod
     def create_amount(value):
-        """Create quantity amount and add to database"""
+        """Create quantity amount and add to database. Leveraging SQLAlchemy core to 
+        implement 'insert-first' data entry method. Caching could eliminate  the need to do this"""
         try:
-            quantity_amount = QuantityAmount(value=value)
+            stmt = (
+                insert(QuantityAmount)
+                .values(value=value)
+                .on_conflict_do_nothing()
+                .returning(QuantityAmount.id, QuantityAmount.value)
+            )
+            # not a separate query — part of the insert operation.
+            result = db.session.execute(stmt).fetchone()
+            
+            # If result is None (conflict occurred), query the existing record
+            if result is None:
+                quantity_amount = db.session.query(
+                    QuantityAmount).filter_by(value=value).one()
+            else:
+                # Map the returned result to a QuantityAmount instance
+                quantity_amount = QuantityAmount(id=result.id, value=result.value)
+
+            # Serialize and return the result
             db.session.add(quantity_amount)
             db.session.commit()
             return QuantityAmount.serialize(quantity_amount)
@@ -363,17 +376,17 @@ class InstructionRepo():
         try:
             instructions = db.session.query(Instruction).join(
                 BookInstruction, Instruction.id == BookInstruction.instruction_id
-                ).join(
+            ).join(
                 UserBook, BookInstruction.book_id == UserBook.book_id
-                ).filter(UserBook.user_id == user_id).all()
-            highlight(instructions,"@")
+            ).filter(UserBook.user_id == user_id).all()
+            highlight(instructions, "@")
             return [Instruction.serialize(instruction) for instruction in instructions]
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
             raise Exception(
                 f"InstructionRepo - get_user_instructions error: {e}")
-    
+
     @staticmethod
     def query_book_instructions(book_id):
         """Query all instructions associated with a book"""
@@ -488,6 +501,7 @@ class RecipeInstructionRepo():
             db.session.rollback()
             raise Exception(f"RecipeInstructionRepo-create_entry:{e}")
 
+
 class AmountBookRepo():
     """Facilitates association of amounts & books"""
     @staticmethod
@@ -502,4 +516,3 @@ class AmountBookRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"AmountBookRepo-create_entry:{e}")
-        
