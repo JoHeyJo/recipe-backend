@@ -33,14 +33,14 @@ class IngredientService():
             raise {"error": f"Error in IngredientService -> get_user_options: {e}"}
 
     @staticmethod
-    def add_ingredient(option, value, book_id):
+    def add_ingredient(component, option, book_id):
         """Calls corresponding ingredient component method for processing"""
         try:
-            if option == "value":
-                return QuantityAmountRepo.process_amount(amount=value, book_id=book_id)
-            if option == "type":
-                return QuantityUnitRepo.process_unit(unit=value)
-            if option == "name":
-                return ItemRepo.process_item(item=value)
+            if component == "option":
+                return QuantityAmountRepo.process_amount(amount=option, book_id=book_id)
+            if component == "type":
+                return QuantityUnitRepo.process_unit(unit=option)
+            if component == "name":
+                return ItemRepo.process_item(item=option)
         except IntegrityError as e:
             raise {"error": f"Error in IngredientService -> add_ingredient: {e}"}

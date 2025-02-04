@@ -197,13 +197,13 @@ def get_user_ingredients(user_id, ingredient):
         return jsonify({"error": f"get_user_ingredients error{e}"}), 400
     
 
-@app.post("/users/<user_id>/books/<book_id>/ingredients/<ingredient>")
+@app.post("/users/<user_id>/books/<book_id>/ingredients/<component>")
 @check_user_identity
-def add_book_ingredient(book_id, ingredient):
+def add_book_ingredient(book_id, component):
     """Facilitates creation of book's ingredients"""
-    value = request.json
+    option = request.json
     try:
-        IngredientService.add_ingredient(option=ingredient, value=value, book_id=book_id)
+        IngredientService.add_ingredient(component=component, option=option, book_id=book_id)
     except IntegrityError as e:
         return jsonify({"error": f"add_book_ingredient error{e}"}), 400
 
