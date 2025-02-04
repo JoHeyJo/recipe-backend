@@ -117,42 +117,6 @@ class RecipeRepo():
             raise Exception(f"delete_recipe error:{e}")
 
 
-class QuantityUnitRepo():
-    """Facilitates quantity_units table interactions"""
-    @staticmethod
-    def process_unit(unit, book_id):
-        """Creates and returns new unit or returns existing unit. Associates unit to book"""
-        is_stored = unit.get("id")
-        if is_stored is not None:
-            unit = QuantityUnitRepo.create_unit(type=unit["type"])
-        UnitBookRepo.create_entry(unit_id=unit["id"], book_id=book_id)
-        return unit
-
-    @staticmethod
-    def create_unit(type):
-        """Create quantity unit and add to database"""
-        try:
-            quantity_unit = QuantityUnit(type=type)
-            db.session.add(quantity_unit)
-            db.session.commit()
-            return QuantityUnit.serialize(quantity_unit)
-        except SQLAlchemyError as e:
-            highlight(e, "!")
-            db.session.rollback()
-            raise Exception(f"create_unit:{e}")
-
-    @staticmethod
-    def get_all_units():
-        """Return all units"""
-        try:
-            units = QuantityUnit.query.all()
-            return [QuantityUnit.serialize(unit) for unit in units]
-        except SQLAlchemyError as e:
-            highlight(e, "!")
-            db.session.rollback()
-            raise Exception(f"get_all_units error: {e}")
-
-
 class QuantityAmountRepo():
     """Process amounts & facilitates quantity_amounts table interactions"""
     @staticmethod
@@ -169,7 +133,7 @@ class QuantityAmountRepo():
         """Create quantity amount and add to database."""
         try:
             quantity_amount = insert_first(
-                Model=QuantityAmount, value=value, column_name="value", db=db)
+                Model=QuantityAmount, data=value, column_name="value", db=db)
             db.session.commit()
             return QuantityAmount.serialize(quantity_amount)
         except SQLAlchemyError as e:
@@ -197,6 +161,43 @@ class QuantityAmountRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"get_user_amounts error: {e}")
+
+
+class QuantityUnitRepo():
+    """Facilitates quantity_units table interactions"""
+    @staticmethod
+    def process_unit(unit, book_id):
+        """Creates and returns new unit or returns existing unit. Associates unit to book"""
+        is_stored = unit.get("id")
+        if is_stored is not None:
+            unit = QuantityUnitRepo.create_unit(type=unit["type"])
+        UnitBookRepo.create_entry(unit_id=unit["id"], book_id=book_id)
+        return unit
+
+    @staticmethod
+    def create_unit(type):
+        """Create quantity unit and add to database"""
+        try:
+
+            quantity_unit = insert_first(
+                Model=QuantityUnit, data=type, column_name="type", db=db)
+            db.session.commit()
+            return QuantityUnit.serialize(quantity_unit)
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"create_unit:{e}")
+
+    @staticmethod
+    def get_all_units():
+        """Return all units"""
+        try:
+            units = QuantityUnit.query.all()
+            return [QuantityUnit.serialize(unit) for unit in units]
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"get_all_units error: {e}")
 
 
 class ItemRepo():
@@ -501,6 +502,7 @@ class UnitBookRepo():
     @staticmethod
     def create_entry(unit_id, book_id):
         """Create unit and book association -> add to database"""
+        highlight(unit_id,"@")
         try:
             entry = UnitBook(unit_id=unit_id, book_id=book_id)
             db.session.add(entry)

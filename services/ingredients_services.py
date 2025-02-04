@@ -36,11 +36,11 @@ class IngredientService():
     def add_ingredient(component, option, book_id):
         """Calls corresponding ingredient component method for processing"""
         try:
-            if component == "value":
+            if component == "amount":
                 return QuantityAmountRepo.process_amount(amount=option, book_id=book_id)
-            if component == "type":
+            if component == "unit":
                 return QuantityUnitRepo.process_unit(unit=option, book_id=book_id)
-            if component == "name":
+            if component == "item":
                 return ItemRepo.process_item(item=option, book_id=book_id)
         except IntegrityError as e:
             raise {"error": f"Error in IngredientService -> add_ingredient: {e}"}
