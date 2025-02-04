@@ -4,6 +4,7 @@ from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, I
 from sqlalchemy.exc import SQLAlchemyError
 from exceptions import *
 from sqlalchemy.dialects.postgresql import insert
+from utils.functions import insert_first
 
 bcrypt = Bcrypt()
 
@@ -124,7 +125,7 @@ class QuantityUnitRepo():
         is_stored = unit.get("id")
         if is_stored is not None:
             unit = QuantityUnitRepo.create_unit(type=unit["type"])
-        UnitBookRepo.create_entry(unit_id=unit["id"],book_id=book_id)
+        UnitBookRepo.create_entry(unit_id=unit["id"], book_id=book_id)
         return unit
 
     @staticmethod
@@ -165,28 +166,10 @@ class QuantityAmountRepo():
 
     @staticmethod
     def create_amount(value):
-        """Create quantity amount and add to database. Leveraging SQLAlchemy core to 
-        implement 'insert-first' data entry method. Caching could eliminate  the need to do this"""
+        """Create quantity amount and add to database."""
         try:
-            stmt = (
-                insert(QuantityAmount)
-                .values(value=value)
-                .on_conflict_do_nothing()
-                .returning(QuantityAmount.id, QuantityAmount.value)
-            )
-            # not a separate query — part of the insert operation.
-            result = db.session.execute(stmt).fetchone()
-
-            # If result is None (conflict occurred), query the existing record
-            if result is None:
-                quantity_amount = db.session.query(
-                    QuantityAmount).filter_by(value=value).one()
-            else:
-                # Map the returned result to a QuantityAmount instance
-                quantity_amount = QuantityAmount(
-                    id=result.id, value=result.value)
-
-            # Serialize and return the result
+            quantity_amount = insert_first(
+                Model=QuantityAmount, value=value, column_name="value", db=db)
             db.session.commit()
             return QuantityAmount.serialize(quantity_amount)
         except SQLAlchemyError as e:
