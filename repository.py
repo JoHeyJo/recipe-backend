@@ -1,6 +1,6 @@
 from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
-from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, Ingredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction, AmountBook
+from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, Ingredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction, AmountBook, UnitBook, ItemBook
 from sqlalchemy.exc import SQLAlchemyError
 from exceptions import *
 from sqlalchemy.dialects.postgresql import insert
@@ -119,13 +119,13 @@ class RecipeRepo():
 class QuantityUnitRepo():
     """Facilitates quantity_units table interactions"""
     @staticmethod
-    def process_unit(unit):
-        """Creates and returns new unit or returns existing unit"""
+    def process_unit(unit, book_id):
+        """Creates and returns new unit or returns existing unit. Associates unit to book"""
         is_stored = unit.get("id")
         if is_stored is not None:
-            return unit
-        else:
-            return QuantityUnitRepo.create_unit(type=unit["type"])
+            unit = QuantityUnitRepo.create_unit(type=unit["type"])
+        UnitBookRepo.create_entry(unit_id=unit["id"],book_id=book_id)
+        return unit
 
     @staticmethod
     def create_unit(type):
@@ -160,15 +160,13 @@ class QuantityAmountRepo():
         is_stored = amount.get("id")
         if is_stored is None:
             amount = QuantityAmountRepo.create_amount(value=amount["value"])
-        AmountBookRepo.create_entry(amount_id=amount["id"],book_id=book_id)
+        AmountBookRepo.create_entry(amount_id=amount["id"], book_id=book_id)
         return amount
-
 
     @staticmethod
     def create_amount(value):
         """Create quantity amount and add to database. Leveraging SQLAlchemy core to 
         implement 'insert-first' data entry method. Caching could eliminate  the need to do this"""
-        highlight(value,"@")
         try:
             stmt = (
                 insert(QuantityAmount)
@@ -178,17 +176,17 @@ class QuantityAmountRepo():
             )
             # not a separate query — part of the insert operation.
             result = db.session.execute(stmt).fetchone()
-            
+
             # If result is None (conflict occurred), query the existing record
             if result is None:
                 quantity_amount = db.session.query(
                     QuantityAmount).filter_by(value=value).one()
             else:
                 # Map the returned result to a QuantityAmount instance
-                quantity_amount = QuantityAmount(id=result.id, value=result.value)
+                quantity_amount = QuantityAmount(
+                    id=result.id, value=result.value)
 
             # Serialize and return the result
-            highlight(quantity_amount,"#")
             db.session.commit()
             return QuantityAmount.serialize(quantity_amount)
         except SQLAlchemyError as e:
@@ -513,3 +511,35 @@ class AmountBookRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"AmountBookRepo-create_entry:{e}")
+
+
+class UnitBookRepo():
+    """Facilitates association of units & books"""
+    @staticmethod
+    def create_entry(unit_id, book_id):
+        """Create unit and book association -> add to database"""
+        try:
+            entry = UnitBook(unit_id=unit_id, book_id=book_id)
+            db.session.add(entry)
+            db.session.commit()
+            return entry.id
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"UnitBookRepo-create_entry:{e}")
+
+
+class ItemBookRepo():
+    """Facilitates association of items & books"""
+    @staticmethod
+    def create_entry(item_id, book_id):
+        """Create item and book association -> add to database"""
+        try:
+            entry = ItemBook(item_id=item_id, book_id=book_id)
+            db.session.add(entry)
+            db.session.commit()
+            return entry.id
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"ItemBookRepo-create_entry:{e}")

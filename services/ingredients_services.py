@@ -39,8 +39,8 @@ class IngredientService():
             if component == "value":
                 return QuantityAmountRepo.process_amount(amount=option, book_id=book_id)
             if component == "type":
-                return QuantityUnitRepo.process_unit(unit=option)
+                return QuantityUnitRepo.process_unit(unit=option, book_id=book_id)
             if component == "name":
-                return ItemRepo.process_item(item=option)
+                return ItemRepo.process_item(item=option, book_id=book_id)
         except IntegrityError as e:
             raise {"error": f"Error in IngredientService -> add_ingredient: {e}"}
