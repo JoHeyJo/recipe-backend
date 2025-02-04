@@ -169,7 +169,7 @@ class QuantityUnitRepo():
     def process_unit(unit, book_id):
         """Creates and returns new unit or returns existing unit. Associates unit to book"""
         is_stored = unit.get("id")
-        if is_stored is not None:
+        if is_stored is None:
             unit = QuantityUnitRepo.create_unit(type=unit["type"])
         UnitBookRepo.create_entry(unit_id=unit["id"], book_id=book_id)
         return unit
@@ -178,7 +178,6 @@ class QuantityUnitRepo():
     def create_unit(type):
         """Create quantity unit and add to database"""
         try:
-
             quantity_unit = insert_first(
                 Model=QuantityUnit, data=type, column_name="type", db=db)
             db.session.commit()
@@ -203,20 +202,20 @@ class QuantityUnitRepo():
 class ItemRepo():
     """Processes item & facilitates table interactions"""
     @staticmethod
-    def process_item(item):
+    def process_item(item, book_id):
         """Create and returns new item or returns existing item"""
         is_stored = item.get("id")
-        if is_stored is not None:
-            return item
-        else:
-            return ItemRepo.create_item(name=item["name"])
-
+        if is_stored is None:
+            item =  ItemRepo.create_item(name=item["name"])
+            ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
+        return item
+    
     @staticmethod
     def create_item(name):
         """Create item and add to database"""
         try:
-            item = Item(name=name)
-            db.session.add(item)
+            item = insert_first(
+                Model=Item, data=name, column_name="name", db=db)
             db.session.commit()
             return Item.serialize(item)
         except SQLAlchemyError as e:

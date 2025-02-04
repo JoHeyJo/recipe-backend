@@ -199,7 +199,7 @@ def get_user_ingredients(user_id, ingredient):
 
 @app.post("/users/<user_id>/books/<book_id>/ingredients/<attribute>")
 @check_user_identity
-def add_book_ingredient(book_id, attribute):
+def add_book_ingredient(user_id, book_id, attribute):
     """Facilitates creation of book's ingredients"""
     try:
         return IngredientService.add_ingredient(
