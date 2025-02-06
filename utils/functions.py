@@ -3,7 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 
 def insert_first(Model, data, column_name, db):
-    """Insert-first method using SQLAlchemy with conflict handling."""
+    """Insert-first data entry method leveraging SQLAlchemy CORE."""
     try:
         # Insert with conflict handling
         stmt = (
@@ -13,7 +13,7 @@ def insert_first(Model, data, column_name, db):
             .returning(Model.id, getattr(Model, column_name))
         )
 
-        # Execute the insert and fetch result
+        # Execute the insert and fetch result - this is NOT a separate query.
         result = db.session.execute(stmt).fetchone()
 
         # If no result (conflict occurred), query the existing record
