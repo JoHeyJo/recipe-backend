@@ -202,11 +202,12 @@ def get_user_ingredients(user_id, ingredient):
 def add_book_ingredient(user_id, book_id, attribute):
     """Facilitates creation of book's ingredients"""
     try:
-        highlight([attribute, request.json], "#")
         return IngredientService.add_ingredient(
             attribute=attribute, data=request.json, book_id=book_id)
     except IntegrityError as e:
         return jsonify({"error": f"add_book_ingredient error{e}"}), 400
+    
+
 
 
 @app.post("/ingredients/<ingredient>")
