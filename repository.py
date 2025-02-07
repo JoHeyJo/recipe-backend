@@ -208,6 +208,18 @@ class QuantityUnitRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"get_all_units error: {e}")
+    
+    @staticmethod
+    def get_book_units(book_id):
+        """Return book's units"""
+        try:
+            units = Book.query.get(book_id).quantity_units
+            return [QuantityUnit.serialize(unit) for unit in units]
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"get_book_units error: {e}")
+    
 
 
 class ItemRepo():
