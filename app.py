@@ -45,7 +45,6 @@ CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT ^^^^^
 @jwt_required()
 def index():
     header = request.headers
-    highlight(header, "@")
     return "hello"
 
 
@@ -180,7 +179,6 @@ def get_ingredients(ingredient):
     """Facilitates retrieval of ALL ingredients of ingredient components"""
     try:
         ingredients = IngredientService.fetch_ingredients(ingredient)
-        highlight(ingredients, "@")
         return jsonify(ingredients)
     except IntegrityError as e:
         return jsonify({"error": f"get_ingredients error{e}"}), 400
@@ -290,7 +288,6 @@ def get_user_instructions(user_id):
 def get_book_instructions(user_id, book_id):
     """Facilitates retrieval of book instructions"""
     try:
-        highlight(["user_id=", user_id, "book_id=", book_id], "@")
         has_access = InstructionService.check_book_access(
             user_id=user_id, book_id=book_id)
         if has_access:
