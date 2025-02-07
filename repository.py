@@ -257,6 +257,16 @@ class ItemRepo():
             db.session.rollback()
             raise Exception(f"get_all_item error: {e}")
 
+    @staticmethod
+    def get_book_items(book_id):
+        """Return book's items"""
+        try:
+            items = Book.query.get(book_id).items
+            return [Item.serialize(item) for item in items]
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"get_book_items error: {e}")
 
 class IngredientsRepo():
     """Directs incoming data to corresponding repo methods"""

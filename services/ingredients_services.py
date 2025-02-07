@@ -25,6 +25,8 @@ class IngredientService():
                 return QuantityAmountRepo.get_book_amounts(book_id=book_id)
             if attribute == "unit":
                 return QuantityUnitRepo.get_book_units(book_id=book_id)
+            if attribute == "name":
+                return ItemRepo.get_book_items(book_id=book_id)
         except IntegrityError as e:
             raise {
                 "error": f"Error in IngredientService -> fetch_book_ingredients: {e}"}
