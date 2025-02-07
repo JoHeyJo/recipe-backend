@@ -1,5 +1,5 @@
 from repository import *
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from sqlalchemy.exc import IntegrityError
 
 
 class IngredientService():
@@ -16,9 +16,19 @@ class IngredientService():
                 return ItemRepo.get_all_items()
         except IntegrityError as e:
             raise {"error": f"Error in IngredientService -> get_ingredients: {e}"}
-        # WIP: needs to be refactored to associate added ingredient to user and/or book
 
     @staticmethod
+    def fetch_book_ingredients(book_id, attribute):
+        """Retrieves book's individual ingredient components"""
+        try:
+            if attribute == "amount":
+                return QuantityAmountRepo.get_book_amounts(book_id=book_id)
+        except IntegrityError as e:
+            raise {
+                "error": f"Error in IngredientService -> fetch_book_ingredients: {e}"}
+
+    @staticmethod
+    # needs to be refactored 
     def fetch_user_ingredients(user_id, ingredient):
         """Retrieves user's individual ingredient components"""
         try:

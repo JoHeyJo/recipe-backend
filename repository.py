@@ -151,6 +151,17 @@ class QuantityAmountRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"get_all_amounts error: {e}")
+        
+    @staticmethod
+    def get_book_amounts(book_id):
+        """Return user amounts"""
+        try:
+            amounts = Book.query.get(book_id).quantity_amounts
+            return [QuantityAmount.serialize(amount) for amount in amounts]
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"get_book_amounts error: {e}")
 
     @staticmethod
     def get_user_amounts():
