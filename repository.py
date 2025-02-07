@@ -80,9 +80,7 @@ class RecipeRepo():
     @staticmethod
     def create_recipe(name, notes):
         """Creates recipe instance and adds it to database"""
-        highlight(notes, "create_recipe")
         recipe = Recipe(name=name, notes=notes)
-        highlight(recipe.notes, "instantiated")
         try:
             db.session.add(recipe)
             db.session.commit()
@@ -390,7 +388,6 @@ class InstructionRepo():
             ).join(
                 UserBook, BookInstruction.book_id == UserBook.book_id
             ).filter(UserBook.user_id == user_id).all()
-            highlight(instructions, "@")
             return [Instruction.serialize(instruction) for instruction in instructions]
         except SQLAlchemyError as e:
             highlight(e, "!")
