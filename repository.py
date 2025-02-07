@@ -271,7 +271,7 @@ class ItemRepo():
 class IngredientsRepo():
     """Directs incoming data to corresponding repo methods"""
     @staticmethod
-    def process_ingredients(ingredients):
+    def process_ingredients(book_id, ingredients):
         """Separate ingredient components - call corresponding repo methods"""
         ingredients_data = []
         for ingredient in ingredients:
@@ -279,11 +279,11 @@ class IngredientsRepo():
             amount = ingredient["amount"]
             unit = ingredient["unit"]
             try:
-                item = ItemRepo.process_item(item=item)
+                item = ItemRepo.process_item(item=item,book_id=book_id)
                 if amount:
-                    amount = QuantityAmountRepo.process_amount(amount=amount)
+                    amount = QuantityAmountRepo.process_amount(amount=amount, book_id=book_id)
                 if unit:
-                    unit = QuantityUnitRepo.process_unit(unit=unit)
+                    unit = QuantityUnitRepo.process_unit(unit=unit, book_id=book_id)
 
                 ingredients_data.append(
                     {

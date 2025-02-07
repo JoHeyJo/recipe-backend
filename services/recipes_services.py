@@ -21,7 +21,7 @@ class RecipeService():
 
             if ingredients:
                 recipe_data["ingredients"] = RecipeService.process_ingredients(
-                    ingredients=ingredients, recipe_id=recipe_data["id"])
+                    ingredients=ingredients, recipe_id=recipe_data["id"], book_id=book_id)
 
             if instructions:
                 recipe_data["instructions"] = RecipeService.process_instructions(
@@ -48,11 +48,11 @@ class RecipeService():
                 f"Failed to process recipe '{recipe_name}' for book {book_id}: {e}")
 
     @staticmethod
-    def process_ingredients(ingredients, recipe_id):
+    def process_ingredients(ingredients, recipe_id, book_id):
         """Adds ingredients and associates each ingredient to recipe"""
         try:
             ingredients_data = IngredientsRepo.process_ingredients(
-                ingredients=ingredients)
+                book_id=book_id, ingredients=ingredients)
             if not ingredients_data:
                 raise ValueError(
                     f"No ingredients data returned for recipe {recipe_id}")
@@ -109,7 +109,7 @@ class RecipeService():
                 instances=recipe_instance.instructions, recipe_id=recipe["id"])
             recipe_build["instructions"] = instructions
 
-            ingredients = IngredientsRepo.build_ingredients(recipe_instance)
+            ingredients = IngredientsRepo.build_ingredients(instance=recipe_instance)
             recipe_build["ingredients"] = ingredients
 
             complete_recipes.append(recipe_build)
