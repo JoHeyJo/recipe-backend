@@ -207,7 +207,7 @@ def add_book_ingredient(user_id, book_id, attribute):
 
 
 @app.get("/users/<user_id>/books/<book_id>/ingredients/<attribute>")
-# @check_user_identity
+@check_user_identity
 def get_book_ingredients(user_id, book_id, attribute):
     """Facilitates retrieval of book ingredients"""
     try:
@@ -248,7 +248,7 @@ def add_instruction(user_id, book_id):
 
 @app.post("/users/<user_id>/books/<book_id>/instructions/<instruction_id>")
 @check_user_identity
-def add_instruction_association(book_id, instruction_id):
+def add_instruction_association(user_id, book_id, instruction_id):
     """Facilitates association of existing instruction to book 
     e.g. adds one book's instructions to another"""
     try:
