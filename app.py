@@ -184,15 +184,24 @@ def get_ingredients(ingredient):
         return jsonify({"error": f"get_ingredients error{e}"}), 400
 
 
-@app.get("/users/<user_id>/ingredients/<ingredient>")
+@app.get("/users/<user_id>/ingredients/components")
 @check_user_identity
-def get_user_ingredients(user_id, ingredient):
+def get_user_ingredients(user_id):
     """Facilitates retrieval of ingredients associated to User"""
     try:
-        ingredients = IngredientService.fetch_user_ingredients(
-            user_id=user_id, ingredient=ingredient)
+        ingredients = IngredientService.fetch_user_ingredients(user_id=user_id)
     except IntegrityError as e:
         return jsonify({"error": f"get_user_ingredients error{e}"}), 400
+
+
+@app.get("/users/<user_id>/books/<book_id>/ingredients/components")
+@check_user_identity
+def get_book_ingredient_components(user_id, book_id):
+    """Facilitates retrieval of book ingredients"""
+    try:
+        return IngredientService.fetch_book_ingredient_components(book_id=book_id)
+    except IntegrityError as e:
+        return jsonify({"error": f"get_book_ingredients error{e}"}), 400
 
 
 @app.post("/users/<user_id>/books/<book_id>/ingredients/<attribute>")
@@ -204,17 +213,6 @@ def add_book_ingredient(user_id, book_id, attribute):
             attribute=attribute, data=request.json, book_id=book_id)
     except IntegrityError as e:
         return jsonify({"error": f"add_book_ingredient error{e}"}), 400
-
-
-@app.get("/users/<user_id>/books/<book_id>/ingredients/components")
-@check_user_identity
-def get_book_ingredient_components(user_id, book_id):
-    """Facilitates retrieval of book ingredients"""
-    try:
-        return IngredientService.fetch_book_ingredient_components(
-            book_id=book_id)
-    except IntegrityError as e:
-        return jsonify({"error": f"get_book_ingredients error{e}"}), 400
 
 
 @app.post("/ingredients/<ingredient>")

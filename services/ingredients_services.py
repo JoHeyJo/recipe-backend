@@ -31,15 +31,13 @@ class IngredientService():
 
     @staticmethod
     # needs to be refactored 
-    def fetch_user_ingredients(user_id, ingredient):
+    def fetch_user_ingredients(user_id):
         """Retrieves user's individual ingredient components"""
         try:
-            if ingredient == "amounts":
-                return QuantityAmountRepo.get_all_amounts()
-            if ingredient == "units":
-                return QuantityUnitRepo.get_all_units()
-            if ingredient == "items":
-                return ItemRepo.get_all_items()
+            amounts = QuantityAmountRepo.get_all_amounts()
+            units = QuantityUnitRepo.get_all_units()
+            items = ItemRepo.get_all_items()
+            return {"amounts": amounts, "units": units, "items": items}
         except IntegrityError as e:
             raise {"error": f"Error in IngredientService -> get_user_options: {e}"}
 
