@@ -206,13 +206,13 @@ def add_book_ingredient(user_id, book_id, attribute):
         return jsonify({"error": f"add_book_ingredient error{e}"}), 400
 
 
-@app.get("/users/<user_id>/books/<book_id>/ingredients/<attribute>")
+@app.get("/users/<user_id>/books/<book_id>/ingredients/components")
 @check_user_identity
-def get_book_ingredient_components(user_id, book_id, attribute):
+def get_book_ingredient_components(user_id, book_id):
     """Facilitates retrieval of book ingredients"""
     try:
         return IngredientService.fetch_book_ingredient_components(
-            book_id=book_id, attribute=attribute)
+            book_id=book_id)
     except IntegrityError as e:
         return jsonify({"error": f"get_book_ingredients error{e}"}), 400
 
