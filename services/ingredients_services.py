@@ -18,15 +18,13 @@ class IngredientService():
             raise {"error": f"Error in IngredientService -> get_ingredients: {e}"}
 
     @staticmethod
-    def fetch_book_ingredients(book_id, attribute):
+    def fetch_book_ingredient_components(book_id):
         """Retrieves book's individual ingredient components"""
         try:
-            if attribute == "amount":
-                return QuantityAmountRepo.get_book_amounts(book_id=book_id)
-            if attribute == "unit":
-                return QuantityUnitRepo.get_book_units(book_id=book_id)
-            if attribute == "name":
-                return ItemRepo.get_book_items(book_id=book_id)
+            amounts = QuantityAmountRepo.get_book_amounts(book_id=book_id)
+            units = QuantityUnitRepo.get_book_units(book_id=book_id)
+            items = ItemRepo.get_book_items(book_id=book_id)
+            return {"amounts": amounts, "units":units, "items":items}
         except IntegrityError as e:
             raise {
                 "error": f"Error in IngredientService -> fetch_book_ingredients: {e}"}
@@ -42,7 +40,6 @@ class IngredientService():
                 return QuantityUnitRepo.get_all_units()
             if ingredient == "items":
                 return ItemRepo.get_all_items()
-
         except IntegrityError as e:
             raise {"error": f"Error in IngredientService -> get_user_options: {e}"}
 
