@@ -202,10 +202,14 @@ class QuantityUnitRepo():
             raise Exception(f"create_unit:{e}")
 
     @staticmethod
-    def get_all_units():
-        """Return all units"""
+    def query_user_units(user_id):
+        """Return user's units"""
         try:
-            units = QuantityUnit.query.all()
+            units = db.session(QuantityUnit).join(
+                UnitBook, QuantityUnit.id == UnitBook.unit_id
+                ).join(
+                    UserBook, UnitBook.book_id == UserBook.book_id
+                ).filter(UserBook.user_id == user_id).all()
             return [QuantityUnit.serialize(unit) for unit in units]
         except SQLAlchemyError as e:
             highlight(e, "!")

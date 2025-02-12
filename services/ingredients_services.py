@@ -30,12 +30,11 @@ class IngredientService():
                 "error": f"Error in IngredientService -> fetch_book_ingredients: {e}"}
 
     @staticmethod
-    # needs to be refactored 
     def fetch_user_ingredients(user_id):
         """Retrieves user's individual ingredient components"""
         try:
             amounts = QuantityAmountRepo.query_user_amounts(user_id=user_id)
-            units = QuantityUnitRepo.get_all_units()
+            units = QuantityUnitRepo.query_user_units(user_id=user_id)
             items = ItemRepo.get_all_items()
             return {"amounts": amounts, "units": units, "items": items}
         except IntegrityError as e:
