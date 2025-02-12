@@ -178,7 +178,7 @@ def get_user_books(user_id):
 def get_ingredients(ingredient):
     """Facilitates retrieval of ALL options of ingredient components"""
     try:
-        ingredients = IngredientService.fetch_ingredients(ingredient)
+        ingredients = IngredientService.fetch_components_options(ingredient)
         return jsonify(ingredients)
     except IntegrityError as e:
         return jsonify({"error": f"get_ingredients error{e}"}), 400
@@ -189,7 +189,7 @@ def get_ingredients(ingredient):
 def get_user_ingredients(user_id):
     """Facilitates retrieval of components options associated to User"""
     try:
-        return IngredientService.fetch_user_ingredients(user_id=user_id)
+        return IngredientService.fetch_user_components_options(user_id=user_id)
     except IntegrityError as e:
         return jsonify({"error": f"get_user_ingredients error{e}"}), 400
 
@@ -199,7 +199,7 @@ def get_user_ingredients(user_id):
 def get_book_ingredient_components(user_id, book_id):
     """Facilitates retrieval of components options associated to Book"""
     try:
-        return IngredientService.fetch_book_ingredient_components(book_id=book_id)
+        return IngredientService.fetch_book_components_options(book_id=book_id)
     except IntegrityError as e:
         return jsonify({"error": f"get_book_ingredients error{e}"}), 400
 
@@ -209,7 +209,7 @@ def get_book_ingredient_components(user_id, book_id):
 def add_book_ingredient(user_id, book_id, component):
     """Facilitates creation of book's component option"""
     try:
-        return IngredientService.post_ingredient(
+        return IngredientService.post_component_option(
             component=component, option=request.json, book_id=book_id)
     except IntegrityError as e:
         return jsonify({"error": f"add_book_ingredient error{e}"}), 400

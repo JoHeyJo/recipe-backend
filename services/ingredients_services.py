@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 class IngredientService():
     """Handles ingredients view business logic"""
     @staticmethod
-    def fetch_ingredients(ingredient):
+    def fetch_components_options(ingredient):
         """Retrieves individual ingredient components"""
         try:
             if ingredient == "amounts":
@@ -15,11 +15,12 @@ class IngredientService():
             if ingredient == "items":
                 return ItemRepo.query_all_items()
         except IntegrityError as e:
-            raise {"error": f"Error in IngredientService -> get_ingredients: {e}"}
+            raise {
+                "error": f"Error in IngredientService -> fetch_components_options: {e}"}
 
     @staticmethod
-    def fetch_book_ingredient_components(book_id):
-        """Retrieves book's individual ingredient components"""
+    def fetch_book_components_options(book_id):
+        """Retrieves book's ingredients components options"""
         try:
             amounts = QuantityAmountRepo.get_book_amounts(book_id=book_id)
             units = QuantityUnitRepo.get_book_units(book_id=book_id)
@@ -27,10 +28,10 @@ class IngredientService():
             return {"amounts": amounts, "units":units, "items":items}
         except IntegrityError as e:
             raise {
-                "error": f"Error in IngredientService -> fetch_book_ingredients: {e}"}
+                "error": f"Error in IngredientService -> fetch_book_components_options: {e}"}
 
     @staticmethod
-    def fetch_user_ingredients(user_id):
+    def fetch_user_components_options(user_id):
         """Retrieves user's individual ingredient components"""
         try:
             amounts = QuantityAmountRepo.query_user_amounts(user_id=user_id)
@@ -38,10 +39,11 @@ class IngredientService():
             items = ItemRepo.query_user_items(user_id=user_id)
             return {"amounts": amounts, "units": units, "items": items}
         except IntegrityError as e:
-            raise {"error": f"Error in IngredientService -> get_user_options: {e}"}
+            raise {
+                "error": f"Error in IngredientService -> fetch_user_components_options: {e}"}
 
     @staticmethod
-    def post_ingredient(component, option, book_id):
+    def post_component_option(component, option, book_id):
         """Calls corresponding ingredient component method for processing"""
         try:
             if component == "amount":
@@ -51,7 +53,7 @@ class IngredientService():
             if component == "item":
                 return ItemRepo.process_item(item=option, book_id=book_id)
         except IntegrityError as e:
-            raise {"error": f"Error in IngredientService -> add_ingredient: {e}"}
+            raise {"error": f"Error in IngredientService -> post_component_option: {e}"}
 
     # @staticmethod
     # def create_option_association(book_id, option_id)
