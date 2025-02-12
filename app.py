@@ -189,7 +189,7 @@ def get_ingredients(ingredient):
 def get_user_ingredients(user_id):
     """Facilitates retrieval of ingredients associated to User"""
     try:
-        ingredients = IngredientService.fetch_user_ingredients(user_id=user_id)
+        return IngredientService.fetch_user_ingredients(user_id=user_id)
     except IntegrityError as e:
         return jsonify({"error": f"get_user_ingredients error{e}"}), 400
 

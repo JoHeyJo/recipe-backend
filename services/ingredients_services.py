@@ -13,7 +13,7 @@ class IngredientService():
             if ingredient == "units":
                 return QuantityUnitRepo.get_all_units()
             if ingredient == "items":
-                return ItemRepo.get_all_items()
+                return ItemRepo.query_all_items()
         except IntegrityError as e:
             raise {"error": f"Error in IngredientService -> get_ingredients: {e}"}
 
@@ -35,7 +35,7 @@ class IngredientService():
         try:
             amounts = QuantityAmountRepo.query_user_amounts(user_id=user_id)
             units = QuantityUnitRepo.query_user_units(user_id=user_id)
-            items = ItemRepo.get_all_items()
+            items = ItemRepo.query_user_items(user_id=user_id)
             return {"amounts": amounts, "units": units, "items": items}
         except IntegrityError as e:
             raise {"error": f"Error in IngredientService -> get_user_options: {e}"}

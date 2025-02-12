@@ -149,7 +149,7 @@ class QuantityAmountRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"get_all_amounts error: {e}")
-        
+
     @staticmethod
     def get_book_amounts(book_id):
         """Return user amounts"""
@@ -167,9 +167,9 @@ class QuantityAmountRepo():
         try:
             amounts = db.session.query(QuantityAmount).join(
                 AmountBook, QuantityAmount.id == AmountBook.amount_id
-                ).join(
-                    UserBook, AmountBook.book_id == UserBook.book_id
-                ).filter(UserBook.user_id == user_id).all()
+            ).join(
+                UserBook, AmountBook.book_id == UserBook.book_id
+            ).filter(UserBook.user_id == user_id).all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -205,17 +205,17 @@ class QuantityUnitRepo():
     def query_user_units(user_id):
         """Return user's units"""
         try:
-            units = db.session(QuantityUnit).join(
+            units = db.session.query(QuantityUnit).join(
                 UnitBook, QuantityUnit.id == UnitBook.unit_id
-                ).join(
-                    UserBook, UnitBook.book_id == UserBook.book_id
-                ).filter(UserBook.user_id == user_id).all()
+            ).join(
+                UserBook, UnitBook.book_id == UserBook.book_id
+            ).filter(UserBook.user_id == user_id).all()
             return [QuantityUnit.serialize(unit) for unit in units]
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"get_all_units error: {e}")
-    
+
     @staticmethod
     def get_book_units(book_id):
         """Return book's units"""
@@ -226,7 +226,6 @@ class QuantityUnitRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"get_book_units error: {e}")
-    
 
 
 class ItemRepo():
@@ -236,10 +235,10 @@ class ItemRepo():
         """Create and returns new item or returns existing item"""
         is_stored = item.get("id")
         if is_stored is None:
-            item =  ItemRepo.create_item(name=item["name"])
+            item = ItemRepo.create_item(name=item["name"])
             ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
         return item
-    
+
     @staticmethod
     def create_item(name):
         """Create item and add to database"""
@@ -254,7 +253,7 @@ class ItemRepo():
             raise Exception(f"create_item error: {e}")
 
     @staticmethod
-    def get_all_items():
+    def query_all_items():
         """Return all items"""
         try:
             items = Item.query.all()
@@ -274,6 +273,22 @@ class ItemRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"get_book_items error: {e}")
+        
+    @staticmethod
+    def query_user_items(user_id):
+        """Return user's items"""
+        try:
+            items = db.session.query(Item).join(
+                ItemBook, Item.id == ItemBook.item_id
+            ).join(
+                UserBook, ItemBook.book_id == UserBook.book_id
+            ).filter(UserBook.user_id == user_id).all()
+            return [Item.serialize(item) for item in items]
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"query_user_items error: {e}")
+
 
 class IngredientsRepo():
     """Directs incoming data to corresponding repo methods"""
@@ -286,11 +301,13 @@ class IngredientsRepo():
             amount = ingredient["amount"]
             unit = ingredient["unit"]
             try:
-                item = ItemRepo.process_item(item=item,book_id=book_id)
+                item = ItemRepo.process_item(item=item, book_id=book_id)
                 if amount:
-                    amount = QuantityAmountRepo.process_amount(amount=amount, book_id=book_id)
+                    amount = QuantityAmountRepo.process_amount(
+                        amount=amount, book_id=book_id)
                 if unit:
-                    unit = QuantityUnitRepo.process_unit(unit=unit, book_id=book_id)
+                    unit = QuantityUnitRepo.process_unit(
+                        unit=unit, book_id=book_id)
 
                 ingredients_data.append(
                     {
@@ -540,7 +557,7 @@ class UnitBookRepo():
     @staticmethod
     def create_entry(unit_id, book_id):
         """Create unit and book association -> add to database"""
-        highlight(unit_id,"@")
+        highlight(unit_id, "@")
         try:
             entry = UnitBook(unit_id=unit_id, book_id=book_id)
             db.session.add(entry)
