@@ -60,6 +60,11 @@ class IngredientService():
         """Associate user option to book"""
         try:
             if component == "amount":
-                
+                AmountBookRepo.create_entry(amount_id=option_id, book_id=book_id)
             if component == "unit":
+                UnitBookRepo.create_entry(unit_id=option_id, book_id=book_id)
             if component == "item":
+                ItemBookRepo.create_entry(item_id=option_id, book_id=book_id)
+        except IntegrityError as e:
+            raise {
+                "error": f"Error in IngredientService -> create_option_association: {e}"}

@@ -172,6 +172,29 @@ def get_user_books(user_id):
 
 ########### INGREDIENTS ###########
 
+@app.post("/users/<user_id>/books/<book_id>/ingredients/<component>")
+@check_user_identity
+def add_book_ingredient(user_id, book_id, component):
+    """Facilitates creation of book's component option"""
+    try:
+        return IngredientService.post_component_option(
+            component=component, option=request.json, book_id=book_id)
+    except IntegrityError as e:
+        return jsonify({"error": f"add_book_ingredient error{e}"}), 400
+
+
+@app.post("/users/<user_id>/books/<book_id>/components/<components>/options/<option_id>")
+@check_user_identity
+def add_option_association(user_id, book_id, component, option_id):
+    """Facilitates association of user option to book"""
+    try:
+        IngredientService.create_option_association(
+            component=component, book_id=book_id, option_id=option_id)
+        return jsonify({"message":
+                        f"Successful association of option {option_id} to {book_id}!"})
+    except IntegrityError as e:
+        return jsonify({"error": f"add_option_association error{e}"}), 400
+
 
 @app.get("/ingredients/<ingredient>")
 @jwt_required()
@@ -204,17 +227,6 @@ def get_book_ingredient_components(user_id, book_id):
         return jsonify({"error": f"get_book_ingredients error{e}"}), 400
 
 
-@app.post("/users/<user_id>/books/<book_id>/ingredients/<component>")
-@check_user_identity
-def add_book_ingredient(user_id, book_id, component):
-    """Facilitates creation of book's component option"""
-    try:
-        return IngredientService.post_component_option(
-            component=component, option=request.json, book_id=book_id)
-    except IntegrityError as e:
-        return jsonify({"error": f"add_book_ingredient error{e}"}), 400
-
-
 @app.post("/ingredients/<ingredient>")
 # should identity be checked here?
 # def add_ingredient(ingredient):
@@ -226,11 +238,7 @@ def add_book_ingredient(user_id, book_id, component):
 #         return jsonify(ingredient)
 #     except IntegrityError as e:
 #         return jsonify({"error": f"add_ingredient error{e}"}), 400
-
-
 ########### INSTRUCTIONS ###########
-
-
 @app.post("/users/<user_id>/books/<book_id>/instructions")
 @check_user_identity
 def add_instruction(user_id, book_id):
@@ -247,8 +255,7 @@ def add_instruction(user_id, book_id):
 @app.post("/users/<user_id>/books/<book_id>/instructions/<instruction_id>")
 @check_user_identity
 def add_instruction_association(user_id, book_id, instruction_id):
-    """Facilitates association of existing instruction to book 
-    e.g. adds one book's instructions to another"""
+    """Facilitates association of user instruction to book"""
     try:
         InstructionService.create_instruction_association(
             book_id=book_id, instruction_id=instruction_id)
