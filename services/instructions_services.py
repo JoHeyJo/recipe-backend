@@ -38,10 +38,10 @@ class InstructionService():
          raise {"error": f"Error in InstructionService -> check_user_access: {e}"}
      
   @staticmethod
-  def post_instruction_association(book_id, instruction_id):
-     """Add instruction to association table"""
+  def create_instruction_association(book_id, instruction_id):
+     """Associate instruction to book"""
      try:
         BookInstructionRepo.create_entry(book_id=book_id, instruction_id=instruction_id)
      except IntegrityError as e:
          raise {
-             "error": f"Error in InstructionService -> post_instruction_association: {e}"}
+             "error": f"Error in InstructionService -> create_instruction_association: {e}"}

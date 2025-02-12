@@ -273,7 +273,7 @@ class ItemRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(f"get_book_items error: {e}")
-        
+
     @staticmethod
     def query_user_items(user_id):
         """Return user's items"""

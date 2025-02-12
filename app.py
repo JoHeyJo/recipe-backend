@@ -204,28 +204,28 @@ def get_book_ingredient_components(user_id, book_id):
         return jsonify({"error": f"get_book_ingredients error{e}"}), 400
 
 
-@app.post("/users/<user_id>/books/<book_id>/ingredients/<attribute>")
+@app.post("/users/<user_id>/books/<book_id>/ingredients/<component>")
 @check_user_identity
-def add_book_ingredient(user_id, book_id, attribute):
+def add_book_ingredient(user_id, book_id, component):
     """Facilitates creation of book's ingredients"""
     try:
         return IngredientService.add_ingredient(
-            attribute=attribute, data=request.json, book_id=book_id)
+            component=component, option=request.json, book_id=book_id)
     except IntegrityError as e:
         return jsonify({"error": f"add_book_ingredient error{e}"}), 400
 
 
 @app.post("/ingredients/<ingredient>")
 # should identity be checked here?
-def add_ingredient(ingredient):
-    """Facilitates creation of ingredient"""
-    value = request.json
-    try:
-        ingredient = IngredientService.add_ingredient(
-            option=ingredient, value=value)
-        return jsonify(ingredient)
-    except IntegrityError as e:
-        return jsonify({"error": f"add_ingredient error{e}"}), 400
+# def add_ingredient(ingredient):
+#     """Facilitates creation of ingredient"""
+#     value = request.json
+#     try:
+#         ingredient = IngredientService.add_ingredient(
+#             option=ingredient, value=value)
+#         return jsonify(ingredient)
+#     except IntegrityError as e:
+#         return jsonify({"error": f"add_ingredient error{e}"}), 400
 
 
 ########### INSTRUCTIONS ###########
@@ -250,7 +250,7 @@ def add_instruction_association(user_id, book_id, instruction_id):
     """Facilitates association of existing instruction to book 
     e.g. adds one book's instructions to another"""
     try:
-        InstructionService.post_instruction_association(
+        InstructionService.create_instruction_association(
             book_id=book_id, instruction_id=instruction_id)
         return jsonify({"message":
                         f"Successful association of instruction{instruction_id} to {book_id}!"})
