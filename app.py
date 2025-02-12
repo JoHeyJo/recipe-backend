@@ -176,7 +176,7 @@ def get_user_books(user_id):
 @app.get("/ingredients/<ingredient>")
 @jwt_required()
 def get_ingredients(ingredient):
-    """Facilitates retrieval of ALL ingredients of ingredient components"""
+    """Facilitates retrieval of ALL options of ingredient components"""
     try:
         ingredients = IngredientService.fetch_ingredients(ingredient)
         return jsonify(ingredients)
@@ -187,7 +187,7 @@ def get_ingredients(ingredient):
 @app.get("/users/<user_id>/ingredients/components")
 @check_user_identity
 def get_user_ingredients(user_id):
-    """Facilitates retrieval of ingredients associated to User"""
+    """Facilitates retrieval of components options associated to User"""
     try:
         return IngredientService.fetch_user_ingredients(user_id=user_id)
     except IntegrityError as e:
@@ -197,7 +197,7 @@ def get_user_ingredients(user_id):
 @app.get("/users/<user_id>/books/<book_id>/ingredients/components")
 @check_user_identity
 def get_book_ingredient_components(user_id, book_id):
-    """Facilitates retrieval of book ingredients"""
+    """Facilitates retrieval of components options associated to Book"""
     try:
         return IngredientService.fetch_book_ingredient_components(book_id=book_id)
     except IntegrityError as e:
@@ -207,9 +207,9 @@ def get_book_ingredient_components(user_id, book_id):
 @app.post("/users/<user_id>/books/<book_id>/ingredients/<component>")
 @check_user_identity
 def add_book_ingredient(user_id, book_id, component):
-    """Facilitates creation of book's ingredients"""
+    """Facilitates creation of book's component option"""
     try:
-        return IngredientService.add_ingredient(
+        return IngredientService.post_ingredient(
             component=component, option=request.json, book_id=book_id)
     except IntegrityError as e:
         return jsonify({"error": f"add_book_ingredient error{e}"}), 400

@@ -41,7 +41,7 @@ class IngredientService():
             raise {"error": f"Error in IngredientService -> get_user_options: {e}"}
 
     @staticmethod
-    def add_ingredient(component, option, book_id):
+    def post_ingredient(component, option, book_id):
         """Calls corresponding ingredient component method for processing"""
         try:
             if component == "amount":
@@ -53,5 +53,5 @@ class IngredientService():
         except IntegrityError as e:
             raise {"error": f"Error in IngredientService -> add_ingredient: {e}"}
 
-    @staticmethod
-    def create_option_association(book_id, option_id)
+    # @staticmethod
+    # def create_option_association(book_id, option_id)
