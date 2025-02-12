@@ -170,7 +170,7 @@ def get_user_books(user_id):
     return jsonify(books)
 
 
-########### INGREDIENTS ###########
+###########  COMPONENT OPTIONS = {amount, unit, item} = INGREDIENT ###########
 
 @app.post("/users/<user_id>/books/<book_id>/ingredients/<component>")
 @check_user_identity
@@ -183,7 +183,7 @@ def add_book_ingredient(user_id, book_id, component):
         return jsonify({"error": f"add_book_ingredient error{e}"}), 400
 
 
-@app.post("/users/<user_id>/books/<book_id>/components/<components>/options/<option_id>")
+@app.post("/users/<user_id>/books/<book_id>/components/<component>/options/<option_id>")
 @check_user_identity
 def add_option_association(user_id, book_id, component, option_id):
     """Facilitates association of user option to book"""
@@ -191,7 +191,7 @@ def add_option_association(user_id, book_id, component, option_id):
         IngredientService.create_option_association(
             component=component, book_id=book_id, option_id=option_id)
         return jsonify({"message":
-                        f"Successful association of option {option_id} to {book_id}!"})
+                        f"Successful association of option {option_id} to book {book_id}!"})
     except IntegrityError as e:
         return jsonify({"error": f"add_option_association error{e}"}), 400
 
@@ -260,7 +260,7 @@ def add_instruction_association(user_id, book_id, instruction_id):
         InstructionService.create_instruction_association(
             book_id=book_id, instruction_id=instruction_id)
         return jsonify({"message":
-                        f"Successful association of instruction{instruction_id} to {book_id}!"})
+                        f"Successful association of instruction {instruction_id} to book {book_id}!"})
     except IntegrityError as e:
         return jsonify({"error": f"add_instruction_association error{e}"}), 400
 
