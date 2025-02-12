@@ -39,7 +39,7 @@ class InstructionService():
      
   @staticmethod
   def create_instruction_association(book_id, instruction_id):
-     """Associate instruction to book"""
+     """Associate user instruction to book"""
      try:
         BookInstructionRepo.create_entry(book_id=book_id, instruction_id=instruction_id)
      except IntegrityError as e:

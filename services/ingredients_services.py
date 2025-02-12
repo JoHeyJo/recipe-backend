@@ -55,5 +55,11 @@ class IngredientService():
         except IntegrityError as e:
             raise {"error": f"Error in IngredientService -> post_component_option: {e}"}
 
-    # @staticmethod
-    # def create_option_association(book_id, option_id)
+    @staticmethod
+    def create_option_association(component, book_id, option_id):
+        """Associate user option to book"""
+        try:
+            if component == "amount":
+                
+            if component == "unit":
+            if component == "item":
