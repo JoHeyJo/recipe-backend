@@ -34,7 +34,7 @@ class IngredientService():
     def fetch_user_ingredients(user_id):
         """Retrieves user's individual ingredient components"""
         try:
-            amounts = QuantityAmountRepo.get_all_amounts()
+            amounts = QuantityAmountRepo.query_user_amounts(user_id=user_id)
             units = QuantityUnitRepo.get_all_units()
             items = ItemRepo.get_all_items()
             return {"amounts": amounts, "units": units, "items": items}

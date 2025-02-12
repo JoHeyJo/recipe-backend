@@ -162,10 +162,15 @@ class QuantityAmountRepo():
             raise Exception(f"get_book_amounts error: {e}")
 
     @staticmethod
-    def get_user_amounts():
+    def query_user_amounts(user_id):
         """Return user amounts"""
         try:
-            amounts = None
+            amounts = db.session.query(QuantityAmount).join(
+                AmountBook, QuantityAmount.id == AmountBook.amount_id
+                ).join(
+                    UserBook, AmountBook.book_id == UserBook.book_id
+                ).filter(UserBook.user_id == user_id).all()
+            return [QuantityAmount.serialize(amount) for amount in amounts]
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
