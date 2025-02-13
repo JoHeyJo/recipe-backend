@@ -197,11 +197,11 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         Integer, ForeignKey('quantity_amounts.id'))
 
     # enhanced association table attributes
-    amount: Mapped['QuantityAmount'] = relationship(
+    quantity_amounts: Mapped['QuantityAmount'] = relationship(
         "QuantityAmount", back_populates="ingredients")
-    unit: Mapped['QuantityUnit'] = relationship(
+    quantity_units: Mapped['QuantityUnit'] = relationship(
         "QuantityUnit", back_populates="ingredients")
-    item: Mapped['Item'] = relationship("Item", back_populates="ingredients")
+    items: Mapped['Item'] = relationship("Item", back_populates="ingredients")
 
 
 class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
