@@ -189,10 +189,10 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     # enhanced association table attributes
     amount: Mapped['QuantityAmount'] = relationship(
-        "QuantityAmount", backref="ingredients")
+        "QuantityAmount", back_populates="ingredients")
     unit: Mapped['QuantityUnit'] = relationship(
-        "QuantityUnit", backref="ingredients")
-    item: Mapped['Item'] = relationship("Item", backref="ingredients")
+        "QuantityUnit", back_populates="ingredients")
+    item: Mapped['Item'] = relationship("Item", back_populates="ingredients")
 
 
 class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
