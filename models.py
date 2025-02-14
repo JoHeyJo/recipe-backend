@@ -54,7 +54,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     # opens up access to data spread across multiple primary tables
     # (amounts, units, items) consolidated in Ingredient
     ingredients: Mapped[List['Ingredient']] = relationship(
-        'Ingredient', back_populates='recipes', passive_deletes=True, order_by="Ingredient.id")
+        'Ingredient', back_populates='recipe', passive_deletes=True, order_by="Ingredient.id")
 
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='recipes_books', back_populates='recipes',
@@ -72,63 +72,6 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     items: Mapped[List['Item']] = relationship(
         "Item", secondary='ingredients', back_populates='recipes')
-
-
-class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
-    """Quantity Unit table"""
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    type: Mapped[str_unique_255]
-
-    def serialize(self):
-        """Serialize unit table data into dict"""
-        return {"id": self.id, "type": self.type}
-
-    books: Mapped[List['Book']] = relationship(
-        "Book", secondary='units_books', back_populates='quantity_units')
-
-    recipes: Mapped[List['Recipe']] = relationship(
-        "Recipe", secondary='ingredients', back_populates='quantity_units')
-    
-    ingredients: Mapped[List['Ingredient']] = relationship(
-        "Ingredient", back_populates='quantity_units')
-
-
-class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
-    """Quantity Amount table"""
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    value: Mapped[str_unique_255]
-
-    def serialize(self):
-        """Serialize amount table data into dict"""
-        return {"id": self.id, "value": self.value}
-
-    books: Mapped[List['Book']] = relationship(
-        "Book", secondary='amounts_books', back_populates='quantity_amounts')
-
-    recipes: Mapped[List['Recipe']] = relationship(
-        "Recipe", secondary='ingredients', back_populates='quantity_amounts')
-    
-    ingredients: Mapped[List['Ingredient']] = relationship(
-        "Ingredient", back_populates='quantity_amounts')
-
-
-class Item(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
-    """Item table"""
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    name: Mapped[str_unique_255]
-
-    def serialize(self):
-        """Serialize amount table data into dict"""
-        return {"id": self.id, "name": self.name}
-
-    books: Mapped[List['Book']] = relationship(
-        "Book", secondary='items_books', back_populates='items')
-
-    recipes: Mapped[List['Recipe']] = relationship(
-        "Recipe", secondary='ingredients', back_populates='items')
-    
-    ingredients: Mapped[List['Ingredient']] = relationship(
-        "Ingredient", back_populates='items')
 
 
 class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -158,6 +101,63 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     quantity_amounts: Mapped[List['QuantityAmount']] = relationship(
         "QuantityAmount", secondary='amounts_books', back_populates='books')
+    
+
+class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+    """Quantity Amount table"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    value: Mapped[str_unique_255]
+
+    def serialize(self):
+        """Serialize amount table data into dict"""
+        return {"id": self.id, "value": self.value}
+
+    books: Mapped[List['Book']] = relationship(
+        "Book", secondary='amounts_books', back_populates='quantity_amounts')
+
+    recipes: Mapped[List['Recipe']] = relationship(
+        "Recipe", secondary='ingredients', back_populates='quantity_amounts')
+
+    ingredients: Mapped[List['Ingredient']] = relationship(
+        "Ingredient", back_populates='quantity_amounts')
+    
+
+class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+    """Quantity Unit table"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    type: Mapped[str_unique_255]
+
+    def serialize(self):
+        """Serialize unit table data into dict"""
+        return {"id": self.id, "type": self.type}
+
+    books: Mapped[List['Book']] = relationship(
+        "Book", secondary='units_books', back_populates='quantity_units')
+
+    recipes: Mapped[List['Recipe']] = relationship(
+        "Recipe", secondary='ingredients', back_populates='quantity_units')
+    
+    ingredients: Mapped[List['Ingredient']] = relationship(
+        "Ingredient", back_populates='unit')
+
+
+class Item(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+    """Item table"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    name: Mapped[str_unique_255]
+
+    def serialize(self):
+        """Serialize amount table data into dict"""
+        return {"id": self.id, "name": self.name}
+
+    books: Mapped[List['Book']] = relationship(
+        "Book", secondary='items_books', back_populates='items')
+
+    recipes: Mapped[List['Recipe']] = relationship(
+        "Recipe", secondary='ingredients', back_populates='items')
+    
+    ingredients: Mapped[List['Ingredient']] = relationship(
+        "Ingredient", back_populates='items')
 
 
 class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
