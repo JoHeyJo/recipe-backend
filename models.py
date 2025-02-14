@@ -64,10 +64,10 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'Instruction', secondary='recipes_instructions', back_populates='recipes',
         passive_deletes=True, order_by="RecipeInstruction.id")
 
-    quantity_units: Mapped[List['QuantityUnit']] = relationship(
+    units: Mapped[List['QuantityUnit']] = relationship(
         "QuantityUnit", secondary='ingredients', back_populates='recipes')
 
-    quantity_amounts: Mapped[List['QuantityAmount']] = relationship(
+    amounts: Mapped[List['QuantityAmount']] = relationship(
         "QuantityAmount", secondary='ingredients', back_populates='recipes')
 
     items: Mapped[List['Item']] = relationship(
@@ -93,14 +93,14 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     instructions: Mapped[List['Instruction']] = relationship(
         "Instruction", secondary='books_instructions', back_populates='books')
 
+    amounts: Mapped[List['QuantityAmount']] = relationship(
+        "QuantityAmount", secondary='amounts_books', back_populates='books')
+    units: Mapped[List['QuantityUnit']] = relationship(
+        "QuantityUnit", secondary='units_books', back_populates='books')
     items: Mapped[List['Item']] = relationship(
         "Item", secondary='items_books', back_populates='books')
 
-    quantity_units: Mapped[List['QuantityUnit']] = relationship(
-        "QuantityUnit", secondary='units_books', back_populates='books')
 
-    quantity_amounts: Mapped[List['QuantityAmount']] = relationship(
-        "QuantityAmount", secondary='amounts_books', back_populates='books')
     
 
 class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -113,10 +113,10 @@ class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         return {"id": self.id, "value": self.value}
 
     books: Mapped[List['Book']] = relationship(
-        "Book", secondary='amounts_books', back_populates='quantity_amounts')
+        "Book", secondary='amounts_books', back_populates='amounts')
 
     recipes: Mapped[List['Recipe']] = relationship(
-        "Recipe", secondary='ingredients', back_populates='quantity_amounts')
+        "Recipe", secondary='ingredients', back_populates='amounts')
 
     ingredients: Mapped[List['Ingredient']] = relationship(
         "Ingredient", back_populates='amount')
@@ -132,10 +132,10 @@ class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         return {"id": self.id, "type": self.type}
 
     books: Mapped[List['Book']] = relationship(
-        "Book", secondary='units_books', back_populates='quantity_units')
+        "Book", secondary='units_books', back_populates='units')
 
     recipes: Mapped[List['Recipe']] = relationship(
-        "Recipe", secondary='ingredients', back_populates='quantity_units')
+        "Recipe", secondary='ingredients', back_populates='units')
     
     ingredients: Mapped[List['Ingredient']] = relationship(
         "Ingredient", back_populates='unit')
