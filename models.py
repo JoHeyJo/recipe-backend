@@ -119,7 +119,7 @@ class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         "Recipe", secondary='ingredients', back_populates='quantity_amounts')
 
     ingredients: Mapped[List['Ingredient']] = relationship(
-        "Ingredient", back_populates='quantity_amounts')
+        "Ingredient", back_populates='amount')
     
 
 class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -157,7 +157,7 @@ class Item(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         "Recipe", secondary='ingredients', back_populates='items')
     
     ingredients: Mapped[List['Ingredient']] = relationship(
-        "Ingredient", back_populates='items')
+        "Ingredient", back_populates='item')
 
 
 class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
