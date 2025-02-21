@@ -106,7 +106,12 @@ class RecipeRepo():
     def delete_recipe(recipe_id):
         """Deletes recipe and all references in association tables"""
         try:
-            recipe = Recipe.query.get(recipe_id)
+            db.session.expire_all()
+            highlight(recipe_id,"%")
+            highlight(type(recipe_id),"%")
+            num = int(recipe_id)
+            highlight(type(num), "%")
+            recipe = Recipe.query.get(num)
             db.session.delete(recipe)
             db.session.commit()
         except SQLAlchemyError as e:
@@ -154,7 +159,7 @@ class QuantityAmountRepo():
     def get_book_amounts(book_id):
         """Return user amounts"""
         try:
-            amounts = Book.query.get(book_id).quantity_amounts
+            amounts = Book.query.get(book_id).amounts
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -220,7 +225,7 @@ class QuantityUnitRepo():
     def get_book_units(book_id):
         """Return book's units"""
         try:
-            units = Book.query.get(book_id).quantity_units
+            units = Book.query.get(book_id).units
             return [QuantityUnit.serialize(unit) for unit in units]
         except SQLAlchemyError as e:
             highlight(e, "!")

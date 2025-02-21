@@ -185,7 +185,7 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
 class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Enhanced association table for recipes and [amounts, units, items] - Allows 
-    queries of whole ingredient instances and their individual parts 
+    queries of whole ingredient instances and their individual components 
     e.g. item, amount, unit"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     recipe_id: Mapped[int] = Column(
