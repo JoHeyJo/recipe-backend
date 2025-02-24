@@ -54,7 +54,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     # opens up access to data spread across multiple primary tables
     # (amounts, units, items) consolidated in Ingredient
     ingredients = relationship(
-        'Ingredient', back_populates='recipe', cascade="all, delete-orphan", passive_deletes=True, order_by="Ingredient.id", lazy="noload")
+        'Ingredient', back_populates='recipe', cascade="all, delete-orphan", passive_deletes=True, order_by="Ingredient.id", lazy="joined")
 
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='recipes_books', back_populates='recipes',

@@ -110,10 +110,11 @@ class RecipeRepo():
 
             num = int(recipe_id)
             # ✅ Use session.get() instead of query.get()
-            recipe = db.session.get(Recipe, num)
-            if recipe:
-                db.session.delete(recipe)
-                db.session.commit()
+            db.session.execute(
+                # ✅ Use direct SQLAlchemy delete
+                db.delete(Recipe).where(Recipe.id == num)
+            )
+            db.session.commit()
             
         except SQLAlchemyError as e:
             highlight(e, "!")
