@@ -53,8 +53,8 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     # opens up access to data spread across multiple primary tables
     # (amounts, units, items) consolidated in Ingredient
-    ingredients: Mapped[List['Ingredient']] = relationship(
-        'Ingredient', back_populates='recipe', passive_deletes=True, order_by="Ingredient.id")
+    ingredients = relationship(
+        'Ingredient', back_populates='recipe', cascade="all, delete-orphan", passive_deletes=True, order_by="Ingredient.id", lazy="noload")
 
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='recipes_books', back_populates='recipes',
@@ -101,8 +101,6 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         "Item", secondary='items_books', back_populates='books')
 
 
-    
-
 class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Quantity Amount table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
@@ -120,7 +118,7 @@ class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     ingredients: Mapped[List['Ingredient']] = relationship(
         "Ingredient", back_populates='amount')
-    
+
 
 class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Quantity Unit table"""
@@ -136,7 +134,7 @@ class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     recipes: Mapped[List['Recipe']] = relationship(
         "Recipe", secondary='ingredients', back_populates='units')
-    
+
     ingredients: Mapped[List['Ingredient']] = relationship(
         "Ingredient", back_populates='unit')
 
@@ -155,7 +153,7 @@ class Item(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     recipes: Mapped[List['Recipe']] = relationship(
         "Recipe", secondary='ingredients', back_populates='items')
-    
+
     ingredients: Mapped[List['Ingredient']] = relationship(
         "Ingredient", back_populates='item')
 
@@ -185,16 +183,17 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
 class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Enhanced association table for recipes and [amounts, units, items] - Allows 
-    queries of whole ingredient instances and their individual components 
+    queries of whole ingredient instances and their individual parts 
     e.g. item, amount, unit"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     recipe_id: Mapped[int] = Column(
         Integer, ForeignKey('recipes.id', ondelete="CASCADE"))
     quantity_amount_id: Mapped[int] = Column(
-        Integer, ForeignKey('quantity_amounts.id'))
+        Integer, ForeignKey('quantity_amounts.id', ondelete="CASCADE"))
     quantity_unit_id: Mapped[int] = Column(
-        Integer, ForeignKey('quantity_units.id'))
-    item_id: Mapped[int] = Column(Integer, ForeignKey('items.id'))
+        Integer, ForeignKey('quantity_units.id', ondelete="CASCADE"))
+    item_id: Mapped[int] = Column(
+        Integer, ForeignKey('items.id', ondelete="CASCADE"))
 
     # enhanced association table attributes
     amount: Mapped['QuantityAmount'] = relationship(
