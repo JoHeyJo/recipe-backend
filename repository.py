@@ -106,14 +106,11 @@ class RecipeRepo():
     def delete_recipe(recipe_id):
         """Deletes recipe and all references in association tables"""
         try:
-            # db.session.expire_all()  # ✅ Clear SQLAlchemy cache
-            num = int(recipe_id)
             db.session.execute(
                 # ✅ Use direct SQLAlchemy delete
-                db.delete(Recipe).where(Recipe.id == num)
+                db.delete(Recipe).where(Recipe.id == int(recipe_id))
             )
             db.session.commit()
-            
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
@@ -137,13 +134,13 @@ class QuantityAmountRepo():
         """Create quantity amount and add to database."""
         try:
             # Check if value already has been created by another user
-            quantity_amount = QuantityAmount(value=value)
-            db.session.add(quantity_amount)
-            db.session.commit()
-            return QuantityAmount.serialize(quantity_amount)
-            # quantity_amount = insert_first(
-            #     Model=QuantityAmount, data=value, column_name="value", db=db)
+            # quantity_amount = QuantityAmount(value=value)
+            # db.session.add(quantity_amount)
             # db.session.commit()
+            # return QuantityAmount.serialize(quantity_amount)
+            quantity_amount = insert_first(
+                Model=QuantityAmount, data=value, column_name="value", db=db)
+            db.session.commit()
             return QuantityAmount.serialize(quantity_amount)
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -203,12 +200,12 @@ class QuantityUnitRepo():
     def create_unit(type):
         """Create quantity unit and add to database"""
         try:
-            # quantity_unit = insert_first(
-            #     Model=QuantityUnit, data=type, column_name="type", db=db)
-            # db.session.commit()
-            quantity_unit = QuantityUnit(type=type)
-            db.session.add(quantity_unit)
+            quantity_unit = insert_first(
+                Model=QuantityUnit, data=type, column_name="type", db=db)
             db.session.commit()
+            # quantity_unit = QuantityUnit(type=type)
+            # db.session.add(quantity_unit)
+            # db.session.commit()
             return QuantityUnit.serialize(quantity_unit)
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -257,13 +254,13 @@ class ItemRepo():
     def create_item(name):
         """Create item and add to database"""
         try:
-            # item = insert_first(
-            #     Model=Item, data=name, column_name="name", db=db)
-            # db.session.commit()
-            item = Item(name=name)
-            db.session.add(item)
+            item = insert_first(
+                Model=Item, data=name, column_name="name", db=db)
             db.session.commit()
-            return Item.serialize(item)
+            # item = Item(name=name)
+            # db.session.add(item)
+            # db.session.commit()
+            # return Item.serialize(item)
             return Item.serialize(item)
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -575,7 +572,6 @@ class UnitBookRepo():
     @staticmethod
     def create_entry(unit_id, book_id):
         """Create unit and book association -> add to database"""
-        highlight(unit_id, "@")
         try:
             entry = UnitBook(unit_id=unit_id, book_id=book_id)
             db.session.add(entry)
