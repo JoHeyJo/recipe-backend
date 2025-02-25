@@ -106,7 +106,7 @@ class RecipeRepo():
     def delete_recipe(recipe_id):
         """Deletes recipe and all references in association tables"""
         try:
-            db.session.expire_all()  # ✅ Clear SQLAlchemy cache
+            # db.session.expire_all()  # ✅ Clear SQLAlchemy cache
             num = int(recipe_id)
             db.session.execute(
                 # ✅ Use direct SQLAlchemy delete
