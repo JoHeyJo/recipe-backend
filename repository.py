@@ -117,7 +117,6 @@ class RecipeRepo():
             raise Exception(f"delete_recipe error:{e}")
 
 
-
 class QuantityAmountRepo():
     """Process amounts & facilitates quantity_amounts table interactions"""
     @staticmethod
@@ -133,11 +132,7 @@ class QuantityAmountRepo():
     def create_amount(value):
         """Create quantity amount and add to database."""
         try:
-            # Check if value already has been created by another user
-            # quantity_amount = QuantityAmount(value=value)
-            # db.session.add(quantity_amount)
-            # db.session.commit()
-            # return QuantityAmount.serialize(quantity_amount)
+
             quantity_amount = insert_first(
                 Model=QuantityAmount, data=value, column_name="value", db=db)
             db.session.commit()
@@ -203,9 +198,6 @@ class QuantityUnitRepo():
             quantity_unit = insert_first(
                 Model=QuantityUnit, data=type, column_name="type", db=db)
             db.session.commit()
-            # quantity_unit = QuantityUnit(type=type)
-            # db.session.add(quantity_unit)
-            # db.session.commit()
             return QuantityUnit.serialize(quantity_unit)
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -257,10 +249,6 @@ class ItemRepo():
             item = insert_first(
                 Model=Item, data=name, column_name="name", db=db)
             db.session.commit()
-            # item = Item(name=name)
-            # db.session.add(item)
-            # db.session.commit()
-            # return Item.serialize(item)
             return Item.serialize(item)
         except SQLAlchemyError as e:
             highlight(e, "!")
