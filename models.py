@@ -189,11 +189,11 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     recipe_id: Mapped[int] = Column(
         Integer, ForeignKey('recipes.id', ondelete="CASCADE"))
     quantity_amount_id: Mapped[int] = Column(
-        Integer, ForeignKey('quantity_amounts.id', ondelete="CASCADE"))
+        Integer, ForeignKey('quantity_amounts.id'))
     quantity_unit_id: Mapped[int] = Column(
-        Integer, ForeignKey('quantity_units.id', ondelete="CASCADE"))
+        Integer, ForeignKey('quantity_units.id'))
     item_id: Mapped[int] = Column(
-        Integer, ForeignKey('items.id', ondelete="CASCADE"))
+        Integer, ForeignKey('items.id'))
 
     # enhanced association table attributes
     amount: Mapped['QuantityAmount'] = relationship(

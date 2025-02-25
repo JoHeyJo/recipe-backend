@@ -22,10 +22,14 @@ class RecipeService():
             if ingredients:
                 recipe_data["ingredients"] = RecipeService.process_ingredients(
                     ingredients=ingredients, recipe_id=recipe_data["id"], book_id=book_id)
+            else:
+                recipe_data["ingredients"] = []
 
             if instructions:
                 recipe_data["instructions"] = RecipeService.process_instructions(
                     recipe_id=recipe_data["id"], instructions=instructions, book_id=book_id)
+            else:
+                recipe_data["instructions"] = []
 
             return recipe_data
         except Exception as e:
@@ -82,7 +86,6 @@ class RecipeService():
                     f"No instructions data returned for book {book_id}")
 
             for instruction in instructions_data:
-                # Can potentially associate instruction to User here...
                 id = RecipeInstructionRepo.create_entry(
                     recipe_id=recipe_id, instruction_id=instruction["id"])
                 instruction["instruction_id"] = id
