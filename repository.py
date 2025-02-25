@@ -106,14 +106,17 @@ class RecipeRepo():
     def delete_recipe(recipe_id):
         """Deletes recipe and all references in association tables"""
         try:
-            db.session.expire_all()
+            # db.session.expire_all()
 
             num = int(recipe_id)
             # ✅ Use session.get() instead of query.get()
             db.session.execute(
-                # ✅ Use direct SQLAlchemy delete
+            #     # ✅ Use direct SQLAlchemy delete
                 db.delete(Recipe).where(Recipe.id == num)
             )
+            # recipe = Recipe.query.get(num)
+            # highlight(recipe,"#")
+            # db.session.delete(recipe)
             db.session.commit()
             
         except SQLAlchemyError as e:
