@@ -51,14 +51,8 @@ def index():
 @app.post("/signup")
 def signup():
     """Facilitates new user data to User Repo, return token"""
-    user_name = request.json["userName"]
-    first_name = request.json["firstName"]
-    last_name = request.json["lastName"]
-    password = request.json["password"]
-    email = request.json["email"]
     try:
-        token = UserRepo.signup(user_name, first_name,
-                                last_name, email, password)
+        token = UserRepo.signup(user_name, first_name, last_name, email, password)
         return jsonify({"token": token})
     except UsernameAlreadyTakenError as e:
         # Handle username already taken error
@@ -77,7 +71,6 @@ def signup():
 @app.post("/login")
 def login():
     """Validate user credentials"""
-
     user_name = request.json["userName"]
     password = request.json["password"]
     try:
