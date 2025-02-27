@@ -9,6 +9,7 @@ from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, verif
 from dotenv import load_dotenv
 from flask_cors import CORS
 from exceptions import *
+from services.user_services import UserServices
 from services.recipes_services import RecipeService
 from services.ingredients_services import IngredientService
 from services.book_services import BookService
@@ -50,37 +51,27 @@ def index():
 
 @app.post("/signup")
 def signup():
-    """Facilitates new user data to User Repo, return token"""
+    """Facilitates new user data, return token"""
     try:
-        token = UserRepo.signup(user_name, first_name, last_name, email, password)
+        token = UserServices.authenticate_signup(request=request)
         return jsonify({"token": token})
-    except UsernameAlreadyTakenError as e:
-        # Handle username already taken error
-        return jsonify({"error": str(e)}), 400
-    except EmailAlreadyRegisteredError as e:
-        # Handle email already taken error
-        return jsonify({"error": str(e)}), 400
-    except SignUpError as e:
-        # Handle general sign-up error
-        return jsonify({"error": "Sign up error: An unexpected error occurred."}), 500
+    except (UsernameAlreadyTakenError, EmailAlreadyRegisteredError, SignUpError) as e:
+        return jsonify({"error": str(e)}), 400 
     except Exception as e:
-        # Handle any other unexpected errors
-        return jsonify({"error": "An unexpected error occurred."}), 500
+        return jsonify({"error": "An unexpected error occurred"}), 500
 
 
 @app.post("/login")
 def login():
     """Validate user credentials"""
-    user_name = request.json["userName"]
-    password = request.json["password"]
     try:
-        token = UserRepo.authenticate(user_name, password)
+        token = UserServices.authenticate_login(request=request)
         if token:
-            return jsonify({"token": token})
+            return jsonify({"token": token}), 200
         else:
             return jsonify({"error": "Invalid credentials"}), 401
-    except IntegrityError as e:
-        return jsonify({"error": f"login error: {e}"}), 400
+    except Exception as e:
+        return jsonify({"error": f"login error: An error occurred during login"}), 500
 
 
 ########### USERS ###########

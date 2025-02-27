@@ -31,11 +31,10 @@ class UserRepo():
                 is_admin=False
             )
             db.session.add(user)
+            db.session.flush()
             token = create_access_token(identity=user.id)
             return token
         except SQLAlchemyError as e:
-            highlight(e, "!")
-            db.session.rollback()
             if "users_user_name_key" in str(e.orig):
                 raise UsernameAlreadyTakenError(
                     "This username is already taken.")
@@ -46,15 +45,13 @@ class UserRepo():
                 raise SignUpError("An error occurred during signup.")
 
     @staticmethod
-    def authenticate(user_name, password):
+    def login(user_name, password):
         """Find user with username and password. Return False for incorrect credentials"""
 
         user = User.query.filter_by(user_name=user_name).first()
-        if user:
-            is_auth = bcrypt.check_password_hash(user.password, password)
-            if is_auth:
-                token = create_access_token(identity=user.id)
-                return token
+        # If user exists AND user is authorized 
+        if user and bcrypt.check_password_hash(user.password, password):
+            return create_access_token(identity=user.id)
         return False
 
     @staticmethod
