@@ -5,7 +5,7 @@ from services import user_services
 from repository import UserRepo
 
 # run tests
-# pytest unittests/test_auth.py
+# pytest unit_tests/test_auth.py
 
 @pytest.fixture
 def client():
