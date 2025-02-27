@@ -71,7 +71,7 @@ def login():
         else:
             return jsonify({"error": "Invalid credentials"}), 401
     except Exception as e:
-        return jsonify({"error": f"login error: An error occurred during login"}), 500
+        return jsonify({"error": "An error occurred during login"}), 500
 
 
 ########### USERS ###########
