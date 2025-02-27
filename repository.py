@@ -31,7 +31,6 @@ class UserRepo():
                 is_admin=False
             )
             db.session.add(user)
-            db.session.commit()
             token = create_access_token(identity=user.id)
             return token
         except SQLAlchemyError as e:
@@ -83,7 +82,6 @@ class RecipeRepo():
         recipe = Recipe(name=name, notes=notes)
         try:
             db.session.add(recipe)
-            db.session.commit()
             return Recipe.serialize(recipe)
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -110,7 +108,6 @@ class RecipeRepo():
                 # ✅ Use direct SQLAlchemy delete
                 db.delete(Recipe).where(Recipe.id == int(recipe_id))
             )
-            db.session.commit()
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
@@ -135,7 +132,6 @@ class QuantityAmountRepo():
 
             quantity_amount = insert_first(
                 Model=QuantityAmount, data=value, column_name="value", db=db)
-            db.session.commit()
             return QuantityAmount.serialize(quantity_amount)
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -197,7 +193,6 @@ class QuantityUnitRepo():
         try:
             quantity_unit = insert_first(
                 Model=QuantityUnit, data=type, column_name="type", db=db)
-            db.session.commit()
             return QuantityUnit.serialize(quantity_unit)
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -248,7 +243,6 @@ class ItemRepo():
         try:
             item = insert_first(
                 Model=Item, data=name, column_name="name", db=db)
-            db.session.commit()
             return Item.serialize(item)
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -347,7 +341,6 @@ class BookRepo():
         book = Book(title=title, description=description)
         try:
             db.session.add(book)
-            db.session.commit()
             return Book.serialize(book)
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -388,7 +381,6 @@ class InstructionRepo():
         try:
             instruction = Instruction(instruction=instruction)
             db.session.add(instruction)
-            db.session.commit()
             BookInstructionRepo.create_entry(
                 book_id=book_id, instruction_id=instruction.id)
             return Instruction.serialize(instruction)
@@ -467,7 +459,6 @@ class RecipeIngredientRepo():
             recipe_id=recipe_id, item_id=item_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
         try:
             db.session.add(entry)
-            db.session.commit()
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -484,7 +475,6 @@ class RecipeBookRepo():
         try:
             entry = RecipeBook(book_id=book_id, recipe_id=recipe_id)
             db.session.add(entry)
-            db.session.commit()
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
@@ -499,7 +489,6 @@ class UserBookRepo():
         try:
             entry = UserBook(user_id=user_id, book_id=book_id)
             db.session.add(entry)
-            db.session.commit()
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
@@ -515,7 +504,6 @@ class BookInstructionRepo():
             entry = BookInstruction(
                 book_id=book_id, instruction_id=instruction_id)
             db.session.add(entry)
-            db.session.commit()
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
@@ -531,7 +519,6 @@ class RecipeInstructionRepo():
             entry = RecipeInstruction(
                 recipe_id=recipe_id, instruction_id=instruction_id)
             db.session.add(entry)
-            db.session.commit()
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -547,7 +534,6 @@ class AmountBookRepo():
         try:
             entry = AmountBook(amount_id=amount_id, book_id=book_id)
             db.session.add(entry)
-            db.session.commit()
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -563,7 +549,6 @@ class UnitBookRepo():
         try:
             entry = UnitBook(unit_id=unit_id, book_id=book_id)
             db.session.add(entry)
-            db.session.commit()
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -579,7 +564,6 @@ class ItemBookRepo():
         try:
             entry = ItemBook(item_id=item_id, book_id=book_id)
             db.session.add(entry)
-            db.session.commit()
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
