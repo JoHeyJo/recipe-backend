@@ -4,6 +4,7 @@ from app import db
 from models import User
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
+from repository import highlight
 
 # ✅ Helper Function: Add Test User to Database
 
@@ -11,8 +12,12 @@ bcrypt = Bcrypt()
 def create_test_user():
     """Insert a test user into the database."""
     hashed_pwd = bcrypt.generate_password_hash("validpassword").decode("utf-8")
-    user = User(user_name="testuser",
-                email="test@example.com", password=hashed_pwd)
+    user = User(first_name="test",
+                last_name="user",
+                is_admin=True,
+                user_name="testuser",
+                email="test@example.com", 
+                password=hashed_pwd)
     db.session.add(user)
     db.session.commit()
 
@@ -25,7 +30,7 @@ def test_login_success(test_client):
 
     response = test_client.post(
         "/login", json={"userName": "testuser", "password": "validpassword"})
-
+    highlight(response,"#")
     assert response.status_code == 200
     assert "token" in response.json
 
@@ -60,11 +65,11 @@ def test_login_non_existent_user(test_client):
 def test_login_database_error(test_client, monkeypatch):
     """Test login handling a database error (500)."""
 
-    def mock_query_error(*args, **kwargs):
+    def mock_login_error(*args, **kwargs):
         raise Exception("Database connection failed")
 
-    monkeypatch.setattr("models.User.query.filter_by",
-                        mock_query_error)  # Force a DB error
+
+    monkeypatch.setattr("repository.UserRepo.login", mock_login_error)
 
     response = test_client.post(
         "/login", json={"userName": "testuser", "password": "validpassword"})
