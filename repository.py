@@ -55,20 +55,15 @@ class UserRepo():
         return False
 
     @staticmethod
-    def fetch_user(user_id):
-        """Fetch user corresponding with id"""
+    def query_user(user_id):
+        """Query user corresponding with id"""
         try:
-            user = User.serialize(User.query.get(user_id))
-            default_book_id = user.get("default_book_id")
-            if default_book_id:
-                default_book = Book.serialize(
-                    Book.query.get(user["default_book_id"]))
-                user["default_book"] = default_book
+            user = User.query.get(user_id)
+            if user is None:
+                return None 
             return user
         except SQLAlchemyError as e:
-            highlight(e, "!")
-            db.session.rollback()
-            raise Exception(f"UserRepo -> fetch_user error:{e}")
+            raise Exception(f"UserRepo -> query_user error:{e}")
 
 
 class RecipeRepo():

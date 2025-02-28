@@ -1,4 +1,4 @@
-from repository import db, UserRepo
+from repository import db, UserRepo, Book, User
 from sqlalchemy.exc import SQLAlchemyError
 
 
@@ -30,4 +30,25 @@ class UserServices():
             token = UserRepo.login(user_name=user_name, password=password)
             return token
         except SQLAlchemyError as e:
-            raise e
+            raise 
+
+    @staticmethod
+    def fetch_user(user_id):
+        """Retrieve user - inject default book object"""
+        try:
+            user = UserRepo.query_user(user_id=user_id)  # Fetch from repo
+            if not user:
+                raise ValueError("User not found")
+            
+            user_data = User.serialize(user)
+
+            default_book_id = user_data.get("default_book_id")
+            
+            if default_book_id:
+                default_book = Book.serialize(Book.query.get(default_book_id))
+                user["default_book"] = default_book
+            
+            return user_data
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            raise
