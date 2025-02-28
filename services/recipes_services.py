@@ -62,9 +62,11 @@ class RecipeService():
         try:
             ingredients_data = IngredientsRepo.process_ingredients(
                 book_id=book_id, ingredients=ingredients)
+            
             if not ingredients_data:
                 raise ValueError(
                     f"No ingredients data returned for recipe {recipe_id}")
+            
             for ingredient in ingredients_data:
                 id = RecipeIngredientRepo.create_ingredient(
                     recipe_id=recipe_id,
