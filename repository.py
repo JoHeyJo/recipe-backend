@@ -76,7 +76,6 @@ class RecipeRepo():
             db.session.add(recipe)
             return Recipe.serialize(recipe)
         except SQLAlchemyError as e:
-            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"create_recipe error:{e}")
 
@@ -468,7 +467,6 @@ class RecipeBookRepo():
             entry = RecipeBook(book_id=book_id, recipe_id=recipe_id)
             db.session.add(entry)
         except SQLAlchemyError as e:
-            highlight(e, "!")
             db.session.rollback()
             raise Exception(f"RecipeBookRep-create_entry error:{e}")
 

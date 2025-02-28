@@ -4,10 +4,10 @@ from repository import *
 class RecipeService():
     """Handles recipe view business logic"""
     @staticmethod
-    def process_recipe_data(data, user_id, book_id):
+    def process_recipe_data(request, book_id):
         """Consolidate 'create recipe' process"""
         try:
-            recipe = data["recipe"]
+            recipe = request["recipe"]
             notes = recipe.get("notes")
             instructions = recipe.get("instructions")
             ingredients = recipe.get("ingredients")
@@ -22,6 +22,7 @@ class RecipeService():
             if ingredients:
                 recipe_data["ingredients"] = RecipeService.process_ingredients(
                     ingredients=ingredients, recipe_id=recipe_data["id"], book_id=book_id)
+            # #######################
             else:
                 recipe_data["ingredients"] = []
 
@@ -42,6 +43,10 @@ class RecipeService():
         try:
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, notes=notes)
+            if not recipe_data:
+                raise ValueError(
+                    f"No recipe data returned for recipe {recipe_name}")
+            
             RecipeBookRepo.create_entry(
                 book_id=book_id, recipe_id=recipe_data["id"])
 

@@ -36,7 +36,7 @@ class UserServices():
     def fetch_user(user_id):
         """Retrieve user - inject default book object"""
         try:
-            user = UserRepo.query_user(user_id=user_id)  # Fetch from repo
+            user = UserRepo.query_user(user_id=user_id)
             if not user:
                 raise ValueError("User not found")
             

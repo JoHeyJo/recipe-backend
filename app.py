@@ -56,7 +56,7 @@ def signup():
         token = UserServices.authenticate_signup(request=request)
         return jsonify({"token": token})
     except (UsernameAlreadyTakenError, EmailAlreadyRegisteredError, SignUpError) as e:
-        return jsonify({"error": str(e)}), 400 
+        return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": "An unexpected error occurred"}), 500
 
@@ -88,11 +88,12 @@ def get_user(user_id):
 
 
 @app.post("/users/<user_id>/books/<book_id>/recipes")
+@check_user_identity
 def add_recipe(user_id, book_id):
     """Consolidate recipe data. If successful recipes_ingredients record created"""
     try:
         recipe_data = RecipeService.process_recipe_data(
-            data={"recipe": request.json}, book_id=book_id, user_id=user_id)
+            request={"recipe": request}, book_id=book_id, user_id=user_id)
         return jsonify(recipe_data), 200
     except Exception as e:
         return handle_error(e)
