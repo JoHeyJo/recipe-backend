@@ -1,5 +1,5 @@
 from repository import *
-from services.ingredients_services import IngredientService
+from services.ingredients_services import IngredientServices
 
 
 class RecipeServices():
@@ -64,7 +64,7 @@ class RecipeServices():
     def process_ingredients(ingredients, recipe_id, book_id):
         """Adds ingredients and associates each ingredient to recipe"""
         try:
-            ingredients_data = IngredientService.process_ingredient_components(
+            ingredients_data = IngredientServices.process_ingredient_components(
                 book_id=book_id, ingredients=ingredients)
             
             if not ingredients_data:

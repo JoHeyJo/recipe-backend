@@ -220,25 +220,11 @@ class QuantityUnitRepo():
 class ItemRepo():
     """Processes item & facilitates table interactions"""
     @staticmethod
-    def process_item(item, book_id):
-        """Create and returns new item or returns existing item"""
-        is_stored = item.get("id")
-        if is_stored is None:
-            item = ItemRepo.create_item(name=item["name"])
-            ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
-        return item
-
-    @staticmethod
     def create_item(name):
         """Create item and add to database"""
-        try:
-            item = insert_first(
-                Model=Item, data=name, column_name="name", db=db)
-            return Item.serialize(item)
-        except SQLAlchemyError as e:
-            highlight(e, "!")
-            db.session.rollback()
-            raise Exception(f"create_item error: {e}")
+        item = insert_first(
+            Model=Item, data=name, column_name="name", db=db)
+        return Item.serialize(item)
 
     @staticmethod
     def query_all_items():
@@ -519,11 +505,7 @@ class ItemBookRepo():
     @staticmethod
     def create_entry(item_id, book_id):
         """Create item and book association -> add to database"""
-        try:
-            entry = ItemBook(item_id=item_id, book_id=book_id)
-            db.session.add(entry)
-            return entry.id
-        except SQLAlchemyError as e:
-            highlight(e, "!")
-            db.session.rollback()
-            raise Exception(f"ItemBookRepo-create_entry:{e}")
+        entry = ItemBook(item_id=item_id, book_id=book_id)
+        db.session.add(entry)
+        return entry.id
+ 

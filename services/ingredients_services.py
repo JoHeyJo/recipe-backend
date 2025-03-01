@@ -51,7 +51,7 @@ class IngredientServices():
             if component == "unit":
                 return QuantityUnitRepo.process_unit(unit=option, book_id=book_id)
             if component == "item":
-                return ItemRepo.process_item(item=option, book_id=book_id)
+                return ItemServices.process_item(item=option, book_id=book_id)
         except IntegrityError as e:
             raise {"error": f"Error in IngredientServices -> post_component_option: {e}"}
 
@@ -71,14 +71,14 @@ class IngredientServices():
     
     @staticmethod
     def process_ingredient_components(book_id, ingredients):
-        """Separates ingredient components - processes individual components"""
+        """Separates & processes ingredient components - creates ingredient return object"""
         ingredients_data = []
         for ingredient in ingredients:
             item = ingredient["item"]
             amount = ingredient["amount"]
             unit = ingredient["unit"]
             try:
-                item = ItemRepo.process_item(item=item, book_id=book_id)
+                item = ItemServices.process_item(item=item, book_id=book_id)
                 if amount:
                     amount = QuantityAmountRepo.process_amount(
                         amount=amount, book_id=book_id)
@@ -101,4 +101,19 @@ class IngredientServices():
         return ingredients_data
 
 
-class ItemServices(){}
+class ItemServices():
+    """Handles ingredient's component item services"""
+    @staticmethod
+    def process_item(item, book_id):
+        """Create and returns new item or returns existing item"""
+        is_stored = item.get("id")
+        try:
+            if is_stored is None:
+                item = ItemRepo.create_item(name=item["name"])
+                db.session.flush()
+                ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
+            return item
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            db.session.rollback()
+            raise Exception(f"ItemServices -process_item error: {e}")
