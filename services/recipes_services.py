@@ -1,7 +1,8 @@
 from repository import *
+from services.ingredients_services import IngredientService
 
 
-class RecipeService():
+class RecipeServices():
     """Handles recipe view business logic"""
     @staticmethod
     def process_recipe_data(request, book_id):
@@ -16,21 +17,23 @@ class RecipeService():
                 f"Failed to extract recipe data for book {book_id}: {e}")
 
         try:
-            recipe_data = RecipeService.process_recipe(
+            recipe_data = RecipeServices.process_recipe(
                 book_id=book_id, recipe_name=recipe["name"], notes=notes)
 
             if ingredients:
-                recipe_data["ingredients"] = RecipeService.process_ingredients(
+                recipe_data["ingredients"] = RecipeServices.process_ingredients(
                     ingredients=ingredients, recipe_id=recipe_data["id"], book_id=book_id)
             # #######################
             else:
                 recipe_data["ingredients"] = []
 
             if instructions:
-                recipe_data["instructions"] = RecipeService.process_instructions(
+                recipe_data["instructions"] = RecipeServices.process_instructions(
                     recipe_id=recipe_data["id"], instructions=instructions, book_id=book_id)
             else:
                 recipe_data["instructions"] = []
+
+            db.session.commit()
 
             return recipe_data
         except Exception as e:
@@ -61,7 +64,7 @@ class RecipeService():
     def process_ingredients(ingredients, recipe_id, book_id):
         """Adds ingredients and associates each ingredient to recipe"""
         try:
-            ingredients_data = IngredientsRepo.process_ingredients(
+            ingredients_data = IngredientService.process_ingredient_components(
                 book_id=book_id, ingredients=ingredients)
             
             if not ingredients_data:
@@ -140,15 +143,15 @@ class RecipeService():
 
         try:
             if name or notes:
-                RecipeService.process_edit_recipe_info(
+                RecipeServices.process_edit_recipe_info(
                     name=name, notes=notes, recipe_id=recipe_id)
 
             if ingredients:
-                RecipeService.process_edit_ingredients(
+                RecipeServices.process_edit_ingredients(
                     ingredients=ingredients, recipe_id=recipe_id)
 
             if instructions:
-                RecipeService.process_edit_instructions(
+                RecipeServices.process_edit_instructions(
                     instructions=instructions, recipe_id=recipe_id)
 
             db.session.commit()

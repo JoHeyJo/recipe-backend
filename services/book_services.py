@@ -1,7 +1,7 @@
 from repository import BookRepo, UserBookRepo, highlight
 from models import db, User
 
-class BookService():
+class BookServices():
     """Handles book view business logic"""
     @staticmethod
     def process_new_book(book_data, user_id):

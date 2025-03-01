@@ -10,10 +10,10 @@ from dotenv import load_dotenv
 from flask_cors import CORS
 from exceptions import *
 from services.user_services import UserServices
-from services.recipes_services import RecipeService
-from services.ingredients_services import IngredientService
-from services.book_services import BookService
-from services.instructions_services import InstructionService
+from services.recipes_services import RecipeServices
+from services.ingredients_services import IngredientServices
+from services.book_services import BookServices
+from services.instructions_services import InstructionServices
 from utils.error_handler import handle_error
 from datetime import timedelta
 from utils.verify_user import check_user_identity
@@ -92,7 +92,7 @@ def get_user(user_id):
 def add_recipe(user_id, book_id):
     """Consolidate recipe data. If successful recipes_ingredients record created"""
     try:
-        recipe_data = RecipeService.process_recipe_data(
+        recipe_data = RecipeServices.process_recipe_data(
             request={"recipe": request}, book_id=book_id, user_id=user_id)
         return jsonify(recipe_data), 200
     except Exception as e:
@@ -103,7 +103,7 @@ def add_recipe(user_id, book_id):
 def get_book_recipes(user_id, book_id):
     """Return recipes associated to user's book"""
     try:
-        recipes = RecipeService.build_recipes(book_id=book_id)
+        recipes = RecipeServices.build_recipes(book_id=book_id)
         return jsonify(recipes)
     except Exception as e:
         return handle_error(e)
@@ -113,7 +113,7 @@ def get_book_recipes(user_id, book_id):
 def update_user_recipe(user_id, book_id, recipe_id):
     """Facilitate editing of recipe and records associated to book"""
     try:
-        recipe = RecipeService.process_edit(
+        recipe = RecipeServices.process_edit(
             data=request.json, recipe_id=recipe_id)
         return jsonify(recipe)
     except Exception as e:
@@ -140,7 +140,7 @@ def add_book(user_id):
     description = request.json["description"]
     book_data = {"title": title, "description": description}
     try:
-        book_data = BookService.process_new_book(
+        book_data = BookServices.process_new_book(
             book_data=book_data, user_id=user_id)
         return jsonify(book_data), 200
     except IntegrityError as e:
@@ -162,7 +162,7 @@ def get_user_books(user_id):
 def add_book_ingredient(user_id, book_id, component):
     """Facilitates creation of book's component option"""
     try:
-        return IngredientService.post_component_option(
+        return IngredientServices.post_component_option(
             component=component, option=request.json, book_id=book_id)
     except IntegrityError as e:
         return jsonify({"error": f"add_book_ingredient error{e}"}), 400
@@ -173,7 +173,7 @@ def add_book_ingredient(user_id, book_id, component):
 def add_option_association(user_id, book_id, component, option_id):
     """Facilitates association of user option to book"""
     try:
-        IngredientService.create_option_association(
+        IngredientServices.create_option_association(
             component=component, book_id=book_id, option_id=option_id)
         return jsonify({"message":
                         f"Successful association of option {option_id} to book {book_id}!"})
@@ -186,7 +186,7 @@ def add_option_association(user_id, book_id, component, option_id):
 def get_ingredients(ingredient):
     """Facilitates retrieval of ALL options of ingredient components"""
     try:
-        ingredients = IngredientService.fetch_components_options(ingredient)
+        ingredients = IngredientServices.fetch_components_options(ingredient)
         return jsonify(ingredients)
     except IntegrityError as e:
         return jsonify({"error": f"get_ingredients error{e}"}), 400
@@ -197,7 +197,7 @@ def get_ingredients(ingredient):
 def get_user_ingredients(user_id):
     """Facilitates retrieval of components options associated to User"""
     try:
-        return IngredientService.fetch_user_components_options(user_id=user_id)
+        return IngredientServices.fetch_user_components_options(user_id=user_id)
     except IntegrityError as e:
         return jsonify({"error": f"get_user_ingredients error{e}"}), 400
 
@@ -207,7 +207,7 @@ def get_user_ingredients(user_id):
 def get_book_ingredient_components(user_id, book_id):
     """Facilitates retrieval of components options associated to Book"""
     try:
-        return IngredientService.fetch_book_components_options(book_id=book_id)
+        return IngredientServices.fetch_book_components_options(book_id=book_id)
     except IntegrityError as e:
         return jsonify({"error": f"get_book_ingredients error{e}"}), 400
 
@@ -218,7 +218,7 @@ def get_book_ingredient_components(user_id, book_id):
 #     """Facilitates creation of ingredient"""
 #     value = request.json
 #     try:
-#         ingredient = IngredientService.add_ingredient(
+#         ingredient = IngredientServices.add_ingredient(
 #             option=ingredient, value=value)
 #         return jsonify(ingredient)
 #     except IntegrityError as e:
@@ -242,7 +242,7 @@ def add_instruction(user_id, book_id):
 def add_instruction_association(user_id, book_id, instruction_id):
     """Facilitates association of user instruction to book"""
     try:
-        InstructionService.create_instruction_association(
+        InstructionServices.create_instruction_association(
             book_id=book_id, instruction_id=instruction_id)
         return jsonify({"message":
                         f"Successful association of instruction {instruction_id} to book {book_id}!"})
@@ -266,7 +266,7 @@ def get_instructions():
 def get_user_instructions(user_id):
     """Facilitates retrieval of user instructions"""
     try:
-        instructions = InstructionService.fetch_user_instructions(
+        instructions = InstructionServices.fetch_user_instructions(
             user_id=user_id)
         return jsonify(instructions)
     except IntegrityError as e:
@@ -278,10 +278,10 @@ def get_user_instructions(user_id):
 def get_book_instructions(user_id, book_id):
     """Facilitates retrieval of book instructions"""
     try:
-        has_access = InstructionService.check_book_access(
+        has_access = InstructionServices.check_book_access(
             user_id=user_id, book_id=book_id)
         if has_access:
-            instructions = InstructionService.fetch_book_instructions(
+            instructions = InstructionServices.fetch_book_instructions(
                 book_id=book_id)
             return jsonify(instructions)
         else:
