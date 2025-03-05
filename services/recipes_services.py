@@ -30,7 +30,6 @@ class RecipeServices():
             if instructions:
                 recipe_data["instructions"] = RecipeServices.process_consolidated_instructions(
                     recipe_id=recipe_data["id"], instructions=instructions, book_id=book_id)
-                # #######################
             else:
                 recipe_data["instructions"] = []
 
@@ -40,7 +39,7 @@ class RecipeServices():
         except Exception as e:
             db.session.rollback()
             highlight(e, "!")
-            raise ValueError(f"Failed to process_recipe: {e}")
+            raise ValueError(f"Failed to process_recipe_data: {e}")
 
     @staticmethod
     def process_recipe(book_id, recipe_name, notes):
