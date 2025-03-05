@@ -108,26 +108,15 @@ class RecipeRepo():
 class QuantityAmountRepo():
     """Process amounts & facilitates quantity_amounts table interactions"""
     @staticmethod
-    def process_amount(amount, book_id):
-        """Creates and returns new amount or return existing amount. Associates amount to book """
-        is_stored = amount.get("id")
-        if is_stored is None:
-            amount = QuantityAmountRepo.create_amount(value=amount["value"])
-        AmountBookRepo.create_entry(amount_id=amount["id"], book_id=book_id)
-        return amount
-
-    @staticmethod
     def create_amount(value):
         """Create quantity amount and add to database."""
         try:
-
             quantity_amount = insert_first(
                 Model=QuantityAmount, data=value, column_name="value", db=db)
             return QuantityAmount.serialize(quantity_amount)
         except SQLAlchemyError as e:
             highlight(e, "!")
-            db.session.rollback()
-            raise Exception(f"create_amount:{e}")
+            raise Exception(f"QuantityAmountRepo - create_amount error:{e}")
 
     @staticmethod
     def get_all_amounts():
@@ -138,7 +127,7 @@ class QuantityAmountRepo():
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"get_all_amounts error: {e}")
+            raise Exception(f"QuantityAmountRepo -  get_all_amounts error: {e}")
 
     @staticmethod
     def get_book_amounts(book_id):
@@ -149,7 +138,7 @@ class QuantityAmountRepo():
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"get_book_amounts error: {e}")
+            raise Exception(f"QuantityAmountRepo -  get_book_amounts error: {e}")
 
     @staticmethod
     def query_user_amounts(user_id):
@@ -164,7 +153,7 @@ class QuantityAmountRepo():
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"get_user_amounts error: {e}")
+            raise Exception(f"QuantityAmountRepo - get_user_amounts error: {e}")
 
 
 class QuantityUnitRepo():
@@ -481,10 +470,10 @@ class AmountBookRepo():
         try:
             entry = AmountBook(amount_id=amount_id, book_id=book_id)
             db.session.add(entry)
+            db.session.flush()
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
-            db.session.rollback()
             raise Exception(f"AmountBookRepo-create_entry:{e}")
 
 

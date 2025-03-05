@@ -84,7 +84,7 @@ class IngredientServices():
             try:
                 item = ItemServices.process_item(item=item, book_id=book_id)
                 if amount:
-                    amount = QuantityAmountRepo.process_amount(
+                    amount = AmountServices.process_amount(
                         amount=amount, book_id=book_id)
                 if unit:
                     unit = QuantityUnitRepo.process_unit(
@@ -105,7 +105,7 @@ class IngredientServices():
 
 
 class ItemServices():
-    """Handles ingredient's component item services"""
+    """Handles ingredient's component ITEM services"""
     @staticmethod
     def process_item(item, book_id):
         """Create and returns new item or return existing item"""
@@ -118,3 +118,19 @@ class ItemServices():
         except SQLAlchemyError as e:
             highlight(e, "!")
             raise Exception(f"ItemServices - process_item error: {e}")
+
+class AmountServices():
+    """Handles ingredient's component AMOUNT services"""
+    @staticmethod
+    def process_amount(amount, book_id):
+        """Creates and returns new amount or return existing amount. Associates amount to book """
+        is_stored = amount.get("id")
+        try:
+            if is_stored is None:
+                amount = QuantityAmountRepo.create_amount(
+                    value=amount["value"])
+            AmountBookRepo.create_entry(
+                amount_id=amount["id"], book_id=book_id)
+            return amount
+        except SQLAlchemyError as e:
+            raise Exception(f"QuantityAmountRepo - process_amount error, {e}")
