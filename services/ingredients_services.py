@@ -67,8 +67,7 @@ class IngredientServices():
             if component == "item":
                 ItemBookRepo.create_entry(item_id=option_id, book_id=book_id)
         except IntegrityError as e:
-            raise {
-                "error": f"Error in IngredientServices -> create_option_association: {e}"}
+            raise Exception(f"IngredientServices -> create_option_association error: {e}")
     
     @staticmethod
     def process_ingredient_components(book_id, ingredients):

@@ -63,7 +63,7 @@ class RecipeServices():
 
     @staticmethod
     def process_ingredients(ingredients, recipe_id, book_id):
-        """Adds ingredients and associates each ingredient to recipe"""
+        """Processes ingredient components effectively creating an ingredient and associates each ingredient to recipe"""
         try:
             ingredients_data = IngredientServices.process_ingredient_components(
                 book_id=book_id, ingredients=ingredients)
@@ -84,7 +84,7 @@ class RecipeServices():
         except Exception as e:
             highlight(e, "!")
             raise ValueError(
-                f"Failed to process ingredients for recipe {recipe_id}: {e}")
+                f"Failed to process_ingredients for recipe {recipe_id}: {e}")
 
     @staticmethod
     def process_instructions(recipe_id, instructions, book_id):

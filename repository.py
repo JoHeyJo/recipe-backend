@@ -382,15 +382,15 @@ class RecipeIngredientRepo():
     """Facilitates association of recipes & ingredients"""
     @staticmethod
     def create_ingredient(recipe_id, item_id, quantity_unit_id, quantity_amount_id):
-        """Create recipe and ingredient association -> add to database"""
+        """Create recipe and ingredient(amount, unit, item) association -> add to database"""
         entry = Ingredient(
             recipe_id=recipe_id, item_id=item_id, quantity_unit_id=quantity_unit_id, quantity_amount_id=quantity_amount_id)
         try:
             db.session.add(entry)
+            db.session.flush()
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
-            db.session.rollback()
             raise Exception(
                 f"RecipeIngredientRepo - create_ingredient error:{e}")
 
