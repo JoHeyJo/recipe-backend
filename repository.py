@@ -159,15 +159,6 @@ class QuantityAmountRepo():
 class QuantityUnitRepo():
     """Facilitates quantity_units table interactions"""
     @staticmethod
-    def process_unit(unit, book_id):
-        """Creates and returns new unit or returns existing unit. Associates unit to book"""
-        is_stored = unit.get("id")
-        if is_stored is None:
-            unit = QuantityUnitRepo.create_unit(type=unit["type"])
-        UnitBookRepo.create_entry(unit_id=unit["id"], book_id=book_id)
-        return unit
-
-    @staticmethod
     def create_unit(type):
         """Create quantity unit and add to database"""
         try:
@@ -176,8 +167,7 @@ class QuantityUnitRepo():
             return QuantityUnit.serialize(quantity_unit)
         except SQLAlchemyError as e:
             highlight(e, "!")
-            db.session.rollback()
-            raise Exception(f"create_unit:{e}")
+            raise Exception(f"QuantityUnitRepo - create_unit:{e}")
 
     @staticmethod
     def query_user_units(user_id):
@@ -192,7 +182,7 @@ class QuantityUnitRepo():
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"get_all_units error: {e}")
+            raise Exception(f"QuantityUnitRepo - get_all_units error: {e}")
 
     @staticmethod
     def get_book_units(book_id):
@@ -203,7 +193,7 @@ class QuantityUnitRepo():
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"get_book_units error: {e}")
+            raise Exception(f"QuantityUnitRepo - get_book_units error: {e}")
 
 
 class ItemRepo():
@@ -402,7 +392,7 @@ class RecipeIngredientRepo():
             highlight(e, "!")
             db.session.rollback()
             raise Exception(
-                f"RecipeIngredientRepo-create_ingredient error:{e}")
+                f"RecipeIngredientRepo - create_ingredient error:{e}")
 
 
 class RecipeBookRepo():
@@ -414,7 +404,7 @@ class RecipeBookRepo():
             entry = RecipeBook(book_id=book_id, recipe_id=recipe_id)
             db.session.add(entry)
         except SQLAlchemyError as e:
-            raise Exception(f"RecipeBookRep-create_entry error:{e}")
+            raise Exception(f"RecipeBookRep - create_entry error:{e}")
 
 
 class UserBookRepo():
@@ -428,7 +418,7 @@ class UserBookRepo():
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"UserBookRepo-create_entry:{e}")
+            raise Exception(f"UserBookRepo - create_entry error:{e}")
 
 
 class BookInstructionRepo():
@@ -443,7 +433,7 @@ class BookInstructionRepo():
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"BookInstructionRepo-create_entry:{e}")
+            raise Exception(f"BookInstructionRepo - create_entry error :{e}")
 
 
 class RecipeInstructionRepo():
@@ -459,7 +449,7 @@ class RecipeInstructionRepo():
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"RecipeInstructionRepo-create_entry:{e}")
+            raise Exception(f"RecipeInstructionRepo - create_entry error :{e}")
 
 
 class AmountBookRepo():
@@ -474,7 +464,7 @@ class AmountBookRepo():
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
-            raise Exception(f"AmountBookRepo-create_entry:{e}")
+            raise Exception(f"AmountBookRepo - create_entry error :{e}")
 
 
 class UnitBookRepo():
@@ -485,11 +475,11 @@ class UnitBookRepo():
         try:
             entry = UnitBook(unit_id=unit_id, book_id=book_id)
             db.session.add(entry)
+            db.session.flush()
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
-            db.session.rollback()
-            raise Exception(f"UnitBookRepo-create_entry:{e}")
+            raise Exception(f"UnitBookRepo - create_entry error:{e}")
 
 
 class ItemBookRepo():
@@ -504,4 +494,4 @@ class ItemBookRepo():
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
-            raise Exception(f"ItemBookRepo-create_entry error:{e}")
+            raise Exception(f"ItemBookRepo - create_entry error:{e}")

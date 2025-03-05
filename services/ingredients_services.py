@@ -87,7 +87,7 @@ class IngredientServices():
                     amount = AmountServices.process_amount(
                         amount=amount, book_id=book_id)
                 if unit:
-                    unit = QuantityUnitRepo.process_unit(
+                    unit = UnitServices.process_unit(
                         unit=unit, book_id=book_id)
 
                 ingredients_data.append(
@@ -108,12 +108,12 @@ class ItemServices():
     """Handles ingredient's component ITEM services"""
     @staticmethod
     def process_item(item, book_id):
-        """Create and returns new item or return existing item"""
+        """Create and returns new item or return existing item - Associates item to book"""
         is_stored = item.get("id")
         try:
             if is_stored is None:
                 item = ItemRepo.create_item(name=item["name"])
-                ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
+            ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
             return item
         except SQLAlchemyError as e:
             highlight(e, "!")
@@ -123,7 +123,7 @@ class AmountServices():
     """Handles ingredient's component AMOUNT services"""
     @staticmethod
     def process_amount(amount, book_id):
-        """Creates and returns new amount or return existing amount. Associates amount to book """
+        """Creates and returns new amount or return existing amount - Associates amount to book """
         is_stored = amount.get("id")
         try:
             if is_stored is None:
@@ -133,4 +133,20 @@ class AmountServices():
                 amount_id=amount["id"], book_id=book_id)
             return amount
         except SQLAlchemyError as e:
-            raise Exception(f"QuantityAmountRepo - process_amount error, {e}")
+            highlight(e, "!")
+            raise Exception(f"AmountServices - process_amount error, {e}")
+
+class UnitServices():
+    """Handles ingredient's component UNIT services"""
+    @staticmethod
+    def process_unit(unit, book_id):
+        """Creates and returns new unit or returns existing unit - Associates unit to book"""
+        is_stored = unit.get("id")
+        try:
+            if is_stored is None:
+                unit = QuantityUnitRepo.create_unit(type=unit["type"])
+            UnitBookRepo.create_entry(unit_id=unit["id"], book_id=book_id)
+            return unit
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            raise Exception(f"UnitServices - process_unit error, {e}")
