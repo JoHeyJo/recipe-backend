@@ -57,7 +57,6 @@ class RecipeServices():
             return recipe_data
         except Exception as e:
             highlight(e, "!")
-            db.session.rollback()
             raise ValueError(
                 f"Failed to process recipe '{recipe_name}' for book {book_id}: {e}")
 
