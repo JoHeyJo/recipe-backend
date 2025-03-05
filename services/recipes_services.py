@@ -119,7 +119,7 @@ class RecipeServices():
             recipe = Recipe.serialize(recipe_instance)
             recipe_build.update(recipe)
 
-            instructions = InstructionRepo.build_instructions(
+            instructions = InstructionServices.build_instructions(
                 instances=recipe_instance.instructions, recipe_id=recipe["id"])
             recipe_build["instructions"] = instructions
 
