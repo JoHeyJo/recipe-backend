@@ -222,9 +222,12 @@ class ItemRepo():
     @staticmethod
     def create_item(name):
         """Create item and add to database"""
-        item = insert_first(
-            Model=Item, data=name, column_name="name", db=db)
-        return Item.serialize(item)
+        try:
+            item = insert_first(
+                Model=Item, data=name, column_name="name", db=db)
+            return Item.serialize(item)
+        except SQLAlchemyError as e:
+            raise Exception(f"ItemRepo - create_item error: {e}")
 
     @staticmethod
     def query_all_items():
@@ -505,7 +508,11 @@ class ItemBookRepo():
     @staticmethod
     def create_entry(item_id, book_id):
         """Create item and book association -> add to database"""
-        entry = ItemBook(item_id=item_id, book_id=book_id)
-        db.session.add(entry)
-        return entry.id
- 
+        try:
+            entry = ItemBook(item_id=item_id, book_id=book_id)
+            db.session.add(entry)
+            db.session.flush()
+            return entry.id
+        except SQLAlchemyError as e:
+            highlight(e, "!")
+            raise Exception(f"ItemBookRepo-create_entry error:{e}")

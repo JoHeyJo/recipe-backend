@@ -1,5 +1,6 @@
 from repository import *
 from sqlalchemy.exc import IntegrityError
+from utils.error_handler import handle_exception
 
 
 class IngredientServices():
@@ -77,6 +78,9 @@ class IngredientServices():
             item = ingredient["item"]
             amount = ingredient["amount"]
             unit = ingredient["unit"]
+
+            if not item and not amount and not unit:
+                return {"message":"Nothing to process"}
             try:
                 item = ItemServices.process_item(item=item, book_id=book_id)
                 if amount:
@@ -95,7 +99,6 @@ class IngredientServices():
 
             except SQLAlchemyError as e:
                 highlight(e, "!")
-                db.session.rollback()
                 raise Exception(
                     f"IngredientsRepo -> process_ingredients error: {e}")
         return ingredients_data
@@ -105,15 +108,13 @@ class ItemServices():
     """Handles ingredient's component item services"""
     @staticmethod
     def process_item(item, book_id):
-        """Create and returns new item or returns existing item"""
+        """Create and returns new item or return existing item"""
         is_stored = item.get("id")
         try:
             if is_stored is None:
                 item = ItemRepo.create_item(name=item["name"])
-                db.session.flush()
                 ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
             return item
         except SQLAlchemyError as e:
             highlight(e, "!")
-            db.session.rollback()
-            raise Exception(f"ItemServices -process_item error: {e}")
+            raise Exception(f"ItemServices - process_item error: {e}")

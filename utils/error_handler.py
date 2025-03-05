@@ -8,3 +8,7 @@ def handle_error(error):
         response = jsonify({"error": "An unexpected error occurred."})
         response.status_code = 500
     return response
+
+def handle_exception(location, error):
+    print("!!!!!!!!!!!!!!!!!!")
+    raise Exception(f"{location} error: {error}")
