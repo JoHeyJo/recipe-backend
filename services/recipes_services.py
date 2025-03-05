@@ -23,13 +23,13 @@ class RecipeServices():
             if ingredients:
                 recipe_data["ingredients"] = RecipeServices.process_ingredients(
                     ingredients=ingredients, recipe_id=recipe_data["id"], book_id=book_id)
-            # #######################
             else:
                 recipe_data["ingredients"] = []
 
             if instructions:
                 recipe_data["instructions"] = RecipeServices.process_instructions(
                     recipe_id=recipe_data["id"], instructions=instructions, book_id=book_id)
+                # #######################
             else:
                 recipe_data["instructions"] = []
 
@@ -88,9 +88,9 @@ class RecipeServices():
 
     @staticmethod
     def process_instructions(recipe_id, instructions, book_id):
-        """Adds instructions and associates each instruction to Recipe"""
+        """Processes instructions and associates each instruction to Recipe"""
         try:
-            instructions_data = InstructionRepo.process_instructions(
+            instructions_data = InstructionRepo.consolidate_instructions(
                 instructions=instructions)
 
             if not instructions_data:

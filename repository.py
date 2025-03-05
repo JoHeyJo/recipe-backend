@@ -290,19 +290,6 @@ class BookRepo():
 class InstructionRepo():
     """Facilitates instructions table interactions"""
     @staticmethod
-    def process_instructions(instructions):
-        """Consolidates existing instruction object with newly created instruction"""
-        processed_instructions = []
-        for instruction in instructions:
-            is_stored = instruction.get("id")
-            if is_stored is not None:
-                processed_instructions.append(instruction)
-            else:
-                processed_instructions.append(
-                    InstructionRepo.create_instruction(instruction=instruction["instruction"]))
-        return processed_instructions
-
-    @staticmethod
     def create_instruction(instruction, book_id):
         """Create instruction, add to database and associate to book"""
         """this needs to be broken up, association needs to be moved to its service function"""
