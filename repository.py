@@ -291,17 +291,14 @@ class InstructionRepo():
     """Facilitates instructions table interactions"""
     @staticmethod
     def create_instruction(instruction, book_id):
-        """Create instruction, add to database and associate to book"""
-        """this needs to be broken up, association needs to be moved to its service function"""
+        """Create and add instruction to database"""
         try:
             instruction = Instruction(instruction=instruction)
             db.session.add(instruction)
-            BookInstructionRepo.create_entry(
-                book_id=book_id, instruction_id=instruction.id)
+            db.session.flush()
             return Instruction.serialize(instruction)
         except SQLAlchemyError as e:
             highlight(e, "!")
-            db.session.rollback()
             raise Exception(f"InstructionRepo - create_instruction error: {e}")
 
     @staticmethod
@@ -432,10 +429,10 @@ class RecipeInstructionRepo():
             entry = RecipeInstruction(
                 recipe_id=recipe_id, instruction_id=instruction_id)
             db.session.add(entry)
+            db.session.flush()
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
-            db.session.rollback()
             raise Exception(f"RecipeInstructionRepo - create_entry error :{e}")
 
 

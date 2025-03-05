@@ -49,17 +49,20 @@ class InstructionServices():
                f"Error in InstructionServices -> create_instruction_association: {e}")
     
     @staticmethod
-    def consolidate_instructions(instructions):
-          """Adds new instructions - Consolidates existing and new instruction objects """
+    def process_instructions(instructions, book_id):
+          """Adds new instructions - Consolidates existing and new instruction objects - associates instruction to book """
           processed_instructions = []
           for instruction in instructions:
               is_stored = instruction.get("id")
               if is_stored is None:
                   try:
-                      processed_instructions.append(
-                          InstructionRepo.create_instruction(instruction=instruction["instruction"]))
+                      instruction = InstructionRepo.create_instruction(
+                          instruction=instruction["instruction"])
+                      processed_instructions.append(instruction)
+                      BookInstructionRepo.create_entry(
+                          book_id=book_id, instruction_id=instruction.id)
                   except SQLAlchemyError as e:
-                      raise Exception(f"InstructionRepo - consolidate_instructions error: {e}")
+                      raise Exception(f"InstructionRepo - process_instructions error: {e}")
               else:
                   processed_instructions.append(instruction)
           return processed_instructions

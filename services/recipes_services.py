@@ -1,5 +1,6 @@
 from repository import *
 from services.ingredients_services import IngredientServices
+from services.instructions_services import InstructionServices
 
 
 class RecipeServices():
@@ -27,7 +28,7 @@ class RecipeServices():
                 recipe_data["ingredients"] = []
 
             if instructions:
-                recipe_data["instructions"] = RecipeServices.process_instructions(
+                recipe_data["instructions"] = RecipeServices.process_consolidated_instructions(
                     recipe_id=recipe_data["id"], instructions=instructions, book_id=book_id)
                 # #######################
             else:
@@ -87,11 +88,11 @@ class RecipeServices():
                 f"Failed to process_ingredients for recipe {recipe_id}: {e}")
 
     @staticmethod
-    def process_instructions(recipe_id, instructions, book_id):
-        """Processes instructions and associates each instruction to Recipe"""
+    def process_consolidated_instructions(recipe_id, instructions, book_id):
+        """Processes consolidated instructions and associates each instruction to Recipe"""
         try:
-            instructions_data = InstructionRepo.consolidate_instructions(
-                instructions=instructions)
+            instructions_data = InstructionServices.process_instructions(
+                instructions=instructions,book_id=book_id)
 
             if not instructions_data:
                 raise ValueError(
@@ -106,7 +107,7 @@ class RecipeServices():
         except Exception as e:
             highlight(e, "!")
             raise ValueError(
-                f"Failed to process_instructions for book {book_id}: {e}")
+                f"Failed to process_consolidated_instructions for book {book_id}: {e}")
 
     @staticmethod
     def build_recipes(book_id):
