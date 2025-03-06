@@ -111,23 +111,33 @@ class RecipeServices():
     def build_recipes(book_id):
         """Consolidate recipe parts: recipe info, instructions, ingredients"""
         complete_recipes = []
-        book = Book.query.get(book_id)
-        recipes_instances = book.recipes
-        for recipe_instance in recipes_instances:
-            recipe_build = {}
+        try:
+            book = Book.query.get(book_id)
+            if not book:
+                raise ValueError(f"No book found with ID {book_id}")
 
-            recipe = Recipe.serialize(recipe_instance)
-            recipe_build.update(recipe)
+            recipes_instances = book.recipes
+            for recipe_instance in recipes_instances:
+                recipe_build = {}
 
-            instructions = InstructionServices.build_instructions(
-                instances=recipe_instance.instructions, recipe_id=recipe["id"])
-            recipe_build["instructions"] = instructions
+                recipe = Recipe.serialize(recipe_instance)
+                if "id" not in recipe:
+                    raise KeyError(
+                        "build_recipes - Serialized recipe data missing 'id' key")
+                
+                recipe_build.update(recipe)
 
-            ingredients = IngredientsRepo.build_ingredients(instance=recipe_instance)
-            recipe_build["ingredients"] = ingredients
+                instructions = InstructionServices.build_instructions(
+                    instances=recipe_instance.instructions, recipe_id=recipe["id"])
+                recipe_build["instructions"] = instructions
 
-            complete_recipes.append(recipe_build)
-        return complete_recipes
+                ingredients = IngredientServices.build_ingredients(instance=recipe_instance)
+                recipe_build["ingredients"] = ingredients
+
+                complete_recipes.append(recipe_build)
+            return complete_recipes
+        except (AttributeError, KeyError, TypeError, ValueError) as e:
+            raise RuntimeError(f"RecipeServices - build_recipes error: {e}")
 
     @staticmethod
     def process_edit(data, recipe_id):

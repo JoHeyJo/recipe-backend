@@ -248,18 +248,6 @@ class ItemRepo():
 
 class IngredientsRepo():
     """Directs incoming data to corresponding repo methods"""
-    @staticmethod
-    def build_ingredients(instance):
-        """Build ingredient from corresponding instances(Recipe)"""
-        ingredients = []
-        for ingredient in instance.ingredients:
-            amount = QuantityAmount.serialize(ingredient.amount)
-            unit = QuantityUnit.serialize(ingredient.unit)
-            item = Item.serialize(ingredient.item)
-            ingredients.append(
-                {"ingredient_id": ingredient.id, "amount": amount, "unit": unit, "item": item})
-        return ingredients
-
 
 class BookRepo():
     """Facilitates books table interactions"""

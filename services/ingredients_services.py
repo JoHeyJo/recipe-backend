@@ -26,7 +26,7 @@ class IngredientServices():
             amounts = QuantityAmountRepo.get_book_amounts(book_id=book_id)
             units = QuantityUnitRepo.get_book_units(book_id=book_id)
             items = ItemRepo.get_book_items(book_id=book_id)
-            return {"amounts": amounts, "units":units, "items":items}
+            return {"amounts": amounts, "units": units, "items": items}
         except IntegrityError as e:
             raise {
                 "error": f"Error in IngredientServices -> fetch_book_components_options: {e}"}
@@ -54,21 +54,24 @@ class IngredientServices():
             if component == "item":
                 return ItemServices.process_item(item=option, book_id=book_id)
         except IntegrityError as e:
-            raise {"error": f"Error in IngredientServices -> post_component_option: {e}"}
+            raise {
+                "error": f"Error in IngredientServices -> post_component_option: {e}"}
 
     @staticmethod
     def create_option_association(component, book_id, option_id):
         """Associate user option to book"""
         try:
             if component == "amount":
-                AmountBookRepo.create_entry(amount_id=option_id, book_id=book_id)
+                AmountBookRepo.create_entry(
+                    amount_id=option_id, book_id=book_id)
             if component == "unit":
                 UnitBookRepo.create_entry(unit_id=option_id, book_id=book_id)
             if component == "item":
                 ItemBookRepo.create_entry(item_id=option_id, book_id=book_id)
         except IntegrityError as e:
-            raise Exception(f"IngredientServices -> create_option_association error: {e}")
-    
+            raise Exception(
+                f"IngredientServices -> create_option_association error: {e}")
+
     @staticmethod
     def process_ingredient_components(book_id, ingredients):
         """Separates & processes ingredient components - creates ingredient return object"""
@@ -79,7 +82,7 @@ class IngredientServices():
             unit = ingredient["unit"]
 
             if not item and not amount and not unit:
-                return {"message":"Nothing to process"}
+                return {"message": "Nothing to process"}
             try:
                 item = ItemServices.process_item(item=item, book_id=book_id)
                 if amount:
@@ -102,6 +105,18 @@ class IngredientServices():
                     f"IngredientsRepo -> process_ingredients error: {e}")
         return ingredients_data
 
+    @staticmethod
+    def build_ingredients(instance):
+        """Build ingredient from corresponding instances(Recipe)"""
+        ingredients = []
+        for ingredient in instance.ingredients:
+            amount = QuantityAmount.serialize(ingredient.amount)
+            unit = QuantityUnit.serialize(ingredient.unit)
+            item = Item.serialize(ingredient.item)
+            ingredients.append(
+                {"ingredient_id": ingredient.id, "amount": amount, "unit": unit, "item": item})
+        return ingredients
+
 
 class ItemServices():
     """Handles ingredient's component ITEM services"""
@@ -117,6 +132,7 @@ class ItemServices():
         except SQLAlchemyError as e:
             highlight(e, "!")
             raise Exception(f"ItemServices - process_item error: {e}")
+
 
 class AmountServices():
     """Handles ingredient's component AMOUNT services"""
@@ -134,6 +150,7 @@ class AmountServices():
         except SQLAlchemyError as e:
             highlight(e, "!")
             raise Exception(f"AmountServices - process_amount error, {e}")
+
 
 class UnitServices():
     """Handles ingredient's component UNIT services"""
