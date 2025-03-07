@@ -36,7 +36,7 @@ class RecipeServices():
             db.session.commit()
 
             return recipe_data
-        except (SQLAlchemyError, ValueError, KeyError) as e:
+        except (ValueError, KeyError) as e:
             db.session.rollback()
             highlight(e, "!")
             raise RuntimeError(f"Failed to process_recipe_data: {e}") from e
@@ -103,7 +103,7 @@ class RecipeServices():
             return instructions_data
         except (RuntimeError, ValueError) as e:
             highlight(e, "!")
-            raise ValueError(
+            raise RuntimeError(
                 f"Failed to process_consolidated_instructions for book {book_id}: {e}") from e
 
     @staticmethod

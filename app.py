@@ -16,7 +16,8 @@ from services.book_services import BookServices
 from services.instructions_services import InstructionServices
 from utils.error_handler import handle_error
 from datetime import timedelta
-from utils.verify_user import check_user_identity
+from decorators.verify_user import check_user_identity
+from decorators.handle_route_errors import error_handler
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
@@ -89,14 +90,12 @@ def get_user(user_id):
 
 @app.post("/users/<user_id>/books/<book_id>/recipes")
 @check_user_identity
+@error_handler
 def add_recipe(user_id, book_id):
     """Consolidate recipe data. If successful recipes_ingredients record created"""
-    try:
-        recipe_data = RecipeServices.process_recipe_data(
-            request={"recipe": request}, book_id=book_id, user_id=user_id)
-        return jsonify(recipe_data), 200
-    except Exception as e:
-        return handle_error(e)
+    recipe_data = RecipeServices.process_recipe_data(
+        request={"recipe": request}, book_id=book_id, user_id=user_id)
+    return jsonify(recipe_data), 200
 
 
 @app.get("/users/<user_id>/books/<book_id>/recipes")

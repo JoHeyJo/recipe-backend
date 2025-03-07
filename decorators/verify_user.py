@@ -3,6 +3,7 @@ from flask import request, jsonify, make_response
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 def check_user_identity(f):
+    """Decorator to handle user verification in routes."""
     @wraps(f)
     @jwt_required()
     def decorated_function(*args, **kwargs):
