@@ -77,12 +77,12 @@ class IngredientServices():
         """Separates & processes ingredient components - creates ingredient return object"""
         ingredients_data = []
         for ingredient in ingredients:
-            item = ingredient["item"]
-            amount = ingredient["amount"]
-            unit = ingredient["unit"]
+            item = ingredient.get("item") 
+            amount = ingredient.get("amount")
+            unit = ingredient.get("unit")
 
             if not item and not amount and not unit:
-                return {"message": "Nothing to process"}
+                raise ValueError("Nothing to process in ingredients")
             try:
                 item = ItemServices.process_item(item=item, book_id=book_id)
                 if amount:
@@ -99,10 +99,10 @@ class IngredientServices():
                         "unit": unit
                     })
 
-            except SQLAlchemyError as e:
+            except (SQLAlchemyError, ValueError) as e:
                 highlight(e, "!")
-                raise Exception(
-                    f"IngredientsRepo -> process_ingredients error: {e}")
+                raise RuntimeError(
+                    f"IngredientsRepo -> process_ingredients error: {e}") from e
         return ingredients_data
 
     @staticmethod
@@ -130,8 +130,7 @@ class ItemServices():
             ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
             return item
         except SQLAlchemyError as e:
-            highlight(e, "!")
-            raise Exception(f"ItemServices - process_item error: {e}")
+            raise e
 
 
 class AmountServices():

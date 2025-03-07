@@ -36,10 +36,10 @@ class RecipeServices():
             db.session.commit()
 
             return recipe_data
-        except Exception as e:
+        except (SQLAlchemyError, ValueError, KeyError) as e:
             db.session.rollback()
             highlight(e, "!")
-            raise ValueError(f"Failed to process_recipe_data: {e}")
+            raise RuntimeError(f"Failed to process_recipe_data: {e}") from e
 
     @staticmethod
     def process_recipe(book_id, recipe_name, notes):
@@ -55,10 +55,10 @@ class RecipeServices():
                 book_id=book_id, recipe_id=recipe_data["id"])
 
             return recipe_data
-        except Exception as e:
+        except (ValueError, SQLAlchemyError) as e:
             highlight(e, "!")
-            raise ValueError(
-                f"Failed to process recipe '{recipe_name}' for book {book_id}: {e}")
+            raise RuntimeError(
+                f"Failed to process recipe '{recipe_name}' for book {book_id}: {e}") from e
 
     @staticmethod
     def process_ingredients(ingredients, recipe_id, book_id):
@@ -80,10 +80,10 @@ class RecipeServices():
                 ingredient["ingredient_id"] = id
 
             return ingredients_data
-        except Exception as e:
+        except (ValueError, SQLAlchemyError) as e:
             highlight(e, "!")
-            raise ValueError(
-                f"Failed to process_ingredients for recipe {recipe_id}: {e}")
+            raise RuntimeError(
+                f"Failed to process_ingredients for recipe {recipe_id}: {e}") from e
 
     @staticmethod
     def process_consolidated_instructions(recipe_id, instructions, book_id):

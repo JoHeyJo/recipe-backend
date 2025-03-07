@@ -77,7 +77,7 @@ class RecipeRepo():
             db.session.flush()
             return Recipe.serialize(recipe)
         except SQLAlchemyError as e:
-            raise Exception(f"create_recipe error:{e}")
+            raise RuntimeError(f"create_recipe error:{e}") from e
 
     @staticmethod
     def fetch_recipes(user_id, book_id):
@@ -206,7 +206,7 @@ class ItemRepo():
                 Model=Item, data=name, column_name="name", db=db)
             return Item.serialize(item)
         except SQLAlchemyError as e:
-            raise Exception(f"ItemRepo - create_item error: {e}")
+            raise RuntimeError(f"ItemRepo - create_item error: {e}") from e
 
     @staticmethod
     def query_all_items():
@@ -449,4 +449,4 @@ class ItemBookRepo():
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
-            raise Exception(f"ItemBookRepo - create_entry error:{e}")
+            raise RuntimeError(f"ItemBookRepo - create_entry error:{e}")
