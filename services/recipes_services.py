@@ -48,8 +48,7 @@ class RecipeServices():
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, notes=notes)
             if not recipe_data:
-                raise ValueError(
-                    f"No recipe data returned for recipe {recipe_name}")
+                raise e
             
             RecipeBookRepo.create_entry(
                 book_id=book_id, recipe_id=recipe_data["id"])
@@ -80,7 +79,7 @@ class RecipeServices():
                 ingredient["ingredient_id"] = id
 
             return ingredients_data
-        except (ValueError, SQLAlchemyError) as e:
+        except (ValueError, RuntimeError) as e:
             highlight(e, "!")
             raise RuntimeError(
                 f"Failed to process_ingredients for recipe {recipe_id}: {e}") from e

@@ -116,7 +116,7 @@ class QuantityAmountRepo():
             return QuantityAmount.serialize(quantity_amount)
         except SQLAlchemyError as e:
             highlight(e, "!")
-            raise Exception(f"QuantityAmountRepo - create_amount error:{e}")
+            raise RuntimeError(f"QuantityAmountRepo - create_amount error:{e}") from e
 
     @staticmethod
     def get_all_amounts():
@@ -165,9 +165,9 @@ class QuantityUnitRepo():
             quantity_unit = insert_first(
                 Model=QuantityUnit, data=type, column_name="type", db=db)
             return QuantityUnit.serialize(quantity_unit)
-        except SQLAlchemyError as e:
+        except RuntimeError as e:
             highlight(e, "!")
-            raise Exception(f"QuantityUnitRepo - create_unit:{e}")
+            raise RuntimeError(f"QuantityUnitRepo - create_unit:{e}") from e
 
     @staticmethod
     def query_user_units(user_id):
@@ -205,7 +205,7 @@ class ItemRepo():
             item = insert_first(
                 Model=Item, data=name, column_name="name", db=db)
             return Item.serialize(item)
-        except SQLAlchemyError as e:
+        except RuntimeError as e:
             raise RuntimeError(f"ItemRepo - create_item error: {e}") from e
 
     @staticmethod
@@ -419,7 +419,7 @@ class AmountBookRepo():
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
-            raise Exception(f"AmountBookRepo - create_entry error :{e}")
+            raise RuntimeError(f"AmountBookRepo - create_entry error :{e}") from e
 
 
 class UnitBookRepo():
@@ -432,9 +432,9 @@ class UnitBookRepo():
             db.session.add(entry)
             db.session.flush()
             return entry.id
-        except SQLAlchemyError as e:
+        except RuntimeError as e:
             highlight(e, "!")
-            raise Exception(f"UnitBookRepo - create_entry error:{e}")
+            raise RuntimeError(f"UnitBookRepo - create_entry error:{e}") from e
 
 
 class ItemBookRepo():
@@ -449,4 +449,4 @@ class ItemBookRepo():
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
-            raise RuntimeError(f"ItemBookRepo - create_entry error:{e}")
+            raise RuntimeError(f"ItemBookRepo - create_entry error:{e}") from e

@@ -27,5 +27,4 @@ def insert_first(Model, data, column_name, db):
         return quantity_amount
 
     except SQLAlchemyError as e:
-        db.session.rollback()
-        raise Exception(f"insert_first: Database error occurred: {e}")
+        raise RuntimeError(f"insert_first: Database error occurred: {e}") from e

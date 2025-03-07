@@ -77,9 +77,9 @@ class IngredientServices():
         """Separates & processes ingredient components - creates ingredient return object"""
         ingredients_data = []
         for ingredient in ingredients:
-            item = ingredient.get("item") 
-            amount = ingredient.get("amount")
-            unit = ingredient.get("unit")
+            item = ingredient["item"]
+            amount = ingredient["amount"]
+            unit = ingredient["unit"]
 
             if not item and not amount and not unit:
                 raise ValueError("Nothing to process in ingredients")
@@ -99,7 +99,7 @@ class IngredientServices():
                         "unit": unit
                     })
 
-            except (SQLAlchemyError, ValueError) as e:
+            except (RuntimeError, ValueError) as e:
                 highlight(e, "!")
                 raise RuntimeError(
                     f"IngredientsRepo -> process_ingredients error: {e}") from e
@@ -129,8 +129,8 @@ class ItemServices():
                 item = ItemRepo.create_item(name=item["name"])
             ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
             return item
-        except SQLAlchemyError as e:
-            raise e
+        except RuntimeError:
+            raise
 
 
 class AmountServices():
@@ -146,9 +146,8 @@ class AmountServices():
             AmountBookRepo.create_entry(
                 amount_id=amount["id"], book_id=book_id)
             return amount
-        except SQLAlchemyError as e:
-            highlight(e, "!")
-            raise Exception(f"AmountServices - process_amount error, {e}")
+        except RuntimeError:
+            raise 
 
 
 class UnitServices():
@@ -162,6 +161,5 @@ class UnitServices():
                 unit = QuantityUnitRepo.create_unit(type=unit["type"])
             UnitBookRepo.create_entry(unit_id=unit["id"], book_id=book_id)
             return unit
-        except SQLAlchemyError as e:
-            highlight(e, "!")
-            raise Exception(f"UnitServices - process_unit error, {e}")
+        except RuntimeError:
+            raise
