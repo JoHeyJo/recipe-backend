@@ -61,8 +61,8 @@ class InstructionServices():
                       processed_instructions.append(instruction)
                       BookInstructionRepo.create_entry(
                           book_id=book_id, instruction_id=instruction.id)
-                  except SQLAlchemyError as e:
-                      raise Exception(f"InstructionRepo - process_instructions error: {e}")
+                  except RuntimeError:
+                      raise
               else:
                   processed_instructions.append(instruction)
           return processed_instructions

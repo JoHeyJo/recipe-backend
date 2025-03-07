@@ -93,7 +93,7 @@ class RecipeServices():
 
             if not instructions_data:
                 raise ValueError(
-                    f"No instructions data returned for book {book_id}")
+                    f"No instructions data returned for book id: {book_id}")
 
             for instruction in instructions_data:
                 id = RecipeInstructionRepo.create_entry(
@@ -101,10 +101,10 @@ class RecipeServices():
                 instruction["instruction_id"] = id
 
             return instructions_data
-        except Exception as e:
+        except (RuntimeError, ValueError) as e:
             highlight(e, "!")
             raise ValueError(
-                f"Failed to process_consolidated_instructions for book {book_id}: {e}")
+                f"Failed to process_consolidated_instructions for book {book_id}: {e}") from e
 
     @staticmethod
     def build_recipes(book_id):

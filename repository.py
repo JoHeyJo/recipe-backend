@@ -287,7 +287,7 @@ class InstructionRepo():
             return Instruction.serialize(instruction)
         except SQLAlchemyError as e:
             highlight(e, "!")
-            raise Exception(f"InstructionRepo - create_instruction error: {e}")
+            raise RuntimeError(f"InstructionRepo - create_instruction error: {e}") from e
 
     @staticmethod
     def get_instructions():
@@ -346,8 +346,8 @@ class RecipeIngredientRepo():
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
-            raise Exception(
-                f"RecipeIngredientRepo - create_ingredient error:{e}")
+            raise RuntimeError(
+                f"RecipeIngredientRepo - create_ingredient error:{e}") from e
 
 
 class RecipeBookRepo():
@@ -388,7 +388,7 @@ class BookInstructionRepo():
         except SQLAlchemyError as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"BookInstructionRepo - create_entry error :{e}")
+            raise RuntimeError(f"BookInstructionRepo - create_entry error :{e}") from e
 
 
 class RecipeInstructionRepo():
@@ -404,7 +404,7 @@ class RecipeInstructionRepo():
             return entry.id
         except SQLAlchemyError as e:
             highlight(e, "!")
-            raise Exception(f"RecipeInstructionRepo - create_entry error :{e}")
+            raise RuntimeError(f"RecipeInstructionRepo - create_entry error :{e}") from e
 
 
 class AmountBookRepo():
