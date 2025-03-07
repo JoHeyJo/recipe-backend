@@ -99,13 +99,12 @@ def add_recipe(user_id, book_id):
 
 
 @app.get("/users/<user_id>/books/<book_id>/recipes")
+@check_user_identity
+@error_handler
 def get_book_recipes(user_id, book_id):
     """Return recipes associated to user's book"""
-    try:
-        recipes = RecipeServices.build_recipes(book_id=book_id)
-        return jsonify(recipes)
-    except Exception as e:
-        return handle_error(e)
+    recipes = RecipeServices.build_recipes(book_id=book_id)
+    return jsonify(recipes), 200
 
 
 @app.patch("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")

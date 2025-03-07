@@ -93,7 +93,7 @@ class RecipeServices():
 
             if not instructions_data:
                 raise ValueError(
-                    f"No instructions data returned for book id: {book_id}")
+                    f"No instructions data returned for book id: {book_id}") from e
 
             for instruction in instructions_data:
                 id = RecipeInstructionRepo.create_entry(
@@ -120,9 +120,6 @@ class RecipeServices():
                 recipe_build = {}
 
                 recipe = Recipe.serialize(recipe_instance)
-                if "id" not in recipe:
-                    raise KeyError(
-                        "build_recipes - Serialized recipe data missing 'id' key")
                 
                 recipe_build.update(recipe)
 
@@ -135,7 +132,7 @@ class RecipeServices():
 
                 complete_recipes.append(recipe_build)
             return complete_recipes
-        except (AttributeError, KeyError, TypeError, ValueError) as e:
+        except (RuntimeError, ValueError) as e:
             raise RuntimeError(f"RecipeServices - build_recipes error: {e}")
 
     @staticmethod

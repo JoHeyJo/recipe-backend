@@ -109,13 +109,16 @@ class IngredientServices():
     def build_ingredients(instance):
         """Build ingredient from corresponding instances(Recipe)"""
         ingredients = []
-        for ingredient in instance.ingredients:
-            amount = QuantityAmount.serialize(ingredient.amount)
-            unit = QuantityUnit.serialize(ingredient.unit)
-            item = Item.serialize(ingredient.item)
-            ingredients.append(
-                {"ingredient_id": ingredient.id, "amount": amount, "unit": unit, "item": item})
-        return ingredients
+        try:
+            for ingredient in instance.ingredients:
+                amount = QuantityAmount.serialize(ingredient.amount)
+                unit = QuantityUnit.serialize(ingredient.unit)
+                item = Item.serialize(ingredient.item)
+                ingredients.append(
+                    {"ingredient_id": ingredient.id, "amount": amount, "unit": unit, "item": item})
+            return ingredients
+        except KeyError as e:
+            raise ValueError(f"Ingredient_services - build_ingredients error, missing value: {e}") from e
 
 
 class ItemServices():

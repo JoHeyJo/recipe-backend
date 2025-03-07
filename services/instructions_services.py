@@ -84,12 +84,12 @@ class InstructionServices():
                 
                 if not association_id:
                     raise ValueError(
-                        f"Association not found for instruction ID {instruction['id']} in recipe {recipe_id}")
+                        f"Association not found for instruction ID {instruction['id']} in recipe {recipe_id}")from e
 
                 instruction["association_id"] = association_id
                 instructions.append(instruction)
 
             return instructions
-        except SQLAlchemyError as e:
-            raise Exception(
-                f"InstructionServices - build_instructions error: {e}")
+        except (SQLAlchemyError, ValueError) as e:
+            raise RuntimeError(
+                f"InstructionServices - build_instructions error: {e}") from e
