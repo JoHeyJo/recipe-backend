@@ -108,6 +108,8 @@ def get_book_recipes(user_id, book_id):
 
 
 @app.patch("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
+@check_user_identity
+@error_handler
 def update_user_recipe(user_id, book_id, recipe_id):
     """Facilitate editing of recipe and records associated to book"""
     try:
