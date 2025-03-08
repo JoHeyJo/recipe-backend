@@ -96,13 +96,12 @@ class RecipeRepo():
         """Deletes recipe and all references in association tables"""
         try:
             db.session.execute(
-                # ✅ Use direct SQLAlchemy delete
+                # Use direct SQLAlchemy delete - errors occur using ORM
                 db.delete(Recipe).where(Recipe.id == int(recipe_id))
             )
         except SQLAlchemyError as e:
             highlight(e, "!")
-            db.session.rollback()
-            raise Exception(f"delete_recipe error:{e}")
+            raise RuntimeError(f"delete_recipe error:{e}") from e
 
 
 class QuantityAmountRepo():

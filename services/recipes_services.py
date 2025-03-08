@@ -239,3 +239,15 @@ class RecipeServices():
         except (SQLAlchemyError, RuntimeError) as e:
             highlight(e, "!")
             raise RuntimeError(f"Failed to process_edit_instructions: {e}") from e
+
+    @staticmethod
+    def remove_recipe(recipe_id):
+        """Deletes book recipe"""
+        try:
+            RecipeRepo.delete_recipe(recipe_id=recipe_id)
+            db.session.commit()
+            return {"message": "deletion successful"}
+        except RuntimeError as e:
+            db.session.rollback()
+            raise RuntimeError(
+                f"DeleteServices - remove_recipe error: {e}") from e

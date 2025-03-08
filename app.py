@@ -118,13 +118,12 @@ def update_user_recipe(user_id, book_id, recipe_id):
 
 
 @app.delete("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
+@check_user_identity
+@error_handler
 def get_delete_recipe(user_id, book_id, recipe_id):
     """Facilitate deletion of recipe record associated to user"""
-    try:
-        RecipeRepo.delete_recipe(recipe_id=recipe_id)
-        return jsonify({"message": "deletion successful"})
-    except Exception as e:
-        return handle_error(e)
+    response = RecipeRepo.delete_recipe(recipe_id=recipe_id)
+    return jsonify(response)
 
 
 ########### BOOKS ###########

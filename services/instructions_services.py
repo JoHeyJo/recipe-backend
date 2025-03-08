@@ -5,7 +5,7 @@ from repository import highlight, UserBook, BookInstructionRepo
 
 
 class InstructionServices():
-    """Handles instructions view business logic """
+    """Handles instructions view business logic"""
     @staticmethod
     def fetch_user_instructions(user_id):
       """Retrieves user instructions"""
