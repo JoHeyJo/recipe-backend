@@ -36,7 +36,7 @@ class RecipeServices():
             db.session.commit()
 
             return recipe_data
-        except (ValueError, KeyError) as e:
+        except (ValueError, RuntimeError) as e:
             db.session.rollback()
             highlight(e, "!")
             raise RuntimeError(f"Failed to process_recipe_data: {e}") from e
@@ -93,7 +93,7 @@ class RecipeServices():
 
             if not instructions_data:
                 raise ValueError(
-                    f"No instructions data returned for book id: {book_id}") from e
+                    f"No instructions data returned for book id: {book_id}") 
 
             for instruction in instructions_data:
                 id = RecipeInstructionRepo.create_entry(
@@ -145,7 +145,7 @@ class RecipeServices():
             notes = data.get("notes")
         except Exception as e:
             raise ValueError(
-                f"Failed to extract recipe edit data for recipe {recipe_id}: {e}")
+                f"Failed to extract recipe edit data for recipe {recipe_id}: {e}") from e
 
         try:
             if name or notes:
@@ -161,24 +161,26 @@ class RecipeServices():
                     instructions=instructions, recipe_id=recipe_id)
 
             db.session.commit()
-            return {"msg": "edit successful"}
-        except Exception as e:
+            return {"message": "edit successful"}
+        except (ValueError, RuntimeError) as e:
+            db.session.rollback()
             highlight(e, "!")
-            raise ValueError(f"Failed to process_edit: {e}")
+            raise RuntimeError(f"Failed to process_edit: {e}") from e
 
     @staticmethod
     def process_edit_recipe_info(name, notes, recipe_id):
         """Edits recipe name and notes"""
         try:
             recipe = Recipe.query.get(recipe_id)
+            if not recipe:
+                raise ValueError(f"No recipe matching id #: {recipe_id}")
             if name:
                 recipe.name = name
             if notes:
                 recipe.notes = notes
-        except Exception as e:
+        except (SQLAlchemyError, ValueError) as e:
             highlight(e, "!")
-            raise ValueError(
-                f"Failed to process_edit_recipe_info: {e}")
+            raise RuntimeError(f"Failed to process_edit_recipe_info: {e}") from e
 
     @staticmethod
     def process_edit_ingredients(ingredients, recipe_id):
@@ -189,6 +191,8 @@ class RecipeServices():
                 item = ingredient.get("item")
                 amount = ingredient.get("amount")
                 unit = ingredient.get("unit")
+                if not item and not amount and not unit:
+                    raise ValueError("No values in ingredient components to edit") 
 
                 quantity_amount_id = amount["id"] if amount else None
                 quantity_unit_id = unit["id"] if unit else None
@@ -197,6 +201,9 @@ class RecipeServices():
                 if ingredient["id"]:
                     recipe_ingredient = Ingredient.query.get(
                         ingredient["id"])
+                    if not recipe_ingredient:
+                        raise SQLAlchemyError(f"No ingredient matching id #: {ingredient['id']}") from e
+                    
                     if amount:
                         recipe_ingredient.quantity_amount_id = quantity_amount_id
                     if unit:
@@ -209,9 +216,9 @@ class RecipeServices():
                         item_id=item_id,
                         quantity_unit_id=quantity_unit_id,
                         quantity_amount_id=quantity_amount_id)
-        except Exception as e:
+        except (ValueError, SQLAlchemyError, RuntimeError) as e:
             highlight(e, "!")
-            raise ValueError(f"Failed to process_edit_ingredients: {e}")
+            raise RuntimeError(f"Failed to process_edit_ingredients: {e}") from e
 
     @staticmethod
     def process_edit_instructions(instructions,recipe_id):
@@ -221,11 +228,14 @@ class RecipeServices():
                 if instruction["associationId"]:
                     recipe_instruction = RecipeInstruction.query.get(
                         instruction["associationId"])
+                    if not recipe_instruction:
+                        raise SQLAlchemyError(
+                            f"No recipe_instruction associated to id # {instruction['associationId']}")
                     recipe_instruction.instruction_id = instruction["newId"]
                 else:
                     RecipeInstructionRepo.create_entry(
                         recipe_id=recipe_id,
                         instruction_id=instruction["newId"])
-        except Exception as e:
+        except (SQLAlchemyError, RuntimeError) as e:
             highlight(e, "!")
-            raise ValueError(f"Failed to process_edit_instructions: {e}")
+            raise RuntimeError(f"Failed to process_edit_instructions: {e}") from e

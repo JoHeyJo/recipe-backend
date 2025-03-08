@@ -112,12 +112,9 @@ def get_book_recipes(user_id, book_id):
 @error_handler
 def update_user_recipe(user_id, book_id, recipe_id):
     """Facilitate editing of recipe and records associated to book"""
-    try:
-        recipe = RecipeServices.process_edit(
-            data=request.json, recipe_id=recipe_id)
-        return jsonify(recipe)
-    except Exception as e:
-        return handle_error(e)
+    recipe = RecipeServices.process_edit(
+        data=request.json, recipe_id=recipe_id)
+    return jsonify(recipe)
 
 
 @app.delete("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
