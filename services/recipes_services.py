@@ -1,6 +1,7 @@
 from repository import *
 from services.ingredients_services import IngredientServices
 from services.instructions_services import InstructionServices
+from sqlalchemy.exc import SQLAlchemyError
 
 
 class RecipeServices():
@@ -79,9 +80,9 @@ class RecipeServices():
                 ingredient["ingredient_id"] = id
 
             return ingredients_data
-        except (ValueError, RuntimeError) as e:
+        except Exception as e:
             highlight(e, "!")
-            raise RuntimeError(
+            raise type(e)(
                 f"Failed to process_ingredients for recipe {recipe_id}: {e}") from e
 
     @staticmethod
@@ -101,9 +102,9 @@ class RecipeServices():
                 instruction["instruction_id"] = id
 
             return instructions_data
-        except (RuntimeError, ValueError) as e:
+        except Exception as e:
             highlight(e, "!")
-            raise RuntimeError(
+            raise type(e)(
                 f"Failed to process_consolidated_instructions for book {book_id}: {e}") from e
 
     @staticmethod
@@ -132,8 +133,8 @@ class RecipeServices():
 
                 complete_recipes.append(recipe_build)
             return complete_recipes
-        except (RuntimeError, ValueError) as e:
-            raise RuntimeError(f"RecipeServices - build_recipes error: {e}")
+        except Exception as e:
+            raise type(e)(f"RecipeServices - build_recipes error: {e}")
 
     @staticmethod
     def process_edit(data, recipe_id):
@@ -144,7 +145,7 @@ class RecipeServices():
             instructions = data.get("instructions")
             notes = data.get("notes")
         except Exception as e:
-            raise ValueError(
+            raise type(e)(
                 f"Failed to extract recipe edit data for recipe {recipe_id}: {e}") from e
 
         try:
@@ -162,10 +163,10 @@ class RecipeServices():
 
             db.session.commit()
             return {"message": "edit successful"}
-        except (ValueError, RuntimeError) as e:
+        except Exception as e:
             db.session.rollback()
             highlight(e, "!")
-            raise RuntimeError(f"Failed to process_edit: {e}") from e
+            raise type(e)(f"Failed to process_edit: {e}") from e
 
     @staticmethod
     def process_edit_recipe_info(name, notes, recipe_id):
@@ -178,9 +179,9 @@ class RecipeServices():
                 recipe.name = name
             if notes:
                 recipe.notes = notes
-        except (SQLAlchemyError, ValueError) as e:
+        except Exception as e:
             highlight(e, "!")
-            raise RuntimeError(f"Failed to process_edit_recipe_info: {e}") from e
+            raise type(e)(f"Failed to process_edit_recipe_info: {e}") from e
 
     @staticmethod
     def process_edit_ingredients(ingredients, recipe_id):
@@ -216,9 +217,9 @@ class RecipeServices():
                         item_id=item_id,
                         quantity_unit_id=quantity_unit_id,
                         quantity_amount_id=quantity_amount_id)
-        except (ValueError, SQLAlchemyError, RuntimeError) as e:
+        except Exception as e:
             highlight(e, "!")
-            raise RuntimeError(f"Failed to process_edit_ingredients: {e}") from e
+            raise type(e)(f"Failed to process_edit_ingredients: {e}") from e
 
     @staticmethod
     def process_edit_instructions(instructions,recipe_id):
@@ -236,9 +237,9 @@ class RecipeServices():
                     RecipeInstructionRepo.create_entry(
                         recipe_id=recipe_id,
                         instruction_id=instruction["newId"])
-        except (SQLAlchemyError, RuntimeError) as e:
+        except Exception as e:
             highlight(e, "!")
-            raise RuntimeError(f"Failed to process_edit_instructions: {e}") from e
+            raise type(e)(f"Failed to process_edit_instructions: {e}") from e
 
     @staticmethod
     def remove_recipe(recipe_id):
@@ -247,7 +248,7 @@ class RecipeServices():
             RecipeRepo.delete_recipe(recipe_id=recipe_id)
             db.session.commit()
             return {"message": "deletion successful"}
-        except RuntimeError as e:
+        except Exception as e:
             db.session.rollback()
-            raise RuntimeError(
+            raise type(e)(
                 f"DeleteServices - remove_recipe error: {e}") from e

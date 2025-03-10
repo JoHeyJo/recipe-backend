@@ -1,5 +1,5 @@
 from repository import *
-from sqlalchemy.exc import IntegrityError
+
 
 class IngredientServices():
     """Handles ingredients view business logic"""
@@ -13,9 +13,9 @@ class IngredientServices():
                 return QuantityUnitRepo.get_all_units()
             if ingredient == "items":
                 return ItemRepo.query_all_items()
-        except IntegrityError as e:
-            raise {
-                "error": f"Error in IngredientServices -> fetch_components_options: {e}"}
+        except Exception as e:
+            raise type(e)(
+                f"Error in IngredientServices -> fetch_components_options: {e}")
 
     @staticmethod
     def fetch_book_components_options(book_id):
@@ -25,9 +25,9 @@ class IngredientServices():
             units = QuantityUnitRepo.get_book_units(book_id=book_id)
             items = ItemRepo.get_book_items(book_id=book_id)
             return {"amounts": amounts, "units": units, "items": items}
-        except IntegrityError as e:
-            raise {
-                "error": f"Error in IngredientServices -> fetch_book_components_options: {e}"}
+        except Exception as e:
+            raise type(e)(
+                f"Error in IngredientServices -> fetch_book_components_options: {e}")
 
     @staticmethod
     def fetch_user_components_options(user_id):
@@ -37,9 +37,9 @@ class IngredientServices():
             units = QuantityUnitRepo.query_user_units(user_id=user_id)
             items = ItemRepo.query_user_items(user_id=user_id)
             return {"amounts": amounts, "units": units, "items": items}
-        except IntegrityError as e:
-            raise {
-                "error": f"Error in IngredientServices -> fetch_user_components_options: {e}"}
+        except Exception as e:
+            raise type(e)(
+                f"Error in IngredientServices -> fetch_user_components_options: {e}")
 
     @staticmethod
     def post_component_option(component, option, book_id):
@@ -51,9 +51,9 @@ class IngredientServices():
                 return QuantityUnitRepo.process_unit(unit=option, book_id=book_id)
             if component == "item":
                 return ItemServices.process_item(item=option, book_id=book_id)
-        except IntegrityError as e:
-            raise {
-                "error": f"Error in IngredientServices -> post_component_option: {e}"}
+        except Exception as e:
+            raise type(e)(
+                f"Error in IngredientServices -> post_component_option: {e}")
 
     @staticmethod
     def create_option_association(component, book_id, option_id):
@@ -66,8 +66,8 @@ class IngredientServices():
                 UnitBookRepo.create_entry(unit_id=option_id, book_id=book_id)
             if component == "item":
                 ItemBookRepo.create_entry(item_id=option_id, book_id=book_id)
-        except IntegrityError as e:
-            raise Exception(
+        except Exception as e:
+            raise type(e)(
                 f"IngredientServices -> create_option_association error: {e}")
 
     @staticmethod
@@ -97,9 +97,9 @@ class IngredientServices():
                         "unit": unit
                     })
 
-            except (RuntimeError, ValueError) as e:
+            except Exception as e:
                 highlight(e, "!")
-                raise RuntimeError(
+                raise type(e)(
                     f"IngredientsRepo -> process_ingredients error: {e}") from e
         return ingredients_data
 
@@ -115,8 +115,9 @@ class IngredientServices():
                 ingredients.append(
                     {"ingredient_id": ingredient.id, "amount": amount, "unit": unit, "item": item})
             return ingredients
-        except KeyError as e:
-            raise ValueError(f"Ingredient_services - build_ingredients error, missing value: {e}") from e
+        except Exception as e:
+            raise type(e)(
+                f"Ingredient_services - build_ingredients error, missing value: {e}") from e
 
 
 class ItemServices():
@@ -130,7 +131,7 @@ class ItemServices():
                 item = ItemRepo.create_item(name=item["name"])
             ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
             return item
-        except RuntimeError:
+        except Exception:
             raise
 
 
@@ -147,8 +148,8 @@ class AmountServices():
             AmountBookRepo.create_entry(
                 amount_id=amount["id"], book_id=book_id)
             return amount
-        except RuntimeError:
-            raise 
+        except Exception:
+            raise
 
 
 class UnitServices():
@@ -162,5 +163,5 @@ class UnitServices():
                 unit = QuantityUnitRepo.create_unit(type=unit["type"])
             UnitBookRepo.create_entry(unit_id=unit["id"], book_id=book_id)
             return unit
-        except RuntimeError:
+        except Exception:
             raise
