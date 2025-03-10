@@ -14,10 +14,9 @@ from services.recipes_services import RecipeServices
 from services.ingredients_services import IngredientServices
 from services.book_services import BookServices
 from services.instructions_services import InstructionServices
-from utils.error_handler import handle_error
 from datetime import timedelta
 from decorators.verify_user import check_user_identity
-from decorators.handle_route_errors import error_handler
+from decorators.handle_route_errors import route_error_handler
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
@@ -80,17 +79,15 @@ def login():
 @check_user_identity
 def get_user(user_id):
     """Retrieve user associated to id"""
-    try:
-        return jsonify(UserServices.fetch_user(user_id=user_id))
-    except Exception as e:
-        return handle_error(e)
+    return jsonify(UserServices.fetch_user(user_id=user_id))
+
 
 ############ RECIPES ###########
 
 
 @app.post("/users/<user_id>/books/<book_id>/recipes")
 @check_user_identity
-@error_handler
+@route_error_handler
 def add_recipe(user_id, book_id):
     """Consolidate recipe data. If successful recipes_ingredients record created"""
     recipe_data = RecipeServices.process_recipe_data(
@@ -100,7 +97,7 @@ def add_recipe(user_id, book_id):
 
 @app.get("/users/<user_id>/books/<book_id>/recipes")
 @check_user_identity
-@error_handler
+@route_error_handler
 def get_book_recipes(user_id, book_id):
     """Return recipes associated to user's book"""
     recipes = RecipeServices.build_recipes(book_id=book_id)
@@ -109,7 +106,7 @@ def get_book_recipes(user_id, book_id):
 
 @app.patch("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
 @check_user_identity
-@error_handler
+@route_error_handler
 def update_user_recipe(user_id, book_id, recipe_id):
     """Facilitate editing of recipe and records associated to book"""
     recipe = RecipeServices.process_edit(
@@ -119,7 +116,7 @@ def update_user_recipe(user_id, book_id, recipe_id):
 
 @app.delete("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
 @check_user_identity
-@error_handler
+@route_error_handler
 def get_delete_recipe(user_id, book_id, recipe_id):
     """Facilitate deletion of recipe record associated to user"""
     response = RecipeRepo.delete_recipe(recipe_id=recipe_id)
@@ -131,18 +128,19 @@ def get_delete_recipe(user_id, book_id, recipe_id):
 
 @app.post("/users/<user_id>/books")
 @check_user_identity
-@error_handler
+@route_error_handler
 def add_book(user_id):
     """Facilitates creation of book"""
     title = request.json["title"]
     description = request.json["description"]
     book_data = {"title": title, "description": description}
-    try:
-        book_data = BookServices.process_new_book(
-            book_data=book_data, user_id=user_id)
-        return jsonify(book_data), 200
-    except IntegrityError as e:
-        return jsonify({"error": f"create_book error{e}"}), 400
+    highlight(request,"@")
+    # try:
+    book_data = BookServices.process_new_book(
+        book_data=book_data, user_id=user_id)
+    return jsonify(book_data), 200
+    # except Exception as e:
+        # return jsonify({"error": f"create_book error{e}"}), 400
 
 
 @app.get("/users/<user_id>/books")

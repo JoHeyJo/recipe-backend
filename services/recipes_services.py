@@ -9,6 +9,7 @@ class RecipeServices():
     @staticmethod
     def process_recipe_data(request, book_id):
         """Consolidate 'create recipe' process"""
+        highlight(request,"@")
         try:
             recipe = request["recipe"]
             notes = recipe.get("notes")
