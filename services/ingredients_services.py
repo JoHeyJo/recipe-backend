@@ -1,7 +1,5 @@
 from repository import *
 from sqlalchemy.exc import IntegrityError
-from utils.error_handler import handle_exception
-
 
 class IngredientServices():
     """Handles ingredients view business logic"""

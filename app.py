@@ -130,6 +130,8 @@ def get_delete_recipe(user_id, book_id, recipe_id):
 
 
 @app.post("/users/<user_id>/books")
+@check_user_identity
+@error_handler
 def add_book(user_id):
     """Facilitates creation of book"""
     title = request.json["title"]
