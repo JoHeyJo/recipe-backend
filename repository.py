@@ -1,7 +1,7 @@
 from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
 from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, Ingredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction, AmountBook, UnitBook, ItemBook
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import Exception
 from exceptions import *
 from sqlalchemy.dialects.postgresql import insert
 from utils.functions import insert_first
@@ -34,7 +34,7 @@ class UserRepo():
             db.session.flush()
             token = create_access_token(identity=user.id)
             return token
-        except SQLAlchemyError as e:
+        except Exception as e:
             if "users_user_name_key" in str(e.orig):
                 raise UsernameAlreadyTakenError(
                     "This username is already taken.")
@@ -62,8 +62,8 @@ class UserRepo():
             if user is None:
                 return None 
             return user
-        except SQLAlchemyError as e:
-            raise Exception(f"UserRepo -> query_user error:{e}")
+        except Exception as e:
+            raise type(e)(f"UserRepo -> query_user error:{e}")
 
 
 class RecipeRepo():
@@ -76,8 +76,8 @@ class RecipeRepo():
             db.session.add(recipe)
             db.session.flush()
             return Recipe.serialize(recipe)
-        except SQLAlchemyError as e:
-            raise RuntimeError(f"create_recipe error:{e}") from e
+        except Exception as e:
+            raise type(e)(f"create_recipe error:{e}") from e
 
     @staticmethod
     def fetch_recipes(user_id, book_id):
@@ -86,10 +86,10 @@ class RecipeRepo():
             book = Book.query.get(book_id)
             recipes = book.recipes
             return [Recipe.serialize(recipe) for recipe in recipes]
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"create_recipe error:{e}")
+            raise type(e)(f"create_recipe error:{e}")
 
     @staticmethod
     def delete_recipe(recipe_id):
@@ -99,9 +99,9 @@ class RecipeRepo():
                 # Use direct SQLAlchemy delete - errors occur using ORM
                 db.delete(Recipe).where(Recipe.id == int(recipe_id))
             )
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
-            raise RuntimeError(f"delete_recipe error:{e}") from e
+            raise type(e)(f"delete_recipe error:{e}") from e
 
 
 class QuantityAmountRepo():
@@ -113,9 +113,9 @@ class QuantityAmountRepo():
             quantity_amount = insert_first(
                 Model=QuantityAmount, data=value, column_name="value", db=db)
             return QuantityAmount.serialize(quantity_amount)
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
-            raise RuntimeError(f"QuantityAmountRepo - create_amount error:{e}") from e
+            raise type(e)(f"QuantityAmountRepo - create_amount error:{e}") from e
 
     @staticmethod
     def get_all_amounts():
@@ -123,10 +123,10 @@ class QuantityAmountRepo():
         try:
             amounts = QuantityAmount.query.all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"QuantityAmountRepo -  get_all_amounts error: {e}")
+            raise type(e)(f"QuantityAmountRepo -  get_all_amounts error: {e}")
 
     @staticmethod
     def get_book_amounts(book_id):
@@ -134,10 +134,10 @@ class QuantityAmountRepo():
         try:
             amounts = Book.query.get(book_id).amounts
             return [QuantityAmount.serialize(amount) for amount in amounts]
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"QuantityAmountRepo -  get_book_amounts error: {e}")
+            raise type(e)(f"QuantityAmountRepo -  get_book_amounts error: {e}")
 
     @staticmethod
     def query_user_amounts(user_id):
@@ -149,10 +149,10 @@ class QuantityAmountRepo():
                 UserBook, AmountBook.book_id == UserBook.book_id
             ).filter(UserBook.user_id == user_id).all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"QuantityAmountRepo - get_user_amounts error: {e}")
+            raise type(e)(f"QuantityAmountRepo - get_user_amounts error: {e}")
 
 
 class QuantityUnitRepo():
@@ -166,7 +166,7 @@ class QuantityUnitRepo():
             return QuantityUnit.serialize(quantity_unit)
         except RuntimeError as e:
             highlight(e, "!")
-            raise RuntimeError(f"QuantityUnitRepo - create_unit:{e}") from e
+            raise type(e)(f"QuantityUnitRepo - create_unit:{e}") from e
 
     @staticmethod
     def query_user_units(user_id):
@@ -178,10 +178,10 @@ class QuantityUnitRepo():
                 UserBook, UnitBook.book_id == UserBook.book_id
             ).filter(UserBook.user_id == user_id).all()
             return [QuantityUnit.serialize(unit) for unit in units]
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"QuantityUnitRepo - get_all_units error: {e}")
+            raise type(e)(f"QuantityUnitRepo - get_all_units error: {e}")
 
     @staticmethod
     def get_book_units(book_id):
@@ -189,10 +189,10 @@ class QuantityUnitRepo():
         try:
             units = Book.query.get(book_id).units
             return [QuantityUnit.serialize(unit) for unit in units]
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"QuantityUnitRepo - get_book_units error: {e}")
+            raise type(e)(f"QuantityUnitRepo - get_book_units error: {e}")
 
 
 class ItemRepo():
@@ -205,7 +205,7 @@ class ItemRepo():
                 Model=Item, data=name, column_name="name", db=db)
             return Item.serialize(item)
         except RuntimeError as e:
-            raise RuntimeError(f"ItemRepo - create_item error: {e}") from e
+            raise type(e)(f"ItemRepo - create_item error: {e}") from e
 
     @staticmethod
     def query_all_items():
@@ -213,10 +213,10 @@ class ItemRepo():
         try:
             items = Item.query.all()
             return [Item.serialize(item) for item in items]
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"get_all_item error: {e}")
+            raise type(e)(f"get_all_item error: {e}")
 
     @staticmethod
     def get_book_items(book_id):
@@ -224,10 +224,10 @@ class ItemRepo():
         try:
             items = Book.query.get(book_id).items
             return [Item.serialize(item) for item in items]
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"get_book_items error: {e}")
+            raise type(e)(f"get_book_items error: {e}")
 
     @staticmethod
     def query_user_items(user_id):
@@ -239,10 +239,10 @@ class ItemRepo():
                 UserBook, ItemBook.book_id == UserBook.book_id
             ).filter(UserBook.user_id == user_id).all()
             return [Item.serialize(item) for item in items]
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"query_user_items error: {e}")
+            raise type(e)(f"query_user_items error: {e}")
 
 
 class IngredientsRepo():
@@ -257,10 +257,10 @@ class BookRepo():
         try:
             db.session.add(book)
             return Book.serialize(book)
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"create_book error: {e}")
+            raise type(e)(f"create_book error: {e}")
 
     @staticmethod
     def get_user_books(user_id):
@@ -268,10 +268,10 @@ class BookRepo():
         try:
             user = User.query.get(user_id)
             return [Book.serialize(book) for book in user.books]
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"BookRepo - get_user_books error: {e}")
+            raise type(e)(f"BookRepo - get_user_books error: {e}")
 
 
 class InstructionRepo():
@@ -284,9 +284,9 @@ class InstructionRepo():
             db.session.add(instruction)
             db.session.flush()
             return Instruction.serialize(instruction)
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
-            raise RuntimeError(f"InstructionRepo - create_instruction error: {e}") from e
+            raise type(e)(f"InstructionRepo - create_instruction error: {e}") from e
 
     @staticmethod
     def get_instructions():
@@ -294,10 +294,10 @@ class InstructionRepo():
         try:
             instructions = Instruction.query.all()
             return [Instruction.serialize(instruction) for instruction in instructions]
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"InstructionRepo - get_instruction error: {e}")
+            raise type(e)(f"InstructionRepo - get_instruction error: {e}")
 
     @staticmethod
     def query_user_instructions(user_id):
@@ -309,10 +309,10 @@ class InstructionRepo():
                 UserBook, BookInstruction.book_id == UserBook.book_id
             ).filter(UserBook.user_id == user_id).all()
             return [Instruction.serialize(instruction) for instruction in instructions]
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(
+            raise type(e)(
                 f"InstructionRepo - get_user_instructions error: {e}")
 
     @staticmethod
@@ -322,10 +322,10 @@ class InstructionRepo():
             book = Book.query.get(book_id)
             instructions = book.instructions
             return [Instruction.serialize(instruction) for instruction in instructions]
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(
+            raise type(e)(
                 f"InstructionRepo - query_book_instructions error: {e}")
 
 
@@ -343,9 +343,9 @@ class RecipeIngredientRepo():
             db.session.add(entry)
             db.session.flush()
             return entry.id
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
-            raise RuntimeError(
+            raise type(e)(
                 f"RecipeIngredientRepo - create_ingredient error:{e}") from e
 
 
@@ -357,8 +357,8 @@ class RecipeBookRepo():
         try:
             entry = RecipeBook(book_id=book_id, recipe_id=recipe_id)
             db.session.add(entry)
-        except SQLAlchemyError as e:
-            raise Exception(f"RecipeBookRep - create_entry error:{e}")
+        except Exception as e:
+            raise type(e)(f"RecipeBookRep - create_entry error:{e}")
 
 
 class UserBookRepo():
@@ -369,10 +369,10 @@ class UserBookRepo():
         try:
             entry = UserBook(user_id=user_id, book_id=book_id)
             db.session.add(entry)
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise Exception(f"UserBookRepo - create_entry error:{e}")
+            raise type(e)(f"UserBookRepo - create_entry error:{e}")
 
 
 class BookInstructionRepo():
@@ -384,10 +384,10 @@ class BookInstructionRepo():
             entry = BookInstruction(
                 book_id=book_id, instruction_id=instruction_id)
             db.session.add(entry)
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise RuntimeError(f"BookInstructionRepo - create_entry error :{e}") from e
+            raise type(e)(f"BookInstructionRepo - create_entry error :{e}") from e
 
 
 class RecipeInstructionRepo():
@@ -401,9 +401,9 @@ class RecipeInstructionRepo():
             db.session.add(entry)
             db.session.flush()
             return entry.id
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
-            raise RuntimeError(f"RecipeInstructionRepo - create_entry error :{e}") from e
+            raise type(e)(f"RecipeInstructionRepo - create_entry error :{e}") from e
 
 
 class AmountBookRepo():
@@ -416,9 +416,9 @@ class AmountBookRepo():
             db.session.add(entry)
             db.session.flush()
             return entry.id
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
-            raise RuntimeError(f"AmountBookRepo - create_entry error :{e}") from e
+            raise type(e)(f"AmountBookRepo - create_entry error :{e}") from e
 
 
 class UnitBookRepo():
@@ -433,7 +433,7 @@ class UnitBookRepo():
             return entry.id
         except RuntimeError as e:
             highlight(e, "!")
-            raise RuntimeError(f"UnitBookRepo - create_entry error:{e}") from e
+            raise type(e)(f"UnitBookRepo - create_entry error:{e}") from e
 
 
 class ItemBookRepo():
@@ -446,6 +446,6 @@ class ItemBookRepo():
             db.session.add(entry)
             db.session.flush()
             return entry.id
-        except SQLAlchemyError as e:
+        except Exception as e:
             highlight(e, "!")
-            raise RuntimeError(f"ItemBookRepo - create_entry error:{e}") from e
+            raise type(e)(f"ItemBookRepo - create_entry error:{e}") from e
