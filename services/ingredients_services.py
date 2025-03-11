@@ -21,9 +21,9 @@ class IngredientServices():
     def fetch_book_components_options(book_id):
         """Retrieves book's ingredients components options"""
         try:
-            amounts = QuantityAmountRepo.get_book_amounts(book_id=book_id)
-            units = QuantityUnitRepo.get_book_units(book_id=book_id)
-            items = ItemRepo.get_book_items(book_id=book_id)
+            amounts = QuantityAmountRepo.query_book_amounts(book_id=book_id)
+            units = QuantityUnitRepo.query_book_units(book_id=book_id)
+            items = ItemRepo.query_book_items(book_id=book_id)
             return {"amounts": amounts, "units": units, "items": items}
         except Exception as e:
             raise type(e)(

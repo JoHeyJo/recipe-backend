@@ -180,12 +180,10 @@ def get_user_ingredients(user_id):
 
 @app.get("/users/<user_id>/books/<book_id>/ingredients/components")
 @check_user_identity
+@route_error_handler
 def get_book_ingredient_components(user_id, book_id):
     """Facilitates retrieval of components options associated to Book"""
-    try:
-        return IngredientServices.fetch_book_components_options(book_id=book_id)
-    except IntegrityError as e:
-        return jsonify({"error": f"get_book_ingredients error{e}"}), 400
+    return IngredientServices.fetch_book_components_options(book_id=book_id)
 
 
 @app.post("/ingredients/<ingredient>")

@@ -124,7 +124,7 @@ class QuantityAmountRepo():
             raise type(e)(f"QuantityAmountRepo -  get_all_amounts error: {e}") from e
 
     @staticmethod
-    def get_book_amounts(book_id):
+    def query_book_amounts(book_id):
         """Return user amounts"""
         try:
             amounts = Book.query.get(book_id).amounts
@@ -172,13 +172,12 @@ class QuantityUnitRepo():
             raise type(e)(f"QuantityUnitRepo - get_all_units error: {e}") from e
 
     @staticmethod
-    def get_book_units(book_id):
+    def query_book_units(book_id):
         """Return book's units"""
         try:
             units = Book.query.get(book_id).units
             return [QuantityUnit.serialize(unit) for unit in units]
         except Exception as e:
-            db.session.rollback()
             raise type(e)(f"QuantityUnitRepo - get_book_units error: {e}") from e
 
 
@@ -201,17 +200,15 @@ class ItemRepo():
             items = Item.query.all()
             return [Item.serialize(item) for item in items]
         except Exception as e:
-            db.session.rollback()
             raise type(e)(f"get_all_item error: {e}") from e
 
     @staticmethod
-    def get_book_items(book_id):
+    def query_book_items(book_id):
         """Return book's items"""
         try:
             items = Book.query.get(book_id).items
             return [Item.serialize(item) for item in items]
         except Exception as e:
-            db.session.rollback()
             raise type(e)(f"get_book_items error: {e}") from e
 
     @staticmethod
