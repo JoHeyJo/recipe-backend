@@ -241,7 +241,7 @@ class ItemRepo():
         except Exception as e:
             highlight(e, "!")
             db.session.rollback()
-            raise type(e)(f"query_user_items error: {e}")
+            raise type(e)(f"query_user_items error: {e}") from e
 
 
 class IngredientsRepo():
@@ -252,14 +252,12 @@ class BookRepo():
     @staticmethod
     def create_book(title, description):
         """Create book and add to database"""
-        book = Book(title=title, description=description)
         try:
+            book = Book(title=title, description=description)
             db.session.add(book)
             return Book.serialize(book)
         except Exception as e:
-            highlight(e, "!")
-            db.session.rollback()
-            raise type(e)(f"create_book error: {e}")
+            raise type(e)(f"create_book error: {e}") from e
 
     @staticmethod
     def get_user_books(user_id):
@@ -268,9 +266,8 @@ class BookRepo():
             user = User.query.get(user_id)
             return [Book.serialize(book) for book in user.books]
         except Exception as e:
-            highlight(e, "!")
             db.session.rollback()
-            raise type(e)(f"BookRepo - get_user_books error: {e}")
+            raise type(e)(f"BookRepo - get_user_books error: {e}") from e
 
 
 class InstructionRepo():
@@ -284,7 +281,6 @@ class InstructionRepo():
             db.session.flush()
             return Instruction.serialize(instruction)
         except Exception as e:
-            highlight(e, "!")
             raise type(e)(f"InstructionRepo - create_instruction error: {e}") from e
 
     @staticmethod
@@ -294,7 +290,6 @@ class InstructionRepo():
             instructions = Instruction.query.all()
             return [Instruction.serialize(instruction) for instruction in instructions]
         except Exception as e:
-            highlight(e, "!")
             db.session.rollback()
             raise type(e)(f"InstructionRepo - get_instruction error: {e}")
 
@@ -309,7 +304,6 @@ class InstructionRepo():
             ).filter(UserBook.user_id == user_id).all()
             return [Instruction.serialize(instruction) for instruction in instructions]
         except Exception as e:
-            highlight(e, "!")
             db.session.rollback()
             raise type(e)(
                 f"InstructionRepo - get_user_instructions error: {e}")
@@ -322,7 +316,6 @@ class InstructionRepo():
             instructions = book.instructions
             return [Instruction.serialize(instruction) for instruction in instructions]
         except Exception as e:
-            highlight(e, "!")
             db.session.rollback()
             raise type(e)(
                 f"InstructionRepo - query_book_instructions error: {e}")
@@ -343,7 +336,6 @@ class RecipeIngredientRepo():
             db.session.flush()
             return entry.id
         except Exception as e:
-            highlight(e, "!")
             raise type(e)(
                 f"RecipeIngredientRepo - create_ingredient error:{e}") from e
 
@@ -357,7 +349,7 @@ class RecipeBookRepo():
             entry = RecipeBook(book_id=book_id, recipe_id=recipe_id)
             db.session.add(entry)
         except Exception as e:
-            raise type(e)(f"RecipeBookRep - create_entry error:{e}")
+            raise type(e)(f"RecipeBookRep - create_entry error:{e}") from e
 
 
 class UserBookRepo():
@@ -369,9 +361,7 @@ class UserBookRepo():
             entry = UserBook(user_id=user_id, book_id=book_id)
             db.session.add(entry)
         except Exception as e:
-            highlight(e, "!")
-            db.session.rollback()
-            raise type(e)(f"UserBookRepo - create_entry error:{e}")
+            raise type(e)(f"UserBookRepo - create_entry error:{e}") from e
 
 
 class BookInstructionRepo():
@@ -384,7 +374,6 @@ class BookInstructionRepo():
                 book_id=book_id, instruction_id=instruction_id)
             db.session.add(entry)
         except Exception as e:
-            highlight(e, "!")
             db.session.rollback()
             raise type(e)(f"BookInstructionRepo - create_entry error :{e}") from e
 
@@ -401,7 +390,6 @@ class RecipeInstructionRepo():
             db.session.flush()
             return entry.id
         except Exception as e:
-            highlight(e, "!")
             raise type(e)(f"RecipeInstructionRepo - create_entry error :{e}") from e
 
 
@@ -416,7 +404,6 @@ class AmountBookRepo():
             db.session.flush()
             return entry.id
         except Exception as e:
-            highlight(e, "!")
             raise type(e)(f"AmountBookRepo - create_entry error :{e}") from e
 
 
@@ -431,7 +418,6 @@ class UnitBookRepo():
             db.session.flush()
             return entry.id
         except RuntimeError as e:
-            highlight(e, "!")
             raise type(e)(f"UnitBookRepo - create_entry error:{e}") from e
 
 
@@ -446,5 +432,4 @@ class ItemBookRepo():
             db.session.flush()
             return entry.id
         except Exception as e:
-            highlight(e, "!")
             raise type(e)(f"ItemBookRepo - create_entry error:{e}") from e

@@ -4,9 +4,11 @@ from models import db, User
 class BookServices():
     """Handles book view business logic"""
     @staticmethod
-    def process_new_book(book_data, user_id):
+    def process_new_book(request, user_id):
         """Call repo to create book. Associate book to user - set default if none """
-        highlight("5","%")
+        title = request.json["title"]
+        description = request.json["description"]
+        book_data = {"title": title, "description": description}
         try:
             new_book = BookRepo.create_book(title=book_data["title"], description=book_data["description"])
             # associate book to user
@@ -17,8 +19,9 @@ class BookServices():
             if user.default_book_id == None:
                 user.default_book_id = new_book["id"]
                 db.session.add(user)
-                db.session.commit()
+            db.session.commit()
             return new_book
         except Exception as e:
+            db.session.rollback()
             raise 
 

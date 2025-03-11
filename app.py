@@ -107,7 +107,7 @@ def update_user_recipe(user_id, book_id, recipe_id):
     """Facilitate editing of recipe and records associated to book"""
     recipe = RecipeServices.process_edit(
         data=request.json, recipe_id=recipe_id)
-    return jsonify(recipe)
+    return jsonify(recipe), 200
 
 
 @app.delete("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
@@ -116,7 +116,7 @@ def update_user_recipe(user_id, book_id, recipe_id):
 def get_delete_recipe(user_id, book_id, recipe_id):
     """Facilitate deletion of recipe record associated to user"""
     response = RecipeServices.remove_recipe(recipe_id=recipe_id)
-    return jsonify(response)
+    return jsonify(response), 200
 
 
 ########### BOOKS ###########
@@ -127,12 +127,7 @@ def get_delete_recipe(user_id, book_id, recipe_id):
 @route_error_handler
 def add_book(user_id):
     """Facilitates creation of book"""
-    title = request.json["title"]
-    description = request.json["description"]
-    book_data = {"title": title, "description": description}
-    highlight(request,"@")
-    book_data = BookServices.process_new_book(
-        book_data=book_data, user_id=user_id)
+    book_data = BookServices.process_new_book(request=request, user_id=user_id)
     return jsonify(book_data), 200
 
 
@@ -141,7 +136,7 @@ def add_book(user_id):
 def get_user_books(user_id):
     """Returns all books associated with user"""
     books = BookRepo.get_user_books(user_id=user_id)
-    return jsonify(books)
+    return jsonify(books), 200
 
 
 ###########  COMPONENT OPTIONS = {amount, unit, item} = INGREDIENT ###########
