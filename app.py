@@ -50,15 +50,16 @@ def index():
 
 
 @app.post("/signup")
+@route_error_handler
 def signup():
     """Facilitates new user data, return token"""
-    try:
-        token = UserServices.authenticate_signup(request=request)
-        return jsonify({"token": token})
-    except (UsernameAlreadyTakenError, EmailAlreadyRegisteredError, SignUpError) as e:
-        return jsonify({"error": str(e)}), 400
-    except Exception as e:
-        return jsonify({"error": "An unexpected error occurred"}), 500
+    # try:
+    token = UserServices.authenticate_signup(request=request)
+    return jsonify({"token": token})
+    # except (UsernameAlreadyTakenError, EmailAlreadyRegisteredError, SignUpError) as e:
+        # return jsonify({"error": str(e)}), 400
+    # except Exception as e:
+        # return jsonify({"error": "An unexpected error occurred"}), 500
 
 
 @app.post("/login")

@@ -5,6 +5,7 @@ from functools import wraps
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from repository import highlight
+from exceptions import *
 
 
     # if error_type == "TypeError":
@@ -29,6 +30,7 @@ def route_error_handler(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
+            highlight(e, "#")
             return handle_error(e)
     return wrapper
 
@@ -45,13 +47,14 @@ def handle_error(error):
     print("⚠️⚠️⚠️⚠️⚠️⚠️⚠️ ERROR TRACEBACK END ⚠️⚠️⚠️⚠️⚠️⚠️⚠️")
 
     error_code = None  # Default to None
+    http_status = 500
 
     # Handle SQLAlchemy errors (Only access `orig` if it exists)
     if isinstance(error, IntegrityError):
         if hasattr(error, "orig") and hasattr(error.orig, "pgcode"):
             error_code = error.orig.pgcode  # PostgreSQL error code
-        elif hasattr(error, "orig") and hasattr(error.orig, "args"):
-            error_code = error.orig.args[0]  # MySQL/SQLite error code
+        # elif hasattr(error, "orig") and hasattr(error.orig, "args"):
+        #     error_code = error.orig.args[0]  # MySQL/SQLite error code
 
         # 23505 (Postgres) & 1062 (MySQL) = Duplicate Key Violation
         http_status = 400 if error_code in ["23505", "1062"] else 500
@@ -68,12 +71,18 @@ def handle_error(error):
     # Handle built-in Python exceptions
     elif isinstance(error, ValueError):
         http_status = 400
-    elif isinstance(error, KeyError):
+    elif isinstance("error", KeyError):
         http_status = 400
     elif isinstance(error, TypeError):
         http_status = 400
+    elif isinstance(error, UsernameAlreadyTakenError):
+        http_status = 409
 
     # Return JSON response with dynamic status code
+
+    
+    highlight(error,"$")
+    highlight((error_message,http_status),"$")
     return jsonify({
         "error": error_message,
         "type": error_type,
