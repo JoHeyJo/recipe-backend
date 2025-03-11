@@ -7,22 +7,6 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from repository import highlight
 from exceptions import *
 
-
-    # if error_type == "TypeError":
-    #     return jsonify({"error": error_message}), 400
-    
-    # elif error_type == "IntegrityError":
-    #     return jsonify({"error": error_message}), 400
-    
-    # elif error_type == "ValueError" or "KeyError":
-    #     return jsonify({"value error": error_message}), 400
-    
-    # elif error_type == "SQLAlchemyError":
-    #     return jsonify({"error": "Database error", "details": error_message}), 500
-
-    # return jsonify({"error": "Unexpected error", "type": error_type, "details": error_message}), 500
-
-
 def route_error_handler(func):
     """Decorator to handle errors in Flask routes or services."""
     @wraps(func)
@@ -30,7 +14,6 @@ def route_error_handler(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            highlight(e, "#")
             return handle_error(e)
     return wrapper
 
@@ -50,36 +33,33 @@ def handle_error(error):
     error_code = None  # Default to None
     http_status = 500
     # Handle SQLAlchemy errors (Only access `orig` if it exists)
-    if isinstance(error_type, IntegrityError):
+    if issubclass(error_type, IntegrityError):
         if hasattr(error, "orig") and hasattr(error.orig, "pgcode"):
             error_code = error.orig.pgcode  # PostgreSQL error code
         # 23505 (Postgres) & 1062 (MySQL) = Duplicate Key Violation
         http_status = 400 if error_code in ["23505", "1062"] else 500
 
-    elif isinstance(error_type, OperationalError):
+    elif issubclass(error_type, OperationalError):
         http_status = 500  # Database connection issues
-    elif isinstance(error_type, SQLAlchemyError):
+    elif issubclass(error_type, SQLAlchemyError):
         http_status = 500  # Other SQLAlchemy errors
 
     # Handle Flask-specific HTTP errors
-    elif isinstance(error_type, HTTPException):
+    elif issubclass(error_type, HTTPException):
         http_status = error.code
 
     # Handle built-in Python exceptions
-    elif isinstance(error_type, ValueError):
+    elif issubclass(error_type, (ValueError, AttributeError)):
         http_status = 400
-    elif isinstance("erro_tyerror_typer", KeyError):
+    elif issubclass(error_type, KeyError):
         http_status = 400
-    elif isinstance(error_type, TypeError):
+    elif issubclass(error_type, TypeError):
         http_status = 400
-    elif issubclass(error_type, EmailAlreadyRegisteredError):
+    elif issubclass(error_type, NotFound):
+        http_status = 404
+    elif issubclass(error_type, (EmailAlreadyRegisteredError, UsernameAlreadyTakenError, SignUpError)):
         http_status = 409
 
-    # Return JSON response with dynamic status code
-
-    highlight((EmailAlreadyRegisteredError, error_type), "$")
-    highlight(EmailAlreadyRegisteredError == error_type, "$")
-    highlight((error_message,http_status),"$")
     return jsonify({
         "error": error_message,
         "type": error_type_name,

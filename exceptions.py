@@ -24,3 +24,7 @@ class InvalidCredentials(Exception):
 class SignUpError(Exception):
     """Exception raised during sign up"""
     pass
+
+class NotFound(Exception):
+    """Exception raised during sign up"""
+    pass

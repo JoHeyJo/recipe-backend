@@ -9,15 +9,14 @@ class RecipeServices():
     @staticmethod
     def process_recipe_data(request, book_id):
         """Consolidate 'create recipe' process"""
-        highlight(request,"@")
         try:
             recipe = request["recipe"]
             notes = recipe.get("notes")
             instructions = recipe.get("instructions")
             ingredients = recipe.get("ingredients")
         except Exception as e:
-            raise ValueError(
-                f"Failed to extract recipe data for book {book_id}: {e}")
+            raise type(e)(
+                f"Failed to extract recipe data for book {book_id}: {e}") from e
 
         try:
             recipe_data = RecipeServices.process_recipe(
@@ -40,7 +39,6 @@ class RecipeServices():
             return recipe_data
         except Exception as e:
             db.session.rollback()
-            highlight(e, "!")
             raise type(e)(f"Failed to process_recipe_data: {e}") from e
 
     @staticmethod
@@ -49,15 +47,12 @@ class RecipeServices():
         try:
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, notes=notes)
-            if not recipe_data:
-                raise e
             
             RecipeBookRepo.create_entry(
                 book_id=book_id, recipe_id=recipe_data["id"])
 
             return recipe_data
         except Exception as e:
-            highlight(e, "!")
             raise type(e)(
                 f"Failed to process recipe '{recipe_name}' for book {book_id}: {e}") from e
 
@@ -82,7 +77,6 @@ class RecipeServices():
 
             return ingredients_data
         except Exception as e:
-            highlight(e, "!")
             raise type(e)(
                 f"Failed to process_ingredients for recipe {recipe_id}: {e}") from e
 
@@ -104,7 +98,6 @@ class RecipeServices():
 
             return instructions_data
         except Exception as e:
-            highlight(e, "!")
             raise type(e)(
                 f"Failed to process_consolidated_instructions for book {book_id}: {e}") from e
 
@@ -135,7 +128,7 @@ class RecipeServices():
                 complete_recipes.append(recipe_build)
             return complete_recipes
         except Exception as e:
-            raise type(e)(f"RecipeServices - build_recipes error: {e}")
+            raise type(e)(f"RecipeServices - build_recipes error: {e}") from e
 
     @staticmethod
     def process_edit(data, recipe_id):
@@ -166,7 +159,6 @@ class RecipeServices():
             return {"message": "edit successful"}
         except Exception as e:
             db.session.rollback()
-            highlight(e, "!")
             raise type(e)(f"Failed to process_edit: {e}") from e
 
     @staticmethod
@@ -181,7 +173,6 @@ class RecipeServices():
             if notes:
                 recipe.notes = notes
         except Exception as e:
-            highlight(e, "!")
             raise type(e)(f"Failed to process_edit_recipe_info: {e}") from e
 
     @staticmethod
@@ -204,7 +195,7 @@ class RecipeServices():
                     recipe_ingredient = Ingredient.query.get(
                         ingredient["id"])
                     if not recipe_ingredient:
-                        raise SQLAlchemyError(f"No ingredient matching id #: {ingredient['id']}") from e
+                        raise NotFound(f"No ingredient matching id #: {ingredient['id']}")
                     
                     if amount:
                         recipe_ingredient.quantity_amount_id = quantity_amount_id
@@ -219,7 +210,6 @@ class RecipeServices():
                         quantity_unit_id=quantity_unit_id,
                         quantity_amount_id=quantity_amount_id)
         except Exception as e:
-            highlight(e, "!")
             raise type(e)(f"Failed to process_edit_ingredients: {e}") from e
 
     @staticmethod
@@ -231,7 +221,7 @@ class RecipeServices():
                     recipe_instruction = RecipeInstruction.query.get(
                         instruction["associationId"])
                     if not recipe_instruction:
-                        raise SQLAlchemyError(
+                        raise NotFound(
                             f"No recipe_instruction associated to id # {instruction['associationId']}")
                     recipe_instruction.instruction_id = instruction["newId"]
                 else:
@@ -239,7 +229,6 @@ class RecipeServices():
                         recipe_id=recipe_id,
                         instruction_id=instruction["newId"])
         except Exception as e:
-            highlight(e, "!")
             raise type(e)(f"Failed to process_edit_instructions: {e}") from e
 
     @staticmethod

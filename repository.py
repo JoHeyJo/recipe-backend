@@ -95,7 +95,7 @@ class RecipeRepo():
         """Deletes recipe and all references in association tables"""
         try:
             db.session.execute(
-                # Use direct SQLAlchemy delete - errors occur using ORM
+                # Use direct SQLAlchemy delete - error occurs using ORM
                 db.delete(Recipe).where(Recipe.id == int(recipe_id))
             )
         except Exception as e:

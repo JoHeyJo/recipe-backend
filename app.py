@@ -53,13 +53,8 @@ def index():
 @route_error_handler
 def signup():
     """Facilitates new user data, return token"""
-    # try:
     token = UserServices.authenticate_signup(request=request)
     return jsonify({"token": token})
-    # except (UsernameAlreadyTakenError, EmailAlreadyRegisteredError, SignUpError) as e:
-        # return jsonify({"error": str(e)}), 400
-    # except Exception as e:
-        # return jsonify({"error": "An unexpected error occurred"}), 500
 
 
 @app.post("/login")
@@ -92,7 +87,7 @@ def get_user(user_id):
 def add_recipe(user_id, book_id):
     """Consolidate recipe data. If successful recipes_ingredients record created"""
     recipe_data = RecipeServices.process_recipe_data(
-        request={"recipe": request}, book_id=book_id, user_id=user_id)
+        request={"recipe": request}, book_id=book_id)
     return jsonify(recipe_data), 200
 
 
@@ -120,7 +115,7 @@ def update_user_recipe(user_id, book_id, recipe_id):
 @route_error_handler
 def get_delete_recipe(user_id, book_id, recipe_id):
     """Facilitate deletion of recipe record associated to user"""
-    response = RecipeRepo.delete_recipe(recipe_id=recipe_id)
+    response = RecipeServices.remove_recipe(recipe_id=recipe_id)
     return jsonify(response)
 
 
@@ -136,12 +131,9 @@ def add_book(user_id):
     description = request.json["description"]
     book_data = {"title": title, "description": description}
     highlight(request,"@")
-    # try:
     book_data = BookServices.process_new_book(
         book_data=book_data, user_id=user_id)
     return jsonify(book_data), 200
-    # except Exception as e:
-        # return jsonify({"error": f"create_book error{e}"}), 400
 
 
 @app.get("/users/<user_id>/books")
