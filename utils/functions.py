@@ -1,9 +1,7 @@
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.exc import SQLAlchemyError
-
 
 def insert_first(Model, data, column_name, db):
-    """Insert-first data entry method leveraging SQLAlchemy CORE."""
+    """Insert-first data entry method leveraging SQLAlchemy CORE. Auto commits session"""
     try:
         # Insert with conflict handling
         stmt = (
@@ -26,5 +24,6 @@ def insert_first(Model, data, column_name, db):
 
         return quantity_amount
 
-    except SQLAlchemyError as e:
-        raise RuntimeError(f"insert_first: Database error occurred: {e}") from e
+    except Exception as e:
+        db.session.rollback()
+        raise type(e)(f"insert_first: Database error occurred: {e}") from e

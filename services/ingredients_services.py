@@ -15,7 +15,7 @@ class IngredientServices():
                 return ItemRepo.query_all_items()
         except Exception as e:
             raise type(e)(
-                f"Error in IngredientServices -> fetch_components_options: {e}")
+                f"Error in IngredientServices -> fetch_components_options: {e}") from e
 
     @staticmethod
     def fetch_book_components_options(book_id):
@@ -27,7 +27,7 @@ class IngredientServices():
             return {"amounts": amounts, "units": units, "items": items}
         except Exception as e:
             raise type(e)(
-                f"Error in IngredientServices -> fetch_book_components_options: {e}")
+                f"Error in IngredientServices -> fetch_book_components_options: {e}") from e
 
     @staticmethod
     def fetch_user_components_options(user_id):
@@ -39,21 +39,22 @@ class IngredientServices():
             return {"amounts": amounts, "units": units, "items": items}
         except Exception as e:
             raise type(e)(
-                f"Error in IngredientServices -> fetch_user_components_options: {e}")
+                f"Error in IngredientServices -> fetch_user_components_options: {e}") from e
 
     @staticmethod
     def post_component_option(component, option, book_id):
-        """Calls corresponding ingredient component method for processing"""
+        """Calls corresponding ingredient component method for processing.
+        Session is in autocommit mode - using SQLAlchemy core for insert"""
         try:
             if component == "amount":
-                return QuantityAmountRepo.process_amount(amount=option, book_id=book_id)
+                return AmountServices.process_amount(amount=option, book_id=book_id)
             if component == "unit":
-                return QuantityUnitRepo.process_unit(unit=option, book_id=book_id)
+                return UnitServices.process_unit(unit=option, book_id=book_id)
             if component == "item":
                 return ItemServices.process_item(item=option, book_id=book_id)
         except Exception as e:
             raise type(e)(
-                f"Error in IngredientServices -> post_component_option: {e}")
+                f"Error in IngredientServices -> post_component_option: {e}") from e
 
     @staticmethod
     def create_option_association(component, book_id, option_id):
@@ -68,7 +69,7 @@ class IngredientServices():
                 ItemBookRepo.create_entry(item_id=option_id, book_id=book_id)
         except Exception as e:
             raise type(e)(
-                f"IngredientServices -> create_option_association error: {e}")
+                f"IngredientServices -> create_option_association error: {e}") from e
 
     @staticmethod
     def process_ingredient_components(book_id, ingredients):
@@ -125,8 +126,8 @@ class ItemServices():
     @staticmethod
     def process_item(item, book_id):
         """Create and returns new item or return existing item - Associates item to book"""
-        is_stored = item.get("id")
         try:
+            is_stored = item.get("id")
             if is_stored is None:
                 item = ItemRepo.create_item(name=item["name"])
             ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
@@ -140,8 +141,8 @@ class AmountServices():
     @staticmethod
     def process_amount(amount, book_id):
         """Creates and returns new amount or return existing amount - Associates amount to book """
-        is_stored = amount.get("id")
         try:
+            is_stored = amount.get("id")
             if is_stored is None:
                 amount = QuantityAmountRepo.create_amount(
                     value=amount["value"])
@@ -157,8 +158,8 @@ class UnitServices():
     @staticmethod
     def process_unit(unit, book_id):
         """Creates and returns new unit or returns existing unit - Associates unit to book"""
-        is_stored = unit.get("id")
         try:
+            is_stored = unit.get("id")
             if is_stored is None:
                 unit = QuantityUnitRepo.create_unit(type=unit["type"])
             UnitBookRepo.create_entry(unit_id=unit["id"], book_id=book_id)

@@ -144,26 +144,22 @@ def get_user_books(user_id):
 
 @app.post("/users/<user_id>/books/<book_id>/ingredients/<component>")
 @check_user_identity
+@route_error_handler
 def add_book_ingredient(user_id, book_id, component):
     """Facilitates creation of book's component option"""
-    try:
-        return IngredientServices.post_component_option(
-            component=component, option=request.json, book_id=book_id)
-    except IntegrityError as e:
-        return jsonify({"error": f"add_book_ingredient error{e}"}), 400
+    return IngredientServices.post_component_option(
+        component=component, option=request.json, book_id=book_id)
 
 
 @app.post("/users/<user_id>/books/<book_id>/components/<component>/options/<option_id>")
 @check_user_identity
+@route_error_handler
 def add_option_association(user_id, book_id, component, option_id):
     """Facilitates association of user option to book"""
-    try:
-        IngredientServices.create_option_association(
-            component=component, book_id=book_id, option_id=option_id)
-        return jsonify({"message":
-                        f"Successful association of option {option_id} to book {book_id}!"})
-    except IntegrityError as e:
-        return jsonify({"error": f"add_option_association error{e}"}), 400
+    IngredientServices.create_option_association(
+        component=component, book_id=book_id, option_id=option_id)
+    return jsonify({"message":
+                    f"Successful association of option {option_id} to book {book_id}!"})
 
 
 @app.get("/ingredients/<ingredient>")

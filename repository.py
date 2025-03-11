@@ -87,7 +87,6 @@ class RecipeRepo():
             recipes = book.recipes
             return [Recipe.serialize(recipe) for recipe in recipes]
         except Exception as e:
-            highlight(e, "!")
             raise type(e)(f"create_recipe error:{e}")
 
     @staticmethod
@@ -99,7 +98,6 @@ class RecipeRepo():
                 db.delete(Recipe).where(Recipe.id == int(recipe_id))
             )
         except Exception as e:
-            highlight(e, "!")
             raise type(e)(f"delete_recipe error:{e}") from e
 
 
@@ -113,7 +111,6 @@ class QuantityAmountRepo():
                 Model=QuantityAmount, data=value, column_name="value", db=db)
             return QuantityAmount.serialize(quantity_amount)
         except Exception as e:
-            highlight(e, "!")
             raise type(e)(f"QuantityAmountRepo - create_amount error:{e}") from e
 
     @staticmethod
@@ -123,7 +120,6 @@ class QuantityAmountRepo():
             amounts = QuantityAmount.query.all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
-            highlight(e, "!")
             db.session.rollback()
             raise type(e)(f"QuantityAmountRepo -  get_all_amounts error: {e}")
 
@@ -134,7 +130,6 @@ class QuantityAmountRepo():
             amounts = Book.query.get(book_id).amounts
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
-            highlight(e, "!")
             db.session.rollback()
             raise type(e)(f"QuantityAmountRepo -  get_book_amounts error: {e}")
 
@@ -149,7 +144,6 @@ class QuantityAmountRepo():
             ).filter(UserBook.user_id == user_id).all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
-            highlight(e, "!")
             db.session.rollback()
             raise type(e)(f"QuantityAmountRepo - get_user_amounts error: {e}")
 
@@ -163,8 +157,7 @@ class QuantityUnitRepo():
             quantity_unit = insert_first(
                 Model=QuantityUnit, data=type, column_name="type", db=db)
             return QuantityUnit.serialize(quantity_unit)
-        except RuntimeError as e:
-            highlight(e, "!")
+        except Exception as e:
             raise type(e)(f"QuantityUnitRepo - create_unit:{e}") from e
 
     @staticmethod
@@ -178,7 +171,6 @@ class QuantityUnitRepo():
             ).filter(UserBook.user_id == user_id).all()
             return [QuantityUnit.serialize(unit) for unit in units]
         except Exception as e:
-            highlight(e, "!")
             db.session.rollback()
             raise type(e)(f"QuantityUnitRepo - get_all_units error: {e}")
 
@@ -189,9 +181,8 @@ class QuantityUnitRepo():
             units = Book.query.get(book_id).units
             return [QuantityUnit.serialize(unit) for unit in units]
         except Exception as e:
-            highlight(e, "!")
             db.session.rollback()
-            raise type(e)(f"QuantityUnitRepo - get_book_units error: {e}")
+            raise type(e)(f"QuantityUnitRepo - get_book_units error: {e}") from e
 
 
 class ItemRepo():
@@ -203,7 +194,7 @@ class ItemRepo():
             item = insert_first(
                 Model=Item, data=name, column_name="name", db=db)
             return Item.serialize(item)
-        except RuntimeError as e:
+        except Exception as e:
             raise type(e)(f"ItemRepo - create_item error: {e}") from e
 
     @staticmethod
@@ -213,9 +204,8 @@ class ItemRepo():
             items = Item.query.all()
             return [Item.serialize(item) for item in items]
         except Exception as e:
-            highlight(e, "!")
             db.session.rollback()
-            raise type(e)(f"get_all_item error: {e}")
+            raise type(e)(f"get_all_item error: {e}") from e
 
     @staticmethod
     def get_book_items(book_id):
@@ -224,9 +214,8 @@ class ItemRepo():
             items = Book.query.get(book_id).items
             return [Item.serialize(item) for item in items]
         except Exception as e:
-            highlight(e, "!")
             db.session.rollback()
-            raise type(e)(f"get_book_items error: {e}")
+            raise type(e)(f"get_book_items error: {e}") from e
 
     @staticmethod
     def query_user_items(user_id):
@@ -239,7 +228,6 @@ class ItemRepo():
             ).filter(UserBook.user_id == user_id).all()
             return [Item.serialize(item) for item in items]
         except Exception as e:
-            highlight(e, "!")
             db.session.rollback()
             raise type(e)(f"query_user_items error: {e}") from e
 
@@ -416,7 +404,7 @@ class UnitBookRepo():
             db.session.add(entry)
             db.session.flush()
             return entry.id
-        except RuntimeError as e:
+        except Exception as e:
             raise type(e)(f"UnitBookRepo - create_entry error:{e}") from e
 
 
