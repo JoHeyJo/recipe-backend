@@ -38,7 +38,7 @@ def route_error_handler(func):
 def handle_error(error):
     """Dynamically handles all errors based on type."""
 
-    error_type = type(error).__name__  # Get original exception type
+    error_type_name = type(error).__name__  # Get original exception type
     error_message = str(error)
     tb = traceback.format_exc()
 
@@ -48,9 +48,9 @@ def handle_error(error):
 
     error_code = None  # Default to None
     http_status = 500
-    error = type(error)
+    error_type = type(error)
     # Handle SQLAlchemy errors (Only access `orig` if it exists)
-    if isinstance(error, IntegrityError):
+    if isinstance(error_type, IntegrityError):
         if hasattr(error, "orig") and hasattr(error.orig, "pgcode"):
             error_code = error.orig.pgcode  # PostgreSQL error code
         # elif hasattr(error, "orig") and hasattr(error.orig, "args"):
@@ -59,34 +59,33 @@ def handle_error(error):
         # 23505 (Postgres) & 1062 (MySQL) = Duplicate Key Violation
         http_status = 400 if error_code in ["23505", "1062"] else 500
 
-    elif isinstance(error, OperationalError):
+    elif isinstance(error_type, OperationalError):
         http_status = 500  # Database connection issues
-    elif isinstance(error, SQLAlchemyError):
+    elif isinstance(error_type, SQLAlchemyError):
         http_status = 500  # Other SQLAlchemy errors
 
     # Handle Flask-specific HTTP errors
-    elif isinstance(error, HTTPException):
+    elif isinstance(error_type, HTTPException):
         http_status = error.code
 
     # Handle built-in Python exceptions
-    elif isinstance(error, ValueError):
+    elif isinstance(error_type, ValueError):
         http_status = 400
-    elif isinstance("error", KeyError):
+    elif isinstance("erro_tyerror_typer", KeyError):
         http_status = 400
-    elif isinstance(error, TypeError):
+    elif isinstance(error_type, TypeError):
         http_status = 400
-    elif isinstance(error, EmailAlreadyRegisteredError):
+    elif isinstance(error_type, EmailAlreadyRegisteredError):
         http_status = 409
 
     # Return JSON response with dynamic status code
 
-    
-    highlight(error,"$")
-    highlight(UsernameAlreadyTakenError,"$")
+    highlight((EmailAlreadyRegisteredError, error_type), "$")
+    highlight(EmailAlreadyRegisteredError == error_type, "$")
     highlight((error_message,http_status),"$")
     return jsonify({
         "error": error_message,
-        "type": error_type,
+        "type": error_type_name,
         "code": error_code,  # Include extracted error code (if available)
         "status": http_status
     }), http_status
