@@ -67,7 +67,9 @@ class IngredientServices():
                 UnitBookRepo.create_entry(unit_id=option_id, book_id=book_id)
             if component == "item":
                 ItemBookRepo.create_entry(item_id=option_id, book_id=book_id)
+            db.session.commit()
         except Exception as e:
+            db.session.rollback()
             raise type(e)(
                 f"IngredientServices -> create_option_association error: {e}") from e
 
