@@ -41,6 +41,7 @@ def handle_error(error):
     error_type_name = type(error).__name__  # Get original exception type
     error_message = str(error)
     tb = traceback.format_exc()
+    error_type = type(error)
 
     print("⚠️⚠️⚠️⚠️⚠️⚠️⚠️ ERROR TRACEBACK START ⚠️⚠️⚠️⚠️⚠️⚠️⚠️")
     print(tb)
@@ -48,14 +49,10 @@ def handle_error(error):
 
     error_code = None  # Default to None
     http_status = 500
-    error_type = type(error)
     # Handle SQLAlchemy errors (Only access `orig` if it exists)
     if isinstance(error_type, IntegrityError):
         if hasattr(error, "orig") and hasattr(error.orig, "pgcode"):
             error_code = error.orig.pgcode  # PostgreSQL error code
-        # elif hasattr(error, "orig") and hasattr(error.orig, "args"):
-        #     error_code = error.orig.args[0]  # MySQL/SQLite error code
-
         # 23505 (Postgres) & 1062 (MySQL) = Duplicate Key Violation
         http_status = 400 if error_code in ["23505", "1062"] else 500
 
@@ -75,7 +72,7 @@ def handle_error(error):
         http_status = 400
     elif isinstance(error_type, TypeError):
         http_status = 400
-    elif isinstance(error_type, EmailAlreadyRegisteredError):
+    elif issubclass(error_type, EmailAlreadyRegisteredError):
         http_status = 409
 
     # Return JSON response with dynamic status code

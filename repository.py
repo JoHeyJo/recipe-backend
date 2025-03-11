@@ -34,14 +34,15 @@ class UserRepo():
             token = create_access_token(identity=user.id)
             return token
         except Exception as e:
+            # can be moved to handle_route_errors
             if "users_user_name_key" in str(e.orig):
                 raise UsernameAlreadyTakenError(
-                    "This username is already taken.")
+                    "This username is already taken.") from e
             elif "users_email_key" in str(e.orig):
                 raise EmailAlreadyRegisteredError(
                     "This email is already taken.") from e
             else:
-                raise SignUpError("An error occurred during signup.")
+                raise SignUpError("An error occurred during signup.") from e
 
     @staticmethod
     def login(user_name, password):

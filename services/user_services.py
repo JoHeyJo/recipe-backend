@@ -18,7 +18,6 @@ class UserServices():
             db.session.commit()
             return token
         except Exception as e:
-            print(e, "++++++++++++++++++++")
             db.session.rollback()
             raise 
     
