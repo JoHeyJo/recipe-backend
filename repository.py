@@ -114,14 +114,14 @@ class QuantityAmountRepo():
             raise type(e)(f"QuantityAmountRepo - create_amount error:{e}") from e
 
     @staticmethod
-    def get_all_amounts():
+    def query_all_amounts():
         """Return all amounts"""
         try:
             amounts = QuantityAmount.query.all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
             db.session.rollback()
-            raise type(e)(f"QuantityAmountRepo -  get_all_amounts error: {e}")
+            raise type(e)(f"QuantityAmountRepo -  get_all_amounts error: {e}") from e
 
     @staticmethod
     def get_book_amounts(book_id):
@@ -130,8 +130,7 @@ class QuantityAmountRepo():
             amounts = Book.query.get(book_id).amounts
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
-            db.session.rollback()
-            raise type(e)(f"QuantityAmountRepo -  get_book_amounts error: {e}")
+            raise type(e)(f"QuantityAmountRepo -  get_book_amounts error: {e}") from e
 
     @staticmethod
     def query_user_amounts(user_id):
@@ -144,8 +143,7 @@ class QuantityAmountRepo():
             ).filter(UserBook.user_id == user_id).all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
-            db.session.rollback()
-            raise type(e)(f"QuantityAmountRepo - get_user_amounts error: {e}")
+            raise type(e)(f"QuantityAmountRepo - get_user_amounts error: {e}") from e
 
 
 class QuantityUnitRepo():
@@ -171,8 +169,7 @@ class QuantityUnitRepo():
             ).filter(UserBook.user_id == user_id).all()
             return [QuantityUnit.serialize(unit) for unit in units]
         except Exception as e:
-            db.session.rollback()
-            raise type(e)(f"QuantityUnitRepo - get_all_units error: {e}")
+            raise type(e)(f"QuantityUnitRepo - get_all_units error: {e}") from e
 
     @staticmethod
     def get_book_units(book_id):
@@ -228,7 +225,6 @@ class ItemRepo():
             ).filter(UserBook.user_id == user_id).all()
             return [Item.serialize(item) for item in items]
         except Exception as e:
-            db.session.rollback()
             raise type(e)(f"query_user_items error: {e}") from e
 
 

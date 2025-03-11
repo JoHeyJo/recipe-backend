@@ -8,9 +8,9 @@ class IngredientServices():
         """Retrieves individual ingredient components"""
         try:
             if ingredient == "amounts":
-                return QuantityAmountRepo.get_all_amounts()
+                return QuantityAmountRepo.query_all_amounts()
             if ingredient == "units":
-                return QuantityUnitRepo.get_all_units()
+                return QuantityUnitRepo.query_all_units() #needs to be created
             if ingredient == "items":
                 return ItemRepo.query_all_items()
         except Exception as e:
@@ -68,6 +68,7 @@ class IngredientServices():
             if component == "item":
                 ItemBookRepo.create_entry(item_id=option_id, book_id=book_id)
             db.session.commit()
+            return {"message": f"Successful association of option {option_id} to book {book_id}!"}
         except Exception as e:
             db.session.rollback()
             raise type(e)(

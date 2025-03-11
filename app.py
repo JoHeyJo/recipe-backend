@@ -156,31 +156,26 @@ def add_book_ingredient(user_id, book_id, component):
 @route_error_handler
 def add_option_association(user_id, book_id, component, option_id):
     """Facilitates association of user option to book"""
-    IngredientServices.create_option_association(
+    response = IngredientServices.create_option_association(
         component=component, book_id=book_id, option_id=option_id)
-    return jsonify({"message":
-                    f"Successful association of option {option_id} to book {book_id}!"})
+    return jsonify(response)
 
 
-@app.get("/ingredients/<ingredient>")
-@jwt_required()
-def get_ingredients(ingredient):
-    """Facilitates retrieval of ALL options of ingredient components"""
-    try:
-        ingredients = IngredientServices.fetch_components_options(ingredient)
-        return jsonify(ingredients)
-    except IntegrityError as e:
-        return jsonify({"error": f"get_ingredients error{e}"}), 400
+# @app.get("/ingredients/<ingredient>")
+# @jwt_required()
+# @route_error_handler
+# def get_ingredients(ingredient):
+#     """Facilitates retrieval of ALL options of ingredient components"""
+#     ingredients = IngredientServices.fetch_components_options(ingredient)
+#     return jsonify(ingredients)
 
 
 @app.get("/users/<user_id>/ingredients/components")
 @check_user_identity
+@route_error_handler
 def get_user_ingredients(user_id):
     """Facilitates retrieval of components options associated to User"""
-    try:
-        return IngredientServices.fetch_user_components_options(user_id=user_id)
-    except IntegrityError as e:
-        return jsonify({"error": f"get_user_ingredients error{e}"}), 400
+    return IngredientServices.fetch_user_components_options(user_id=user_id)
 
 
 @app.get("/users/<user_id>/books/<book_id>/ingredients/components")
