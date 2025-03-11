@@ -39,7 +39,7 @@ class UserRepo():
                     "This username is already taken.")
             elif "users_email_key" in str(e.orig):
                 raise EmailAlreadyRegisteredError(
-                    "This email is already taken.")
+                    "This email is already taken.") from e
             else:
                 raise SignUpError("An error occurred during signup.")
 
@@ -87,7 +87,6 @@ class RecipeRepo():
             return [Recipe.serialize(recipe) for recipe in recipes]
         except Exception as e:
             highlight(e, "!")
-            db.session.rollback()
             raise type(e)(f"create_recipe error:{e}")
 
     @staticmethod

@@ -48,7 +48,7 @@ def handle_error(error):
 
     error_code = None  # Default to None
     http_status = 500
-
+    error = type(error)
     # Handle SQLAlchemy errors (Only access `orig` if it exists)
     if isinstance(error, IntegrityError):
         if hasattr(error, "orig") and hasattr(error.orig, "pgcode"):
@@ -75,13 +75,14 @@ def handle_error(error):
         http_status = 400
     elif isinstance(error, TypeError):
         http_status = 400
-    elif isinstance(error, UsernameAlreadyTakenError):
+    elif isinstance(error, EmailAlreadyRegisteredError):
         http_status = 409
 
     # Return JSON response with dynamic status code
 
     
     highlight(error,"$")
+    highlight(UsernameAlreadyTakenError,"$")
     highlight((error_message,http_status),"$")
     return jsonify({
         "error": error_message,
