@@ -133,9 +133,10 @@ def add_book(user_id):
 
 @app.get("/users/<user_id>/books")
 @check_user_identity
+@route_error_handler
 def get_user_books(user_id):
     """Returns all books associated with user"""
-    books = BookRepo.get_user_books(user_id=user_id)
+    books = BookServices.fetch_user_books(user_id=user_id)
     return jsonify(books), 200
 
 

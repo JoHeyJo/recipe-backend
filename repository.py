@@ -260,13 +260,12 @@ class BookRepo():
             raise type(e)(f"create_book error: {e}") from e
 
     @staticmethod
-    def get_user_books(user_id):
+    def query_user_books(user_id):
         """Returns all books associated to user"""
         try:
             user = User.query.get(user_id)
             return [Book.serialize(book) for book in user.books]
         except Exception as e:
-            db.session.rollback()
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
 
 

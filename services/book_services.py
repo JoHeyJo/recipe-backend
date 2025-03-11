@@ -25,3 +25,13 @@ class BookServices():
             db.session.rollback()
             raise 
 
+    @staticmethod
+    def fetch_user_books(user_id):
+        """Calls repo function to query user's books"""
+        try:
+            return BookRepo.query_user_books(user_id=user_id)
+        except Exception as e:
+            db.session.rollback()
+            raise
+        
+
