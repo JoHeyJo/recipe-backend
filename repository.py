@@ -253,10 +253,9 @@ class BookRepo():
 class InstructionRepo():
     """Facilitates instructions table interactions"""
     @staticmethod
-    def create_instruction(request, book_id):
+    def create_instruction(instruction):
         """Create and add instruction to database"""
         try:
-            instruction = request.json["instruction"]
             instruction = Instruction(instruction=instruction)
             db.session.add(instruction)
             db.session.flush()
