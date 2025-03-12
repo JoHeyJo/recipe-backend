@@ -22,8 +22,8 @@ class InstructionServices():
         try:
             instructions = InstructionRepo.query_book_instructions(book_id)
             return instructions
-        except IntegrityError as e:
-            raise (
+        except Exception as e:
+            raise type(e)(
                 f"Error in InstructionServices -> fetch_book_instructions: {e}") from e
 
     @staticmethod

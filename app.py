@@ -211,6 +211,7 @@ def add_instruction(user_id, book_id):
 
 @app.post("/users/<user_id>/books/<book_id>/instructions/<instruction_id>")
 @check_user_identity
+@route_error_handler
 def add_instruction_association(user_id, book_id, instruction_id):
     """Facilitates association of user instruction to book"""
     message = InstructionServices.create_instruction_association(
@@ -220,25 +221,21 @@ def add_instruction_association(user_id, book_id, instruction_id):
 
 @app.get("/instructions")
 @jwt_required()
+@check_user_identity
 def get_instructions():
     """Facilitates retrieval of instructions"""
-    try:
-        instructions = InstructionRepo.get_instructions()
-        return jsonify(instructions)
-    except IntegrityError as e:
-        return jsonify({"error": f"/instructions - get_instructions error{e}"}), 400
+    instructions = InstructionRepo.get_instructions()
+    return jsonify(instructions)
 
 
 @app.get("/users/<user_id>/instructions")
 @check_user_identity
+@route_error_handler
 def get_user_instructions(user_id):
     """Facilitates retrieval of user instructions"""
-    try:
-        instructions = InstructionServices.fetch_user_instructions(
-            user_id=user_id)
-        return jsonify(instructions)
-    except IntegrityError as e:
-        return jsonify({"error": f"/instructions - get_user_instructions error{e}"}), 400
+    instructions = InstructionServices.fetch_user_instructions(
+        user_id=user_id)
+    return jsonify(instructions)
 
 
 @app.get("/users/<user_id>/books/<book_id>/instructions")

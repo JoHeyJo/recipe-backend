@@ -296,9 +296,8 @@ class InstructionRepo():
             instructions = book.instructions
             return [Instruction.serialize(instruction) for instruction in instructions]
         except Exception as e:
-            db.session.rollback()
             raise type(e)(
-                f"InstructionRepo - query_book_instructions error: {e}")
+                f"InstructionRepo - query_book_instructions error: {e}") from e
 
 
 ###################### ASSOCIATION TABLES ############################
