@@ -54,7 +54,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     # opens up access to data spread across multiple primary tables
     # (amounts, units, items) consolidated in Ingredient
     ingredients = relationship(
-        'Ingredient', back_populates='recipe', passive_deletes=True, order_by="Ingredient.id")
+        'Ingredient', back_populates='recipe', passive_deletes=True, order_by="Ingredient.id", viewonly=True)
 
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='recipes_books', back_populates='recipes',
@@ -65,13 +65,13 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         passive_deletes=True, order_by="RecipeInstruction.id")
 
     units: Mapped[List['QuantityUnit']] = relationship(
-        "QuantityUnit", secondary='ingredients', back_populates='recipes')
+        "QuantityUnit", secondary='ingredients', back_populates='recipes', overlaps="ingredients")
 
     amounts: Mapped[List['QuantityAmount']] = relationship(
-        "QuantityAmount", secondary='ingredients', back_populates='recipes')
+        "QuantityAmount", secondary='ingredients', back_populates='recipes', overlaps="ingredients,units")
 
     items: Mapped[List['Item']] = relationship(
-        "Item", secondary='ingredients', back_populates='recipes')
+        "Item", secondary='ingredients', back_populates='recipes', overlaps="ingredients,units,amounts")
 
 
 class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -186,23 +186,17 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     queries of whole ingredient instances and their individual parts 
     e.g. item, amount, unit"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    recipe_id: Mapped[int] = Column(
-        Integer, ForeignKey('recipes.id', ondelete="CASCADE"))
-    quantity_amount_id: Mapped[int] = Column(
-        Integer, ForeignKey('quantity_amounts.id'))
-    quantity_unit_id: Mapped[int] = Column(
-        Integer, ForeignKey('quantity_units.id'))
-    item_id: Mapped[int] = Column(
-        Integer, ForeignKey('items.id'))
+    recipe_id: Mapped[int] = Column(Integer, ForeignKey('recipes.id', ondelete="CASCADE"))
+    quantity_amount_id: Mapped[int] = Column(Integer, ForeignKey('quantity_amounts.id'))
+    quantity_unit_id: Mapped[int] = Column(Integer, ForeignKey('quantity_units.id'))
+    item_id: Mapped[int] = Column(Integer, ForeignKey('items.id'))
 
     # enhanced association table attributes
-    amount: Mapped['QuantityAmount'] = relationship(
-        "QuantityAmount", back_populates="ingredients")
-    unit: Mapped['QuantityUnit'] = relationship(
-        "QuantityUnit", back_populates="ingredients")
-    item: Mapped['Item'] = relationship("Item", back_populates="ingredients")
-    recipe: Mapped['Recipe'] = relationship(
-        "Recipe", back_populates="ingredients")
+    # Does ORM delete work with passive_deletes=True?????
+    amount: Mapped['QuantityAmount'] = relationship("QuantityAmount", back_populates="ingredients", foreign_keys=[quantity_amount_id], passive_deletes=True)
+    unit: Mapped['QuantityUnit'] = relationship("QuantityUnit", back_populates="ingredients", foreign_keys=[quantity_unit_id], passive_deletes=True)
+    item: Mapped['Item'] = relationship("Item", back_populates="ingredients", foreign_keys=[item_id], passive_deletes=True)
+    recipe: Mapped['Recipe'] = relationship("Recipe", back_populates="ingredients", foreign_keys=[recipe_id], passive_deletes=True)
 
 
 class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):

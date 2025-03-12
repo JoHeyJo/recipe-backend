@@ -73,6 +73,7 @@ def login():
 ########### USERS ###########
 @app.get("/users/<user_id>")
 @check_user_identity
+@route_error_handler
 def get_user(user_id):
     """Retrieve user associated to id"""
     return jsonify(UserServices.fetch_user(user_id=user_id))

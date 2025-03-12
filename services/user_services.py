@@ -17,7 +17,7 @@ class UserServices():
                                     last_name, email, password)
             db.session.commit()
             return token
-        except Exception as e:
+        except Exception:
             db.session.rollback()
             raise 
     
@@ -29,7 +29,7 @@ class UserServices():
         try:
             token = UserRepo.login(user_name=user_name, password=password)
             return token
-        except Exception as e:
+        except Exception:
             db.session.rollback()
             raise 
 
@@ -50,6 +50,5 @@ class UserServices():
                 user["default_book"] = default_book
             
             return user_data
-        except Exception as e:
-            db.session.rollback()
+        except Exception:
             raise
