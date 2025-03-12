@@ -2,7 +2,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from repository import InstructionRepo
 from models import db, Instruction, RecipeInstruction
 from repository import highlight, UserBook, BookInstructionRepo
-
+from sqlalchemy.exc import ProgrammingError
 
 class InstructionServices():
     """Handles instructions view business logic"""
@@ -17,14 +17,19 @@ class InstructionServices():
                 f"Error in InstructionServices -> fetch_user_instructions: {e}") from e
 
     @staticmethod
-    def fetch_book_instructions(book_id):
+    def fetch_book_instructions(book_id, user_id):
         """Retrieves book instructions"""
-        try:
-            instructions = InstructionRepo.query_book_instructions(book_id)
-            return instructions
-        except Exception as e:
-            raise type(e)(
-                f"Error in InstructionServices -> fetch_book_instructions: {e}") from e
+        has_access = InstructionServices.check_book_access(
+            user_id=user_id, book_id=book_id)
+        if has_access:
+            try:
+                instructions = InstructionRepo.query_book_instructions(book_id)
+                return instructions
+            except Exception as e:
+                raise type(e)(
+                    f"Error in InstructionServices -> fetch_book_instructions: {e}") from e
+        else:
+            raise ProgrammingError("User does not have access to book")
 
     @staticmethod
     def check_book_access(user_id, book_id):
@@ -36,8 +41,8 @@ class InstructionServices():
                 return True
             else:
                 return False
-        except IntegrityError as e:
-            raise (
+        except Exception as e:
+            raise type(e)(
                 f"Error in InstructionServices -> check_user_access: {e}") from e
 
     @staticmethod
@@ -79,14 +84,15 @@ class InstructionServices():
             if is_stored is None:
                 try:
                     # is this neccessry, all recipe instructions should already be created
-                    highlight(instruction,"created")
+                    highlight(instruction, "created")
                     instruction = InstructionRepo.create_instruction(
                         instruction=instruction["instruction"])
                     processed_instructions.append(instruction)
                     BookInstructionRepo.create_entry(
                         book_id=book_id, instruction_id=instruction.id)
                 except Exception as e:
-                    raise type(e)(f"Error in InstructionServices - process_instructions: {e}")
+                    raise type(e)(
+                        f"Error in InstructionServices - process_instructions: {e}")
             else:
                 processed_instructions.append(instruction)
         return processed_instructions

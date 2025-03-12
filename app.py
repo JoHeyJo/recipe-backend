@@ -242,17 +242,9 @@ def get_user_instructions(user_id):
 @check_user_identity
 def get_book_instructions(user_id, book_id):
     """Facilitates retrieval of book instructions"""
-    try:
-        has_access = InstructionServices.check_book_access(
-            user_id=user_id, book_id=book_id)
-        if has_access:
-            instructions = InstructionServices.fetch_book_instructions(
-                book_id=book_id)
-            return jsonify(instructions)
-        else:
-            return jsonify({"message": "user does not have access to book"})
-    except IntegrityError as e:
-        return jsonify({"error": f"/instructions - get_book_instructions error{e}"}), 400
+    response = InstructionServices.fetch_book_instructions(
+        book_id=book_id)
+    return jsonify(response)
 
 ################################################################################
 
