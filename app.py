@@ -213,13 +213,9 @@ def add_instruction(user_id, book_id):
 @check_user_identity
 def add_instruction_association(user_id, book_id, instruction_id):
     """Facilitates association of user instruction to book"""
-    try:
-        InstructionServices.create_instruction_association(
-            book_id=book_id, instruction_id=instruction_id)
-        return jsonify({"message":
-                        f"Successful association of instruction {instruction_id} to book {book_id}!"})
-    except IntegrityError as e:
-        return jsonify({"error": f"add_instruction_association error{e}"}), 400
+    message = InstructionServices.create_instruction_association(
+        book_id=book_id, instruction_id=instruction_id)
+    return jsonify(message)
 
 
 @app.get("/instructions")

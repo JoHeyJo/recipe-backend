@@ -49,8 +49,10 @@ class InstructionServices():
                 instruction=instruction)
             processed_instruction = InstructionServices.create_instruction_association(
                 book_id=book_id, instruction_id=created_instruction["id"])
+            db.session.commit()
             return processed_instruction
         except Exception as e:
+            db.session.rollback()
             raise type(e)(
                 f"Error in InstructionServices - process_book_instruction") from e
 
@@ -60,9 +62,13 @@ class InstructionServices():
         try:
             BookInstructionRepo.create_entry(
                 book_id=book_id, instruction_id=instruction_id)
-        except IntegrityError as e:
-            raise (
-                f"Error in InstructionServices -> create_instruction_association: {e}")
+            db.session.commit()
+            return {"message":
+                    f"Successful association of instruction {instruction_id} to book {book_id}!"}
+        except Exception as e:
+            db.session.rollback()
+            raise type(e)(
+                f"Error in InstructionServices -> create_instruction_association: {e}") from e
 
     @staticmethod
     def process_instructions(instructions, book_id):

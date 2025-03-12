@@ -354,7 +354,6 @@ class BookInstructionRepo():
                 book_id=book_id, instruction_id=instruction_id)
             db.session.add(entry)
         except Exception as e:
-            db.session.rollback()
             raise type(e)(f"BookInstructionRepo - create_entry error :{e}") from e
 
 
