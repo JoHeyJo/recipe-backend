@@ -197,18 +197,16 @@ def get_book_ingredient_components(user_id, book_id):
 #         return jsonify(ingredient)
 #     except IntegrityError as e:
 #         return jsonify({"error": f"add_ingredient error{e}"}), 400
+
 ########### INSTRUCTIONS ###########
 @app.post("/users/<user_id>/books/<book_id>/instructions")
 @check_user_identity
+@route_error_handler
 def add_instruction(user_id, book_id):
-    """Facilitates creation of instruction"""
-    instruction = request.json["instruction"]
-    try:
-        instruction = InstructionRepo.create_instruction(
-            instruction=instruction, book_id=book_id)
-        return jsonify(instruction)
-    except IntegrityError as e:
-        return jsonify({"error": f"add_instruction error{e}"}), 400
+    """Facilitates creation of book instruction"""
+    instruction = InstructionRepo.create_instruction(
+        request=request, book_id=book_id)
+    return jsonify(instruction)
 
 
 @app.post("/users/<user_id>/books/<book_id>/instructions/<instruction_id>")

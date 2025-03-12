@@ -1,14 +1,11 @@
 from flask import jsonify
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-
+# Deprecated????
 def handle_error(error):
     """Dynamically handles all errors based on type."""
 
     error_type = type(error).__name__  # Get original exception type
     error_message = str(error)
-
-    print("!!!!!!!!!!!!!!!!")
-
     
     if isinstance(error, TypeError):
         return jsonify({"error": error_message})

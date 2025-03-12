@@ -37,6 +37,9 @@ class InstructionServices():
              return False
        except IntegrityError as e:
            raise (f"Error in InstructionServices -> check_user_access: {e}")
+       
+    @staticmethod
+    def process_book_instructio
     
     @staticmethod
     def create_instruction_association(book_id, instruction_id):
