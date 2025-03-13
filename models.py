@@ -64,14 +64,14 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'Instruction', secondary='recipes_instructions', back_populates='recipes',
         passive_deletes=True, order_by="RecipeInstruction.id")
 
-    units: Mapped[List['QuantityUnit']] = relationship(
-        "QuantityUnit", secondary='ingredients', back_populates='recipes')
-
     amounts: Mapped[List['QuantityAmount']] = relationship(
-        "QuantityAmount", secondary='ingredients', back_populates='recipes')
+        "QuantityAmount", secondary='ingredients', back_populates='recipes', viewonly=True)
+
+    units: Mapped[List['QuantityUnit']] = relationship(
+        "QuantityUnit", secondary='ingredients', back_populates='recipes', viewonly=True)
 
     items: Mapped[List['Item']] = relationship(
-        "Item", secondary='ingredients', back_populates='recipes')
+        "Item", secondary='ingredients', back_populates='recipes', viewonly=True)
 
 
 class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -114,7 +114,7 @@ class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         "Book", secondary='amounts_books', back_populates='amounts')
 
     recipes: Mapped[List['Recipe']] = relationship(
-        "Recipe", secondary='ingredients', back_populates='amounts')
+        "Recipe", secondary='ingredients', back_populates='amounts', viewonly=True)
 
     ingredients: Mapped[List['Ingredient']] = relationship(
         "Ingredient", back_populates='amount')
@@ -133,7 +133,7 @@ class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         "Book", secondary='units_books', back_populates='units')
 
     recipes: Mapped[List['Recipe']] = relationship(
-        "Recipe", secondary='ingredients', back_populates='units')
+        "Recipe", secondary='ingredients', back_populates='units', viewonly=True)
 
     ingredients: Mapped[List['Ingredient']] = relationship(
         "Ingredient", back_populates='unit')
@@ -152,7 +152,7 @@ class Item(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         "Book", secondary='items_books', back_populates='items')
 
     recipes: Mapped[List['Recipe']] = relationship(
-        "Recipe", secondary='ingredients', back_populates='items')
+        "Recipe", secondary='ingredients', back_populates='items', viewonly=True)
 
     ingredients: Mapped[List['Ingredient']] = relationship(
         "Ingredient", back_populates='item')
@@ -186,17 +186,24 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     queries of whole ingredient instances and their individual parts 
     e.g. item, amount, unit"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    recipe_id: Mapped[int] = Column(Integer, ForeignKey('recipes.id', ondelete="CASCADE"))
-    quantity_amount_id: Mapped[int] = Column(Integer, ForeignKey('quantity_amounts.id'))
-    quantity_unit_id: Mapped[int] = Column(Integer, ForeignKey('quantity_units.id'))
+    recipe_id: Mapped[int] = Column(
+        Integer, ForeignKey('recipes.id', ondelete="CASCADE"))
+    quantity_amount_id: Mapped[int] = Column(
+        Integer, ForeignKey('quantity_amounts.id'))
+    quantity_unit_id: Mapped[int] = Column(
+        Integer, ForeignKey('quantity_units.id'))
     item_id: Mapped[int] = Column(Integer, ForeignKey('items.id'))
 
     # enhanced association table attributes
     # Does ORM delete work with passive_deletes=True?????
-    amount: Mapped['QuantityAmount'] = relationship("QuantityAmount", back_populates="ingredients", passive_deletes=True)
-    unit: Mapped['QuantityUnit'] = relationship("QuantityUnit", back_populates="ingredients", passive_deletes=True)
-    item: Mapped['Item'] = relationship("Item", back_populates="ingredients", passive_deletes=True)
-    recipe: Mapped['Recipe'] = relationship("Recipe", back_populates="ingredients", passive_deletes=True)
+    amount: Mapped['QuantityAmount'] = relationship(
+        "QuantityAmount", back_populates="ingredients", passive_deletes=True)
+    unit: Mapped['QuantityUnit'] = relationship(
+        "QuantityUnit", back_populates="ingredients", passive_deletes=True)
+    item: Mapped['Item'] = relationship(
+        "Item", back_populates="ingredients", passive_deletes=True)
+    recipe: Mapped['Recipe'] = relationship(
+        "Recipe", back_populates="ingredients", passive_deletes=True)
 
 
 class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):

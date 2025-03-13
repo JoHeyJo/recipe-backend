@@ -236,6 +236,7 @@ class BookRepo():
         try:
             book = Book(title=title, description=description)
             db.session.add(book)
+            db.session.flush()
             return Book.serialize(book)
         except Exception as e:
             raise type(e)(f"create_book error: {e}") from e

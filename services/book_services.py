@@ -20,6 +20,7 @@ class BookServices():
                 user.default_book_id = new_book["id"]
                 db.session.add(user)
             db.session.commit()
+            highlight(new_book,"@")
             return new_book
         except Exception as e:
             db.session.rollback()

@@ -241,10 +241,11 @@ def get_user_instructions(user_id):
 
 @app.get("/users/<user_id>/books/<book_id>/instructions")
 @check_user_identity
+@route_error_handler
 def get_book_instructions(user_id, book_id):
     """Facilitates retrieval of book instructions"""
     response = InstructionServices.fetch_book_instructions(
-        book_id=book_id)
+        book_id=book_id, user_id=user_id)
     return jsonify(response)
 
 ################################################################################
