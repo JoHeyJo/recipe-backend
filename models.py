@@ -54,7 +54,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     # opens up access to data spread across multiple primary tables
     # (amounts, units, items) consolidated in Ingredient
     ingredients = relationship(
-        'Ingredient', back_populates='recipe', passive_deletes=True, order_by="Ingredient.id", viewonly=True)
+        'Ingredient', back_populates='recipe', passive_deletes=True, order_by="Ingredient.id")
 
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='recipes_books', back_populates='recipes',
@@ -171,12 +171,12 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'Book', secondary="books_instructions", back_populates="instructions")
 
     recipes: Mapped[List['Recipe']] = relationship(
-        "Recipe", secondary="recipes_instructions", back_populates="instructions"
+        "Recipe", secondary="recipes_instructions", back_populates="instructions", viewonly=True
     )
 
-    recipe_instruction: Mapped['RecipeInstruction'] = relationship(
-        "RecipeInstruction", backref="instructions"
-    )
+    # recipe_instruction: Mapped['RecipeInstruction'] = relationship(
+    #     "RecipeInstruction", backref="instructions"
+    # )
 
 ###################### ASSOCIATION MODELS ############################
 
