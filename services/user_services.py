@@ -47,7 +47,9 @@ class UserServices():
             
             if default_book_id:
                 default_book = Book.serialize(Book.query.get(default_book_id))
-                user["default_book"] = default_book
+                print("%%%%%%%%%%%%%")
+                print(user,default_book)
+                user_data["default_book"] = default_book
             
             return user_data
         except Exception:

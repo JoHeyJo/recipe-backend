@@ -205,7 +205,7 @@ def get_book_ingredient_components(user_id, book_id):
 @route_error_handler
 def add_instruction(user_id, book_id):
     """Facilitates creation of book instruction"""
-    instruction = InstructionRepo.create_instruction(
+    instruction = InstructionServices.process_book_instruction(
         request=request, book_id=book_id)
     return jsonify(instruction)
 
