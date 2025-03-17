@@ -4,6 +4,7 @@ from repository import *
 class IngredientServices():
     """Handles ingredients view business logic"""
     @staticmethod
+    # NOT IN USE
     def fetch_components_options(ingredient):
         """Retrieves individual ingredient components"""
         try:
@@ -51,8 +52,11 @@ class IngredientServices():
             if component == "unit":
                 return UnitServices.process_unit(unit=option, book_id=book_id)
             if component == "item":
-                return ItemServices.process_item(item=option, book_id=book_id)
+                item =  ItemServices.process_item(item=option, book_id=book_id)
+                highlight(item,"&")
+                return item
         except Exception as e:
+            db.session.rollback()
             raise type(e)(
                 f"Error in IngredientServices -> post_component_option: {e}") from e
 
@@ -102,7 +106,6 @@ class IngredientServices():
                     })
 
             except Exception as e:
-                highlight(e, "!")
                 raise type(e)(
                     f"IngredientsRepo -> process_ingredients error: {e}") from e
         return ingredients_data
@@ -132,8 +135,10 @@ class ItemServices():
         try:
             is_stored = item.get("id")
             if is_stored is None:
+                highlight(item,"@")
                 item = ItemRepo.create_item(name=item["name"])
             ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
+            highlight(item,"%")
             return item
         except Exception:
             raise

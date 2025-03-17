@@ -120,7 +120,7 @@ class QuantityAmountRepo():
             amounts = QuantityAmount.query.all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
-            db.session.rollback()
+            # db.session.rollback()
             raise type(e)(f"QuantityAmountRepo -  get_all_amounts error: {e}") from e
 
     @staticmethod
@@ -189,6 +189,7 @@ class ItemRepo():
         try:
             item = insert_first(
                 Model=Item, data=name, column_name="name", db=db)
+            highlight(item,"#")
             return Item.serialize(item)
         except Exception as e:
             raise type(e)(f"ItemRepo - create_item error: {e}") from e
@@ -271,7 +272,7 @@ class InstructionRepo():
             instructions = Instruction.query.all()
             return [Instruction.serialize(instruction) for instruction in instructions]
         except Exception as e:
-            db.session.rollback()
+            # db.session.rollback()
             raise type(e)(f"InstructionRepo - get_instruction error: {e}")
 
     @staticmethod
@@ -285,7 +286,7 @@ class InstructionRepo():
             ).filter(UserBook.user_id == user_id).all()
             return [Instruction.serialize(instruction) for instruction in instructions]
         except Exception as e:
-            db.session.rollback()
+            # db.session.rollback()
             raise type(e)(
                 f"InstructionRepo - get_user_instructions error: {e}")
 
@@ -380,8 +381,8 @@ class AmountBookRepo():
         try:
             entry = AmountBook(amount_id=amount_id, book_id=book_id)
             db.session.add(entry)
-            db.session.flush()
-            return entry.id
+            # db.session.flush()
+            # return entry.id
         except Exception as e:
             raise type(e)(f"AmountBookRepo - create_entry error :{e}") from e
 
@@ -394,8 +395,8 @@ class UnitBookRepo():
         try:
             entry = UnitBook(unit_id=unit_id, book_id=book_id)
             db.session.add(entry)
-            db.session.flush()
-            return entry.id
+            # db.session.flush()
+            # return entry.id
         except Exception as e:
             raise type(e)(f"UnitBookRepo - create_entry error:{e}") from e
 
@@ -407,8 +408,10 @@ class ItemBookRepo():
         """Create item and book association -> add to database"""
         try:
             entry = ItemBook(item_id=item_id, book_id=book_id)
+            # highlight(entry,"#")
             db.session.add(entry)
-            db.session.flush()
-            return entry.id
+            # db.session.flush()
+            # highlight(entry["id"],"#")
+            # return entry.id
         except Exception as e:
             raise type(e)(f"ItemBookRepo - create_entry error:{e}") from e

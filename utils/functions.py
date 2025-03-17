@@ -25,5 +25,4 @@ def insert_first(Model, data, column_name, db):
         return quantity_amount
 
     except Exception as e:
-        db.session.rollback()
         raise type(e)(f"insert_first: Database error occurred: {e}") from e

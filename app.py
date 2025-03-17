@@ -148,8 +148,10 @@ def get_user_books(user_id):
 @route_error_handler
 def add_book_ingredient(user_id, book_id, component):
     """Facilitates creation of book's component option"""
-    return IngredientServices.post_component_option(
+    res =  IngredientServices.post_component_option(
         component=component, option=request.json, book_id=book_id)
+    highlight(res,"@")
+    return res
 
 
 @app.post("/users/<user_id>/books/<book_id>/components/<component>/options/<option_id>")

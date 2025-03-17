@@ -32,7 +32,6 @@ class BookServices():
         try:
             return BookRepo.query_user_books(user_id=user_id)
         except Exception as e:
-            db.session.rollback()
             raise
         
 
