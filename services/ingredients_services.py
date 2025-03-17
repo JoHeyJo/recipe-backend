@@ -54,6 +54,7 @@ class IngredientServices():
             if component == "item":
                 item =  ItemServices.process_item(item=option, book_id=book_id)
                 highlight(item,"&")
+                db.session.commit()
                 return item
         except Exception as e:
             db.session.rollback()

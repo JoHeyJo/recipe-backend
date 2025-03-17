@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import BIGINT, String, Integer, Column, ForeignKey
+from sqlalchemy import BIGINT, String, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import ARRAY
 from annotations import str_255, str_unique_255, str_255_nullable
@@ -175,7 +175,7 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     )
 
     recipe_instruction: Mapped['RecipeInstruction'] = relationship(
-        "RecipeInstruction", backref="instructions"
+        "RecipeInstruction", backref="instructions", uselist=False
     )
 
 ###################### ASSOCIATION MODELS ############################
@@ -186,13 +186,13 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     queries of whole ingredient instances and their individual parts 
     e.g. item, amount, unit"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    recipe_id: Mapped[int] = Column(Integer, ForeignKey(
-        'recipes.id', ondelete="CASCADE"))  # should not allow null
-    quantity_amount_id: Mapped[int] = Column(
+    recipe_id: Mapped[int] = mapped_column(Integer, ForeignKey(
+        'recipes.id', ondelete="CASCADE"), nullable=False)  # should not allow null
+    quantity_amount_id: Mapped[int] = mapped_column(
         Integer, ForeignKey('quantity_amounts.id'))
-    quantity_unit_id: Mapped[int] = Column(
+    quantity_unit_id: Mapped[int] = mapped_column(
         Integer, ForeignKey('quantity_units.id'))
-    item_id: Mapped[int] = Column(Integer, ForeignKey('items.id'))
+    item_id: Mapped[int] = mapped_column(Integer, ForeignKey('items.id'))
 
     # enhanced association table attributes
     # Does ORM delete work with passive_deletes=True?????
@@ -208,59 +208,59 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for books and recipes"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    book_id: Mapped[int] = Column(Integer, ForeignKey("books.id"))
-    recipe_id: Mapped[int] = Column(
+    book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"))
+    recipe_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
 
 
 class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for users and books"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    book_id: Mapped[int] = Column(Integer, ForeignKey("books.id"))
-    user_id: Mapped[int] = Column(Integer, ForeignKey("users.id"))
+    book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"))
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
 
 
 class BookInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for books and instructions"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    book_id: Mapped[int] = Column(Integer, ForeignKey("books.id"))
-    instruction_id: Mapped[int] = Column(
+    book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"))
+    instruction_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("instructions.id"))
 
 
 class RecipeInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
-    """Association table for books and instructions"""
+    """Association table for recipes and instructions"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    recipe_id: Mapped[int] = Column(
+    recipe_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
-    instruction_id: Mapped[int] = Column(
+    instruction_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("instructions.id"))
 
 
 class AmountBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for amounts and books"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    amount_id: Mapped[int] = Column(
+    amount_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("quantity_amounts.id", ondelete="CASCADE"))
-    book_id: Mapped[int] = Column(
+    book_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("books.id", ondelete="CASCADE"))
 
 
 class UnitBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for unit and books"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    unit_id: Mapped[int] = Column(
+    unit_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("quantity_units.id", ondelete="CASCADE"))
-    book_id: Mapped[int] = Column(
+    book_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("books.id", ondelete="CASCADE"))
 
 
 class ItemBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for items and books"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    item_id: Mapped[int] = Column(
+    item_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("items.id", ondelete="CASCADE"))
-    book_id: Mapped[int] = Column(
+    book_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("books.id", ondelete="CASCADE"))
 
 
@@ -270,5 +270,8 @@ def connect_db(app):
     db.app = app
     db.init_app(app)
     with app.app_context():
-        # db.drop_all()
-        db.create_all()
+        try:
+            # db.drop_all()
+            db.create_all()
+        except Exception as e:
+            print(f"Error creating database tables: {e}")
