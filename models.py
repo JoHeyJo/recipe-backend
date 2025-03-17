@@ -64,11 +64,11 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'Instruction', secondary='recipes_instructions', back_populates='recipes',
         passive_deletes=True, order_by="RecipeInstruction.id")
 
-    amounts: Mapped[List['QuantityAmount']] = relationship(
-        "QuantityAmount", secondary='ingredients', back_populates='recipes')
-
     units: Mapped[List['QuantityUnit']] = relationship(
         "QuantityUnit", secondary='ingredients', back_populates='recipes')
+
+    amounts: Mapped[List['QuantityAmount']] = relationship(
+        "QuantityAmount", secondary='ingredients', back_populates='recipes')
 
     items: Mapped[List['Item']] = relationship(
         "Item", secondary='ingredients', back_populates='recipes')
@@ -186,21 +186,23 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     queries of whole ingredient instances and their individual parts 
     e.g. item, amount, unit"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    recipe_id: Mapped[int] = Column(Integer, ForeignKey('recipes.id', ondelete="CASCADE"))
-    quantity_amount_id: Mapped[int] = Column(Integer, ForeignKey('quantity_amounts.id'))
-    quantity_unit_id: Mapped[int] = Column(Integer, ForeignKey('quantity_units.id'))
+    recipe_id: Mapped[int] = Column(Integer, ForeignKey(
+        'recipes.id', ondelete="CASCADE"))  # should not allow null
+    quantity_amount_id: Mapped[int] = Column(
+        Integer, ForeignKey('quantity_amounts.id'))
+    quantity_unit_id: Mapped[int] = Column(
+        Integer, ForeignKey('quantity_units.id'))
     item_id: Mapped[int] = Column(Integer, ForeignKey('items.id'))
 
     # enhanced association table attributes
     # Does ORM delete work with passive_deletes=True?????
     amount: Mapped['QuantityAmount'] = relationship(
-        "QuantityAmount", back_populates="ingredients", passive_deletes=True)
+        "QuantityAmount", back_populates="ingredients")
     unit: Mapped['QuantityUnit'] = relationship(
-        "QuantityUnit", back_populates="ingredients", passive_deletes=True)
-    item: Mapped['Item'] = relationship(
-        "Item", back_populates="ingredients", passive_deletes=True)
+        "QuantityUnit", back_populates="ingredients")
+    item: Mapped['Item'] = relationship("Item", back_populates="ingredients")
     recipe: Mapped['Recipe'] = relationship(
-        "Recipe", back_populates="ingredients", passive_deletes=True)
+        "Recipe", back_populates="ingredients")
 
 
 class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
@@ -213,46 +215,53 @@ class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model)
 
 class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for users and books"""
-    book_id: Mapped[int] = Column(Integer, ForeignKey("books.id"), primary_key=True)
-    user_id: Mapped[int] = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    book_id: Mapped[int] = Column(Integer, ForeignKey("books.id"))
+    user_id: Mapped[int] = Column(Integer, ForeignKey("users.id"))
 
 
 class BookInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for books and instructions"""
-    book_id: Mapped[int] = Column(Integer, ForeignKey("books.id"), primary_key=True)
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    book_id: Mapped[int] = Column(Integer, ForeignKey("books.id"))
     instruction_id: Mapped[int] = Column(
-        Integer, ForeignKey("instructions.id"), primary_key=True)
+        Integer, ForeignKey("instructions.id"))
 
 
 class RecipeInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     """Association table for books and instructions"""
-    recipe_id: Mapped[int] = Column(Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
-    instruction_id: Mapped[int] = Column(Integer, ForeignKey("instructions.id"))
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    recipe_id: Mapped[int] = Column(
+        Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
+    instruction_id: Mapped[int] = Column(
+        Integer, ForeignKey("instructions.id"))
 
 
 class AmountBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for amounts and books"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     amount_id: Mapped[int] = Column(
-        Integer, ForeignKey("quantity_amounts.id", ondelete="CASCADE"), primary_key=True)
+        Integer, ForeignKey("quantity_amounts.id", ondelete="CASCADE"))
     book_id: Mapped[int] = Column(
-        Integer, ForeignKey("books.id", ondelete="CASCADE"), primary_key=True)
+        Integer, ForeignKey("books.id", ondelete="CASCADE"))
 
 
 class UnitBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for unit and books"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     unit_id: Mapped[int] = Column(
-        Integer, ForeignKey("quantity_units.id", ondelete="CASCADE"), primary_key=True)
+        Integer, ForeignKey("quantity_units.id", ondelete="CASCADE"))
     book_id: Mapped[int] = Column(
-        Integer, ForeignKey("books.id", ondelete="CASCADE"), primary_key=True)
+        Integer, ForeignKey("books.id", ondelete="CASCADE"))
 
 
 class ItemBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for items and books"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     item_id: Mapped[int] = Column(
-        Integer, ForeignKey("items.id", ondelete="CASCADE"), primary_key=True)
+        Integer, ForeignKey("items.id", ondelete="CASCADE"))
     book_id: Mapped[int] = Column(
-        Integer, ForeignKey("books.id", ondelete="CASCADE"), primary_key=True)
+        Integer, ForeignKey("books.id", ondelete="CASCADE"))
 
 
 def connect_db(app):

@@ -38,7 +38,7 @@ jwt = JWTManager(app)
 migrate = Migrate(app, db)
 
 connect_db(app)
-# CORS(app, resources={r"/*": {"origins": "*"}})
+# CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT ^^^^^
 
 
@@ -61,6 +61,7 @@ def signup():
 def login():
     """Validate user credentials"""
     try:
+        highlight(request,"$")
         token = UserServices.authenticate_login(request=request)
         if token:
             return jsonify({"token": token}), 200
