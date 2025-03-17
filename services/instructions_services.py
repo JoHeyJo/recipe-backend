@@ -84,7 +84,6 @@ class InstructionServices():
             if is_stored is None:
                 try:
                     # is this neccessry, all recipe instructions should already be created
-                    highlight(instruction, "created")
                     instruction = InstructionRepo.create_instruction(
                         instruction=instruction["instruction"])
                     processed_instructions.append(instruction)

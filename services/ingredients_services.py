@@ -53,7 +53,6 @@ class IngredientServices():
                 return UnitServices.process_unit(unit=option, book_id=book_id)
             if component == "item":
                 item =  ItemServices.process_item(item=option, book_id=book_id)
-                highlight(item,"&")
                 db.session.commit()
                 return item
         except Exception as e:
@@ -136,10 +135,8 @@ class ItemServices():
         try:
             is_stored = item.get("id")
             if is_stored is None:
-                highlight(item,"@")
                 item = ItemRepo.create_item(name=item["name"])
             ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
-            highlight(item,"%")
             return item
         except Exception:
             raise

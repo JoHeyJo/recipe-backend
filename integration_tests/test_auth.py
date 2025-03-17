@@ -30,7 +30,6 @@ def test_login_success(test_client):
 
     response = test_client.post(
         "/login", json={"userName": "testuser", "password": "validpassword"})
-    highlight(response,"#")
     assert response.status_code == 200
     assert "token" in response.json
 

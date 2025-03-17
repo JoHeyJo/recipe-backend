@@ -189,7 +189,6 @@ class ItemRepo():
         try:
             item = insert_first(
                 Model=Item, data=name, column_name="name", db=db)
-            highlight(item,"#")
             return Item.serialize(item)
         except Exception as e:
             raise type(e)(f"ItemRepo - create_item error: {e}") from e
@@ -408,10 +407,8 @@ class ItemBookRepo():
         """Create item and book association -> add to database"""
         try:
             entry = ItemBook(item_id=item_id, book_id=book_id)
-            # highlight(entry,"#")
             db.session.add(entry)
             # db.session.flush()
-            # highlight(entry["id"],"#")
             # return entry.id
         except Exception as e:
             raise type(e)(f"ItemBookRepo - create_entry error:{e}") from e
