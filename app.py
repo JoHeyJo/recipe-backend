@@ -88,7 +88,7 @@ def get_user(user_id):
 def add_recipe(user_id, book_id):
     """Consolidate recipe data. If successful recipes_ingredients record created"""
     recipe_data = RecipeServices.process_recipe_data(
-        request={"recipe": request}, book_id=book_id)
+        request={"recipe": request.json}, book_id=book_id)
     return jsonify(recipe_data), 200
 
 
