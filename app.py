@@ -206,7 +206,7 @@ def get_book_ingredient_components(user_id, book_id):
 def add_instruction(user_id, book_id):
     """Facilitates creation of book instruction"""
     instruction = InstructionServices.process_book_instruction(
-        request=request, book_id=book_id)
+        request=request.json, book_id=book_id)
     return jsonify(instruction)
 
 
