@@ -37,11 +37,11 @@ class UserServices():
     @staticmethod
     def fetch_user(user_id):
         """Retrieve user - inject default book object"""
-        try:
+        try: 
             user = UserRepo.query_user(user_id=user_id)
             if not user:
                 raise ValueError("User not found")
-            user_data = User.serialize(user)
+            # user_data = User.serialize(user)
             
             # default_book_id = user_data.get("default_book_id")
             
@@ -49,6 +49,6 @@ class UserServices():
             #     default_book = Book.serialize(Book.query.get(default_book_id))
             #     user_data["default_book"] = default_book
             
-            return user_data
+            return {"message":"nothing"}
         except Exception:
             raise
