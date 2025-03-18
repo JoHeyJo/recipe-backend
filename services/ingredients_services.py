@@ -48,13 +48,13 @@ class IngredientServices():
         Session is in autocommit mode - using SQLAlchemy core for insert"""
         try:
             if component == "amount":
-                return AmountServices.process_amount(amount=option, book_id=book_id)
+                option =  AmountServices.process_amount(amount=option, book_id=book_id)
             if component == "unit":
-                return UnitServices.process_unit(unit=option, book_id=book_id)
+                option =  UnitServices.process_unit(unit=option, book_id=book_id)
             if component == "item":
-                item =  ItemServices.process_item(item=option, book_id=book_id)
-                db.session.commit()
-                return item
+                option =  ItemServices.process_item(item=option, book_id=book_id)
+            db.session.commit()
+            return option
         except Exception as e:
             db.session.rollback()
             raise type(e)(
