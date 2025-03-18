@@ -52,10 +52,10 @@ class InstructionServices():
             instruction = request["instruction"]
             created_instruction = InstructionRepo.create_instruction(
                 instruction=instruction)
-            processed_instruction = InstructionServices.create_instruction_association(
+            InstructionServices.create_instruction_association(
                 book_id=book_id, instruction_id=created_instruction["id"])
             db.session.commit()
-            return processed_instruction
+            return created_instruction
         except Exception as e:
             db.session.rollback()
             raise type(e)(
