@@ -1,5 +1,6 @@
 from repository import db, UserRepo, Book, User
 from sqlalchemy.exc import SQLAlchemyError
+from repository import highlight
 
 
 class UserServices():
@@ -40,9 +41,9 @@ class UserServices():
             user = UserRepo.query_user(user_id=user_id)
             if not user:
                 raise ValueError("User not found")
-            
+            highlight(user,"%")
             user_data = User.serialize(user)
-
+            
             default_book_id = user_data.get("default_book_id")
             
             if default_book_id:
