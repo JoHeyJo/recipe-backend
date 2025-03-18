@@ -174,9 +174,9 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         "Recipe", secondary="recipes_instructions", back_populates="instructions"
     )
 
-    recipe_instruction: Mapped['RecipeInstruction'] = relationship(
-        "RecipeInstruction", backref="instructions", uselist=False
-    )
+    # recipe_instruction: Mapped['RecipeInstruction'] = relationship(
+    #     "RecipeInstruction", backref="instructions", uselist=False
+    # )
 
 ###################### ASSOCIATION MODELS ############################
 

@@ -21,6 +21,7 @@ class IngredientServices():
     @staticmethod
     def fetch_book_components_options(book_id):
         """Retrieves book's ingredients components options"""
+        highlight(book_id,"#")
         try:
             amounts = QuantityAmountRepo.query_book_amounts(book_id=book_id)
             units = QuantityUnitRepo.query_book_units(book_id=book_id)
