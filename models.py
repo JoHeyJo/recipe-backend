@@ -14,8 +14,9 @@ def highlight(value, divider):
     print(value)
     print(divider * 10)
 
-class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+class User(db.Model):
     """Users table"""
+    __tablename__ = "users"
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     first_name: Mapped[str] = mapped_column(String(255), nullable=False)
     last_name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -82,8 +83,9 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         "Item", secondary='ingredients', back_populates='recipes', viewonly=True)
 
 
-class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
+class Book(db.Model):
     """Book table"""
+    __tablename__ = "books"
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str] = mapped_column(String(255), nullable=True)
@@ -221,8 +223,9 @@ class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model)
         Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
 
 
-class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
+class UserBook(db.Model):
     """Association table for users and books"""
+    __tablename__ = "users_books"
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"), nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
