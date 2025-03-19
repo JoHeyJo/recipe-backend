@@ -6,10 +6,6 @@ from annotations import str_255, str_unique_255, str_255_nullable
 from mixins import TableNameMixin, TimestampMixin, ReprMixin, AssociationTableNameMixin
 from typing import Optional, List
 
-import logging
-import traceback
-from sqlalchemy import event
-
 db = SQLAlchemy()
 
 
@@ -291,25 +287,6 @@ def connect_db(app):
     db.init_app(app)
     with app.app_context():
         try:
-
-            # Enable INFO-level logging for SQLAlchemy
-            logging.basicConfig()
-            logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-            logging.getLogger('sqlalchemy.pool').setLevel(logging.INFO)
-
-
-            @event.listens_for(db.session, "after_rollback")
-            def receive_after_rollback(session):
-                print("⚠️ SQLAlchemy session rollback triggered!")
-                print("Rollback stack trace:")
-                traceback.print_stack()
-
-
-            @event.listens_for(db.engine, "rollback")
-            def receive_engine_rollback(conn):
-                print("⚠️ Engine rollback triggered!")
-                print("Rollback stack trace:")
-                traceback.print_stack()
             # db.drop_all()
             db.create_all()
         except Exception as e:
