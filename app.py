@@ -18,6 +18,7 @@ from datetime import timedelta
 from decorators.verify_user import check_user_identity
 from decorators.handle_route_errors import route_error_handler
 
+
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
 
@@ -37,28 +38,11 @@ jwt = JWTManager(app)
 
 migrate = Migrate(app, db)
 
-# Enable INFO-level logging for SQLAlchemy
-logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-logging.getLogger('sqlalchemy.pool').setLevel(logging.INFO)
-
-
-@event.listens_for(db.session, "after_rollback")
-def receive_after_rollback(session):
-    print("⚠️ SQLAlchemy session rollback triggered!")
-    print("Rollback stack trace:")
-    traceback.print_stack()
-
-
-@event.listens_for(db.engine, "rollback")
-def receive_engine_rollback(conn):
-    print("⚠️ Engine rollback triggered!")
-    print("Rollback stack trace:")
-    traceback.print_stack()
-
 connect_db(app)
 # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT ^^^^^
+
+
 
 
 @app.get("/")

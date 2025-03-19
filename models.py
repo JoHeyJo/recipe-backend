@@ -6,6 +6,10 @@ from annotations import str_255, str_unique_255, str_255_nullable
 from mixins import TableNameMixin, TimestampMixin, ReprMixin, AssociationTableNameMixin
 from typing import Optional, List
 
+import logging
+import traceback
+from sqlalchemy import event
+
 db = SQLAlchemy()
 
 
@@ -13,6 +17,7 @@ def highlight(value, divider):
     print(divider * 10)
     print(value)
     print(divider * 10)
+
 
 class User(db.Model):
     """Users table"""
@@ -28,7 +33,6 @@ class User(db.Model):
     is_admin: Mapped[bool] = mapped_column(db.Boolean, nullable=False)
     default_book_id: Mapped[Optional[int]] = mapped_column(
         BIGINT, ForeignKey("books.id"))
-
 
     def serialize(self):
         """Serialize User table data into dict"""
@@ -192,12 +196,12 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
 
 class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
-    """Enhanced association table for recipes and [amounts, units, items] - Allows 
-    queries of whole ingredient instances and their individual parts 
+    """Enhanced association table for recipes and [amounts, units, items] - Allows
+    queries of whole ingredient instances and their individual parts
     e.g. item, amount, unit"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     recipe_id: Mapped[int] = mapped_column(Integer, ForeignKey(
-        'recipes.id', ondelete="CASCADE"), nullable=False) 
+        'recipes.id', ondelete="CASCADE"), nullable=False)
     quantity_amount_id: Mapped[int] = mapped_column(
         Integer, ForeignKey('quantity_amounts.id'))
     quantity_unit_id: Mapped[int] = mapped_column(
@@ -227,8 +231,12 @@ class UserBook(db.Model):
     """Association table for users and books"""
     __tablename__ = "users_books"
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"), nullable=False)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
+    book_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("books.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False)
+
+
 highlight(UserBook.__tablename__, "#")
 
 
@@ -283,6 +291,25 @@ def connect_db(app):
     db.init_app(app)
     with app.app_context():
         try:
+
+            # Enable INFO-level logging for SQLAlchemy
+            logging.basicConfig()
+            logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+            logging.getLogger('sqlalchemy.pool').setLevel(logging.INFO)
+
+
+            @event.listens_for(db.session, "after_rollback")
+            def receive_after_rollback(session):
+                print("⚠️ SQLAlchemy session rollback triggered!")
+                print("Rollback stack trace:")
+                traceback.print_stack()
+
+
+            @event.listens_for(db.engine, "rollback")
+            def receive_engine_rollback(conn):
+                print("⚠️ Engine rollback triggered!")
+                print("Rollback stack trace:")
+                traceback.print_stack()
             # db.drop_all()
             db.create_all()
         except Exception as e:
