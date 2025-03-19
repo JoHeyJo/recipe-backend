@@ -60,10 +60,8 @@ class UserRepo():
         try:
             # user = User.query.get(user_id)
             user = db.session.query(User).filter_by(id=user_id).first()
-            # user = db.session.query(User).filter_by(id=user_id).first()
-            # user = None
-            # if user is None:
-            #     return None 
+            if user is None:
+                return None 
             return user
         except Exception as e:
             raise type(e)(f"UserRepo -> query_user error:{e}")
