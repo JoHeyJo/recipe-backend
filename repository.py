@@ -58,7 +58,6 @@ class UserRepo():
     def query_user(user_id):
         """Query user corresponding with id"""
         try:
-            # user = User.query.get(user_id)
             user = db.session.query(User).filter_by(id=user_id).first()
             if user is None:
                 return None 
@@ -84,7 +83,7 @@ class RecipeRepo():
     def fetch_recipes(user_id, book_id):
         """Retrieve recipes corresponding to user's book"""
         try:
-            book = Book.query.get(book_id)
+            book = db.session.query(Book).filter_by(id=book_id).first()
             recipes = book.recipes
             return [Recipe.serialize(recipe) for recipe in recipes]
         except Exception as e:
@@ -128,7 +127,7 @@ class QuantityAmountRepo():
     def query_book_amounts(book_id):
         """Return user amounts"""
         try:
-            amounts = Book.query.get(book_id).amounts
+            amounts = db.session.query(Book).filter_by(id=book_id).first().amounts
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
             raise type(e)(f"QuantityAmountRepo -  get_book_amounts error: {e}") from e
@@ -176,7 +175,8 @@ class QuantityUnitRepo():
     def query_book_units(book_id):
         """Return book's units"""
         try:
-            units = Book.query.get(book_id).units
+            units = db.session.query(Book).filter_by(
+                id=book_id).first().units
             return [QuantityUnit.serialize(unit) for unit in units]
         except Exception as e:
             raise type(e)(f"QuantityUnitRepo - get_book_units error: {e}") from e
@@ -207,7 +207,7 @@ class ItemRepo():
     def query_book_items(book_id):
         """Return book's items"""
         try:
-            items = Book.query.get(book_id).items
+            items = db.session.query(Book).filter_by(id=book_id).first().items
             return [Item.serialize(item) for item in items]
         except Exception as e:
             raise type(e)(f"get_book_items error: {e}") from e
@@ -246,7 +246,7 @@ class BookRepo():
     def query_user_books(user_id):
         """Returns all books associated to user"""
         try:
-            user = User.query.get(user_id)
+            user = db.session.query(User).filter_by(id=user_id).first()
             return [Book.serialize(book) for book in user.books]
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
@@ -294,7 +294,7 @@ class InstructionRepo():
     def query_book_instructions(book_id):
         """Query all instructions associated with a book"""
         try:
-            book = Book.query.get(book_id)
+            book = db.session.query(Book).filter_by(id=book_id).first()
             instructions = book.instructions
             return [Instruction.serialize(instruction) for instruction in instructions]
         except Exception as e:
