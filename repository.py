@@ -58,11 +58,12 @@ class UserRepo():
     def query_user(user_id):
         """Query user corresponding with id"""
         try:
-            user = User.query.get(user_id)
+            # user = User.query.get(user_id)
+            user = db.session.query(User).filter_by(id=user_id).first()
             # user = db.session.query(User).filter_by(id=user_id).first()
-            # user = db.session.query(User).filter_by(id=user_id).first()
-            if user is None:
-                return None 
+            # user = None
+            # if user is None:
+            #     return None 
             return user
         except Exception as e:
             raise type(e)(f"UserRepo -> query_user error:{e}")
