@@ -48,7 +48,6 @@ class UserServices():
             if default_book_id:
                 default_book = Book.serialize(Book.query.get(default_book_id))
                 user_data["default_book"] = default_book
-            
-            return {"message":"nothing"}
+            return user_data
         except Exception:
             raise
