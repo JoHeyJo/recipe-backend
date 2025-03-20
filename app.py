@@ -1,3 +1,4 @@
+
 import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
@@ -41,8 +42,6 @@ migrate = Migrate(app, db)
 connect_db(app)
 # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT ^^^^^
-
-
 
 
 @app.get("/")
