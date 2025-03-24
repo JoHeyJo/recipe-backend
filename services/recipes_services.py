@@ -14,6 +14,7 @@ class RecipeServices():
             notes = recipe.get("notes")
             instructions = recipe.get("instructions")
             ingredients = recipe.get("ingredients")
+            highlight(ingredients,'@')
         except Exception as e:
             raise type(e)(
                 f"Failed to extract recipe data for book {book_id}: {e}") from e

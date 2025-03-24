@@ -21,7 +21,6 @@ class IngredientServices():
     @staticmethod
     def fetch_book_components_options(book_id):
         """Retrieves book's ingredients components options"""
-        highlight(book_id,"#")
         try:
             amounts = QuantityAmountRepo.query_book_amounts(book_id=book_id)
             units = QuantityUnitRepo.query_book_units(book_id=book_id)
@@ -91,7 +90,8 @@ class IngredientServices():
             if not item and not amount and not unit:
                 raise ValueError("Nothing to process in ingredients")
             try:
-                item = ItemServices.process_item(item=item, book_id=book_id)
+                if item:
+                    item = ItemServices.process_item(item=item, book_id=book_id)
                 if amount:
                     amount = AmountServices.process_amount(
                         amount=amount, book_id=book_id)
