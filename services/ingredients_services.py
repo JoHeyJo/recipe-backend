@@ -90,6 +90,7 @@ class IngredientServices():
             if not item and not amount and not unit:
                 raise ValueError("Nothing to process in ingredients")
             try:
+                highlight([{"item": item}, {"amount": amount}, {"unit": unit}], "!")
                 if item:
                     item = ItemServices.process_item(item=item, book_id=book_id)
                 if amount:
