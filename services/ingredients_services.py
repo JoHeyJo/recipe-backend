@@ -87,18 +87,16 @@ class IngredientServices():
             amount = ingredient["amount"]
             unit = ingredient["unit"]
 
-            if not item and not amount and not unit:
-                raise ValueError("Nothing to process in ingredients")
+            if not item or not amount or not unit:
+                raise ValueError("No ingredient component data to process")
+            
             try:
                 highlight([{"item": item}, {"amount": amount}, {"unit": unit}], "!")
-                if item:
-                    item = ItemServices.process_item(item=item, book_id=book_id)
-                if amount:
-                    amount = AmountServices.process_amount(
-                        amount=amount, book_id=book_id)
-                if unit:
-                    unit = UnitServices.process_unit(
-                        unit=unit, book_id=book_id)
+                item = ItemServices.process_item(item=item, book_id=book_id)
+                amount = AmountServices.process_amount(
+                    amount=amount, book_id=book_id)
+                unit = UnitServices.process_unit(
+                    unit=unit, book_id=book_id)
 
                 ingredients_data.append(
                     {
@@ -133,12 +131,21 @@ class ItemServices():
     """Handles ingredient's component ITEM services"""
     @staticmethod
     def process_item(item, book_id):
-        """Create and returns new item or return existing item - Associates item to book"""
+        """Handles item processing
+        new item: create - associate - return 
+        empty item: set value to null - return 
+        existing item: return"""
         try:
             is_stored = item.get("id")
+            is_empty_value = item.get("name") == ""
+
+            if is_empty_value:
+                item["name"] = None
+                return item
+
             if is_stored is None:
                 item = ItemRepo.create_item(name=item["name"])
-            ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
+                ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
             return item
         except Exception:
             raise
