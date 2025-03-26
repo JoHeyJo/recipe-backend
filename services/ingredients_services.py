@@ -145,7 +145,7 @@ class ItemServices():
 
             if is_empty_value:
                 item["name"] = None
-                return item
+                raise ValueError("Ingredient template must have at least an item name")
 
             if is_stored is None:
                 item = ItemRepo.create_item(name=item["name"])
@@ -170,6 +170,7 @@ class AmountServices():
             if is_empty_value:
                 amount["value"] = None
                 return amount
+            
             if is_stored is None:
                 amount = QuantityAmountRepo.create_amount(
                     value=amount["value"])
@@ -184,12 +185,21 @@ class UnitServices():
     """Handles ingredient's component UNIT services"""
     @staticmethod
     def process_unit(unit, book_id):
-        """Creates and returns new unit or returns existing unit - Associates unit to book"""
+        """Handles unit processing
+        new unit: create - associate - return 
+        empty unit: set value to null - return 
+        existing unit: return"""
         try:
             is_stored = unit.get("id")
+            is_empty_value = unit.get("type") == ""
+
+            if is_empty_value:
+                unit["value"] = None
+                return unit
+            
             if is_stored is None:
                 unit = QuantityUnitRepo.create_unit(type=unit["type"])
-            UnitBookRepo.create_entry(unit_id=unit["id"], book_id=book_id)
+                UnitBookRepo.create_entry(unit_id=unit["id"], book_id=book_id)
             return unit
         except Exception:
             raise

@@ -105,7 +105,7 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Quantity Amount table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    value: Mapped[str_255_nullable]
+    value: Mapped[str_unique_255]
 
     def serialize(self):
         """Serialize amount table data into dict"""
@@ -124,7 +124,7 @@ class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Quantity Unit table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    type: Mapped[str_255_nullable]
+    type: Mapped[str_unique_255]
 
     def serialize(self):
         """Serialize unit table data into dict"""
