@@ -147,7 +147,7 @@ class ItemServices():
                 item["name"] = None
                 raise ValueError("Ingredient template must have at least an item name")
 
-            if is_stored is None:
+            elif is_stored is None:
                 item = ItemRepo.create_item(name=item["name"])
                 ItemBookRepo.create_entry(item_id=item["id"], book_id=book_id)
             return item
@@ -171,7 +171,7 @@ class AmountServices():
                 amount["value"] = None
                 return amount
             
-            if is_stored is None:
+            elif is_stored is None:
                 amount = QuantityAmountRepo.create_amount(
                     value=amount["value"])
                 AmountBookRepo.create_entry(
@@ -197,7 +197,7 @@ class UnitServices():
                 unit["value"] = None
                 return unit
             
-            if is_stored is None:
+            elif is_stored is None:
                 unit = QuantityUnitRepo.create_unit(type=unit["type"])
                 UnitBookRepo.create_entry(unit_id=unit["id"], book_id=book_id)
             return unit

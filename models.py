@@ -189,11 +189,10 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     recipe_id: Mapped[int] = mapped_column(Integer, ForeignKey(
         'recipes.id', ondelete="CASCADE"), nullable=False)
-    quantity_amount_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey('quantity_amounts.id'))
-    quantity_unit_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey('quantity_units.id'))
-    item_id: Mapped[int] = mapped_column(Integer, ForeignKey('items.id'))
+    quantity_amount_id: Mapped[int] = mapped_column(Integer, ForeignKey('quantity_amounts.id'), nullable=True)
+    quantity_unit_id: Mapped[int] = mapped_column(Integer, ForeignKey('quantity_units.id'), nullable=True)
+    item_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey('items.id'), nullable=False)
 
     # enhanced association table attributes
     # Does ORM delete work with passive_deletes=True?????
