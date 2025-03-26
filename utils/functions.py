@@ -26,3 +26,9 @@ def insert_first(Model, data, column_name, db):
 
     except Exception as e:
         raise type(e)(f"insert_first: Database error occurred: {e}") from e
+
+
+def highlight(value, divider):
+    print(divider * 10)
+    print(value)
+    print(divider * 10)

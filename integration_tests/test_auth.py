@@ -4,7 +4,6 @@ from app import db
 from models import User
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
-from repository import highlight
 
 # ✅ Helper Function: Add Test User to Database
 

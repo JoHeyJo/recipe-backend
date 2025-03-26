@@ -1,7 +1,7 @@
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from repository import InstructionRepo
 from models import db, Instruction, RecipeInstruction
-from repository import highlight, UserBook, BookInstructionRepo
+from repository import UserBook, BookInstructionRepo
 from sqlalchemy.exc import ProgrammingError
 
 class InstructionServices():

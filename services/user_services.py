@@ -1,7 +1,4 @@
 from repository import db, UserRepo, Book, User
-from sqlalchemy.exc import SQLAlchemyError
-from repository import highlight
-
 
 class UserServices():
     """Handles ingredients view business logic"""

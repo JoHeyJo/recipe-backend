@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import patch, MagicMock
 from sqlalchemy.exc import SQLAlchemyError
 from services.user_services import UserServices
-from repository import UserRepo, highlight
 
 # ✅ Test: User Exists
 

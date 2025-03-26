@@ -7,13 +7,6 @@ from utils.functions import insert_first
 
 bcrypt = Bcrypt()
 
-
-def highlight(value, divider):
-    print(divider * 10)
-    print(value)
-    print(divider * 10)
-
-
 class UserRepo():
     """Facilitate users table interactions"""
     @staticmethod

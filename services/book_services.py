@@ -1,4 +1,4 @@
-from repository import BookRepo, UserBookRepo, highlight
+from repository import BookRepo, UserBookRepo
 from models import db, User
 
 class BookServices():

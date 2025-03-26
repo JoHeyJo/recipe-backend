@@ -4,7 +4,6 @@ import traceback
 from functools import wraps
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from repository import highlight
 from exceptions import *
 
 def route_error_handler(func):
