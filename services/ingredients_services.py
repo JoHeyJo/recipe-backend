@@ -11,7 +11,7 @@ class IngredientServices():
             if ingredient == "amounts":
                 return QuantityAmountRepo.query_all_amounts()
             if ingredient == "units":
-                return QuantityUnitRepo.query_all_units() #needs to be created
+                return QuantityUnitRepo.query_all_units()  # needs to be created
             if ingredient == "items":
                 return ItemRepo.query_all_items()
         except Exception as e:
@@ -48,11 +48,14 @@ class IngredientServices():
         Session is in autocommit mode - using SQLAlchemy core for insert"""
         try:
             if component == "amount":
-                option =  AmountServices.process_amount(amount=option, book_id=book_id)
+                option = AmountServices.process_amount(
+                    amount=option, book_id=book_id)
             if component == "unit":
-                option =  UnitServices.process_unit(unit=option, book_id=book_id)
+                option = UnitServices.process_unit(
+                    unit=option, book_id=book_id)
             if component == "item":
-                option =  ItemServices.process_item(item=option, book_id=book_id)
+                option = ItemServices.process_item(
+                    item=option, book_id=book_id)
             db.session.commit()
             return option
         except Exception as e:
@@ -89,9 +92,10 @@ class IngredientServices():
 
             if not item or not amount or not unit:
                 raise ValueError("No ingredient component data to process")
-            
+
             try:
-                highlight([{"item": item}, {"amount": amount}, {"unit": unit}], "!")
+                highlight(
+                    [{"item": item}, {"amount": amount}, {"unit": unit}], "!")
                 item = ItemServices.process_item(item=item, book_id=book_id)
                 amount = AmountServices.process_amount(
                     amount=amount, book_id=book_id)
@@ -155,14 +159,22 @@ class AmountServices():
     """Handles ingredient's component AMOUNT services"""
     @staticmethod
     def process_amount(amount, book_id):
-        """Creates and returns new amount or return existing amount - Associates amount to book """
+        """Handles amount processing
+        new amount: create - associate - return 
+        empty amount: set value to null - return 
+        existing amount: return"""
         try:
             is_stored = amount.get("id")
+            is_empty_value = amount.get("value") == ""
+
+            if is_empty_value:
+                amount["value"] = None
+                return amount
             if is_stored is None:
                 amount = QuantityAmountRepo.create_amount(
                     value=amount["value"])
-            AmountBookRepo.create_entry(
-                amount_id=amount["id"], book_id=book_id)
+                AmountBookRepo.create_entry(
+                    amount_id=amount["id"], book_id=book_id)
             return amount
         except Exception:
             raise
