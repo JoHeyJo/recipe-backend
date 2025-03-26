@@ -94,8 +94,6 @@ class IngredientServices():
                 raise ValueError("No ingredient component data to process")
 
             try:
-                highlight(
-                    [{"item": item}, {"amount": amount}, {"unit": unit}], "!")
                 item = ItemServices.process_item(item=item, book_id=book_id)
                 amount = AmountServices.process_amount(
                     amount=amount, book_id=book_id)
