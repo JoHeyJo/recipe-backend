@@ -223,8 +223,8 @@ def add_instruction_association(user_id, book_id, instruction_id):
 
 
 @app.get("/instructions")
-@jwt_required()
 @check_user_identity
+@route_error_handler
 def get_instructions():
     """Facilitates retrieval of instructions"""
     instructions = InstructionRepo.get_instructions()

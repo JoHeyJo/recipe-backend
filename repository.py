@@ -2,7 +2,6 @@ from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
 from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, Ingredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction, AmountBook, UnitBook, ItemBook
 from exceptions import *
-from sqlalchemy.dialects.postgresql import insert
 from utils.functions import insert_first
 
 bcrypt = Bcrypt()
