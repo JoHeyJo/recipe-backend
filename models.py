@@ -2,7 +2,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import BIGINT, String, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import ARRAY
 from annotations import str_255, str_unique_255, str_255_nullable, boolean
 from mixins import TableNameMixin, TimestampMixin, ReprMixin, AssociationTableNameMixin
 from typing import Optional, List

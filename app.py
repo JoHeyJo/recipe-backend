@@ -4,9 +4,8 @@ from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from repository import *
 from models import connect_db, db
-from sqlalchemy.exc import IntegrityError
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, verify_jwt_in_request
+from flask_jwt_extended import JWTManager, jwt_required
 from dotenv import load_dotenv
 from flask_cors import CORS
 from exceptions import *
