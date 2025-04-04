@@ -1,9 +1,10 @@
 
 import os
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from repository import *
 from models import connect_db, db
+from sqlalchemy.exc import IntegrityError
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager, jwt_required
 from dotenv import load_dotenv
@@ -248,16 +249,6 @@ def get_book_instructions(user_id, book_id):
     response = InstructionServices.fetch_book_instructions(
         book_id=book_id, user_id=user_id)
     return jsonify(response)
-
-
-# Catch-all route to serve React app
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve_react_app(path):
-    file_path = os.path.join(app.static_folder, path)
-    if os.path.exists(file_path):
-        return send_from_directory(app.static_folder, path)
-    return send_from_directory(app.static_folder, 'index.html')
 
 ################################################################################
 
