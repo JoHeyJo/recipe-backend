@@ -18,8 +18,7 @@ class UserRepo():
                 first_name=first_name,
                 last_name=last_name,
                 email=email,
-                password=hashed_pwd,
-                is_admin=False
+                password=hashed_pwd
             )
             db.session.add(user)
             db.session.flush()

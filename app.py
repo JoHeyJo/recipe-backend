@@ -18,6 +18,7 @@ from services.instructions_services import InstructionServices
 from datetime import timedelta
 from decorators.verify_user import check_user_identity
 from decorators.handle_route_errors import route_error_handler
+from utils.functions import highlight
 
 
 # Execute if app doesn't auto update code
@@ -55,6 +56,7 @@ def index():
 @route_error_handler
 def signup():
     """Facilitates new user data, return token"""
+    highlight(request.json,"#")
     token = UserServices.authenticate_signup(request=request)
     return jsonify({"token": token})
 

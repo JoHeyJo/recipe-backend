@@ -13,7 +13,6 @@ def create_test_user():
     hashed_pwd = bcrypt.generate_password_hash("validpassword").decode("utf-8")
     user = User(first_name="test",
                 last_name="user",
-                is_admin=True,
                 user_name="testuser",
                 email="test@example.com", 
                 password=hashed_pwd)
