@@ -1,11 +1,9 @@
-from environment import Development, Production, os
+from environment_config import Development, Production, os
+
 
 def set_environment(app):
-    if "ENV" not in os.environ:
-        app.config["ENV"] = "DEVELOPMENT"
-
-    if app.config['ENV'] == "DEVELOPMENT":
-        app.config.from_object(Development)
-
-    if app.config['ENV'] == "PRODUCTION":
-        app.config.from_object(Production)
+	"""On application load environment is set based on server software"""
+	if "gunicorn" in os.environ.get("SERVER_SOFTWARE", ""):
+		app.config.from_object(Production)
+	else:
+		app.config.from_object(Development)

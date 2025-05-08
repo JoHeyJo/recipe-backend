@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from repository import *
@@ -33,7 +34,7 @@ CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT ^^^^^
 # @jwt_required()
 def index():
     header = request.headers
-    return "hello"
+    return f"Environment: {app.config['ENV']} - Debug: {app.config['DEBUG']} - Server: {os.environ.get("SERVER_SOFTWARE")}"
 
 
 @app.post("/signup")
