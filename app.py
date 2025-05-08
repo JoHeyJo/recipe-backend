@@ -23,7 +23,6 @@ app = Flask(__name__)
 set_environment(app)
 debug = DebugToolbarExtension(app)
 jwt = JWTManager(app)
-
 migrate = Migrate(app, db)
 
 connect_db(app)
@@ -31,7 +30,7 @@ connect_db(app)
 CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT ^^^^^
 
 @app.get("/")
-@jwt_required()
+# @jwt_required()
 def index():
     header = request.headers
     return "hello"
