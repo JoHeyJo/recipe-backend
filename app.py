@@ -7,7 +7,7 @@ from models import connect_db, db
 from sqlalchemy.exc import IntegrityError
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager, jwt_required
-from dotenv import load_dotenv
+
 from flask_cors import CORS
 from exceptions import *
 from services.user_services import UserServices
@@ -15,25 +15,18 @@ from services.recipes_services import RecipeServices
 from services.ingredients_services import IngredientServices
 from services.book_services import BookServices
 from services.instructions_services import InstructionServices
-from datetime import timedelta
+
 from decorators.verify_user import check_user_identity
 from decorators.handle_route_errors import route_error_handler
 from utils.functions import highlight
-
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
 
 app = Flask(__name__)
-load_dotenv()  # This loads the variables from .env into the environment
-app.config["JWT_SECRET_KEY"] = os.environ['JWT_SECRET_KEY']
-app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ECHO'] = True  # change to False for production
-app.config['DEBUG'] = True
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
-# app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False # does this auto update flask app?
+
+
+
 
 debug = DebugToolbarExtension(app)
 jwt = JWTManager(app)
