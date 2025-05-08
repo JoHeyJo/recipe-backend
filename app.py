@@ -26,9 +26,9 @@ from utils.functions import highlight
 
 app = Flask(__name__)
 load_dotenv()  # This loads the variables from .env into the environment
-# app.config["JWT_SECRET_KEY"] = os.environ['JWT_SECRET_KEY']
-app.config['SECRET_KEY'] = "testing-secret"
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
+app.config["JWT_SECRET_KEY"] = os.environ['JWT_SECRET_KEY']
+app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True  # change to False for production
 app.config['DEBUG'] = True
@@ -43,7 +43,6 @@ migrate = Migrate(app, db)
 connect_db(app)
 # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT ^^^^^
-
 
 @app.get("/")
 @jwt_required()
