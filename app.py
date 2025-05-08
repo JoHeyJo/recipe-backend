@@ -34,7 +34,7 @@ CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT ^^^^^
 # @jwt_required()
 def index():
     header = request.headers
-    return f"Environment: {app.config['ENV']} - Debug: {app.config['DEBUG']} - Server: {os.environ.get("SERVER_SOFTWARE")}"
+    return f"Environment: {app.config['ENV']} - Debug: {app.config['DEBUG']} - Server: {os.environ.get('SERVER_SOFTWARE')}"
 
 
 @app.post("/signup")
