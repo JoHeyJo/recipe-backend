@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
+from app import app
 
 load_dotenv()
 
@@ -25,3 +26,4 @@ class ProductionConfig(Config):
     """Production environment configuration"""
     ENV = "production"
     DEBUG_TB_INTERCEPT_REDIRECTS = False 
+    JWT_SECRET_KEY = app.secret_key_jwt
