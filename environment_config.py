@@ -27,3 +27,4 @@ class ProductionConfig(Config):
     ENV = "production"
     DEBUG_TB_INTERCEPT_REDIRECTS = False 
     JWT_SECRET_KEY = app.secret_key_jwt
+    SECRET_KEY = app.secret_key_flask
