@@ -1,5 +1,3 @@
-
-import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from repository import *
@@ -7,7 +5,7 @@ from models import connect_db, db
 from sqlalchemy.exc import IntegrityError
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager, jwt_required
-
+from environment import Development, Production
 from flask_cors import CORS
 from exceptions import *
 from services.user_services import UserServices
@@ -15,7 +13,6 @@ from services.recipes_services import RecipeServices
 from services.ingredients_services import IngredientServices
 from services.book_services import BookServices
 from services.instructions_services import InstructionServices
-
 from decorators.verify_user import check_user_identity
 from decorators.handle_route_errors import route_error_handler
 from utils.functions import highlight
@@ -25,7 +22,11 @@ from utils.functions import highlight
 
 app = Flask(__name__)
 
+if app.config['ENV'] == "DEVELOPMENT":
+    app.config.from_object(Development)
 
+if app.config['ENV'] == "PRODUCTION":
+    app.config.from_object(Production)
 
 
 debug = DebugToolbarExtension(app)
