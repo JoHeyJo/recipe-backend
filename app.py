@@ -27,7 +27,7 @@ from utils.functions import highlight
 app = Flask(__name__)
 load_dotenv()  # This loads the variables from .env into the environment
 # app.config["JWT_SECRET_KEY"] = os.environ['JWT_SECRET_KEY']
-# app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+app.config['SECRET_KEY'] = "testing-secret"
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True  # change to False for production
