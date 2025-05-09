@@ -4,11 +4,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app
-
-def access_app(app):
-    app = app
-
 class Config:
     """Standard environment configuration"""
     SECRET_KEY = os.getenv('SECRET_KEY')
@@ -28,8 +23,10 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     """Production environment configuration"""
-    def __init__(self, app):
-        ENV = "production"
+    ENV = "production"
+    DEBUG_TB_INTERCEPT_REDIRECTS = False 
+    
+    @staticmethod
+    def config_app(app):
         JWT_SECRET_KEY = app.secret_key_jwt
-        DEBUG_TB_INTERCEPT_REDIRECTS = False 
-        # SECRET_KEY = app.secret_key_flask
+        SECRET_KEY = app.secret_key_flask
