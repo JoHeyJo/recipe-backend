@@ -16,12 +16,15 @@ from decorators.verify_user import check_user_identity
 from decorators.handle_route_errors import route_error_handler
 from utils.functions import highlight
 from utils.set_environment import set_environment
+from environment_config import access_app
+
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
 
 app = Flask(__name__)
 set_environment(app)
+access_app(app)
 debug = DebugToolbarExtension(app)
 jwt = JWTManager(app)
 migrate = Migrate(app, db)

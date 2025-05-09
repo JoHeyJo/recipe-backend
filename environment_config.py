@@ -1,9 +1,13 @@
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
-from app import app
 
 load_dotenv()
+
+app
+
+def access_app(app):
+    app = app
 
 class Config:
     """Standard environment configuration"""
@@ -24,7 +28,8 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     """Production environment configuration"""
-    ENV = "production"
-    DEBUG_TB_INTERCEPT_REDIRECTS = False 
-    JWT_SECRET_KEY = app.secret_key_jwt
-    SECRET_KEY = app.secret_key_flask
+    def __init__(self, app):
+        ENV = "production"
+        JWT_SECRET_KEY = app.secret_key_jwt
+        DEBUG_TB_INTERCEPT_REDIRECTS = False 
+        # SECRET_KEY = app.secret_key_flask
