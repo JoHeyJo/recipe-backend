@@ -1,5 +1,5 @@
 from environment_config import DevelopmentConfig, ProductionConfig, os
-from SDKs.paramater_store_api import fetch_flask_secret, fetch_jwt_secret
+from SDKs.parameter_store_api import fetch_flask_secret, fetch_jwt_secret
 
 def set_environment(app):
 	"""On application load environment is set based on server software"""
