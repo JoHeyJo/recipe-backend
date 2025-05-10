@@ -13,4 +13,9 @@ def fetch_jwt_secret(app):
 	secret_key_jwt = parameter['Parameter']['Value']
 	app.secret_key_jwt = secret_key_jwt
 
+def fetch_jwt_secret(app):
+	parameter = ssm.get_parameter(Name='DATABASE_URI', WithDecryption=True)
+	DATABASE_URI = parameter['Parameter']['Value']
+	app.DATABASE_URI = DATABASE_URI
+
 
