@@ -8,6 +8,5 @@ def set_environment(app):
 		app.config.from_object(ProductionConfig)
 		ProductionConfig.config_app(app=app)
 	else:
-		fetch_secrets(app=app)
 		app.config.from_object(DevelopmentConfig)
 
