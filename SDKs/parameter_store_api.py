@@ -11,14 +11,14 @@ def fetch_secrets(app):
     # access and FLASK_SECRET_KEY
     parameter = ssm.get_parameter(Name='SECRET_KEY', WithDecryption=True)
     secret_key_flask = parameter['Parameter']['Value']
-    app.secret_key_flask = secret_key_flask
+    app.config["SECRET_KEY"] = secret_key_flask
 
    # access and JWT_SECRET_KEY
     parameter = ssm.get_parameter(Name='JWT_SECRET_KEY', WithDecryption=True)
     secret_key_jwt = parameter['Parameter']['Value']
-    app.secret_key_jwt = secret_key_jwt
+    app.config["JWT_SECRET_KEY"] = secret_key_jwt
 
    # access and DATABASE_URI
     parameter = ssm.get_parameter(Name='DATABASE_URI', WithDecryption=True)
     database_uri = parameter['Parameter']['Value']
-    app.database_uri = database_uri
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
