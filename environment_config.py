@@ -24,9 +24,10 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     """Production environment configuration"""
     ENV = "production"
-    DEBUG_TB_INTERCEPT_REDIRECTS = False 
+    DEBUG_TB_INTERCEPT_REDIRECTS = False
     
     @staticmethod
     def config_app(app):
         JWT_SECRET_KEY = app.secret_key_jwt
         SECRET_KEY = app.secret_key_flask
+        DATABASE_URI = app.database_uri

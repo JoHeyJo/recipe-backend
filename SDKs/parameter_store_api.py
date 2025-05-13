@@ -20,5 +20,5 @@ def fetch_secrets(app):
 
    # access and DATABASE_URI
     parameter = ssm.get_parameter(Name='DATABASE_URI', WithDecryption=True)
-    DATABASE_URI = parameter['Parameter']['Value']
-    app.DATABASE_URI = DATABASE_URI
+    database_uri = parameter['Parameter']['Value']
+    app.database_uri = database_uri
