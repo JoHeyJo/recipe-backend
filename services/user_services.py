@@ -1,4 +1,5 @@
 from repository import db, UserRepo, Book, User
+from utils.functions import highlight
 
 class UserServices():
     """Handles ingredients view business logic"""

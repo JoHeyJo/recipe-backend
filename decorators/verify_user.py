@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import request, jsonify, make_response
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from utils.functions import highlight
 
 def check_user_identity(f):
     """Decorator to handle user verification in routes."""

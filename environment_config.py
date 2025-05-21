@@ -4,12 +4,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class Config:
     """Standard environment configuration"""
     SECRET_KEY = os.getenv('SECRET_KEY')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=1)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = False
+    JWT_VERIFY_SUB = False
+
 
 class DevelopmentConfig(Config):
     """Development environment configuration"""
@@ -25,4 +28,3 @@ class ProductionConfig(Config):
     """Production environment configuration"""
     ENV = "production"
     DEBUG_TB_INTERCEPT_REDIRECTS = False
-
