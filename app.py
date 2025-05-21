@@ -41,7 +41,6 @@ def index():
 @route_error_handler
 def signup():
     """Facilitates new user data, return token"""
-    highlight(request.json,"#")
     token = UserServices.authenticate_signup(request=request)
     return jsonify({"token": token})
 
