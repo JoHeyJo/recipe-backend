@@ -35,6 +35,12 @@ CORS(app,
      methods=["GET", "POST", "OPTIONS"],
      allow_headers=["Content-Type", "Authorization"])
 
+
+@app.route('/__test__')
+def test():
+    return 'This is working'
+
+
 @app.get("/")
 # @jwt_required()
 def index():
