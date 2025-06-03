@@ -50,9 +50,11 @@ def signup():
     return jsonify({"token": token})
 
 
-@app.post("/login")
+@app.route('/login', methods=["POST", "OPTIONS"])
 def login():
     """Validate user credentials"""
+    if request.method == "OPTIONS":
+        return '',204
     try:
         token = UserServices.authenticate_login(request=request)
         if token:
