@@ -1,5 +1,8 @@
 import boto3
 from utils.functions import highlight
+import logging
+from botocore.exceptions import BotoCoreError, ClientError
+logger = logging.getLogger(__name__)
 
 # Create a Systems Manager client
 ssm = boto3.client('ssm', region_name='us-west-1')
@@ -24,5 +27,6 @@ def fetch_secrets(app):
         parameter = ssm.get_parameter(Name='DATABASE_URI', WithDecryption=True)
         database_uri = parameter['Parameter']['Value']
         app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
-    except Exception as e:
-        raise type(e)(f"Error in parameter_store_api -> fetch_secrets: {e}") from e
+    except (BotoCoreError, ClientError) as e:
+        logger.error(f"Error fetching secrets from Parameter Store: {e}")
+        raise RuntimeError(f"Secrets retrieval failed") from e
