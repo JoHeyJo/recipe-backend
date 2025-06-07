@@ -30,7 +30,7 @@ connect_db(app)
 # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 # CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT ^^^^^
 CORS(app,
-     origins=["https://d2xpz0bpx9nu84.cloudfront.net"],
+     origins=["https://slingitdrinks.com"],
      supports_credentials=True,
      methods=["GET", "POST", "OPTIONS"],
      allow_headers=["Content-Type", "Authorization"])
