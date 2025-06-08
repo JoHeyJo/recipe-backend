@@ -27,14 +27,15 @@ jwt = JWTManager(app)
 migrate = Migrate(app, db)
 
 connect_db(app)
-# CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
-# CORS(app)  # SPECIFY CORS OPTIONS FOR RESOURCES FOR DEPLOYMENT ^^^^^
-CORS(app,
-     origins=["https://slingitdrinks.com"],
-     supports_credentials=True,
-     methods=["GET", "POST", "OPTIONS"],
-     allow_headers=["Content-Type", "Authorization"])
 
+if app.config['ENV'] == 'production':
+    CORS(app,
+         origins=["https://slingitdrinks.com"],
+         supports_credentials=True,
+         methods=["GET", "POST", "OPTIONS"],
+         allow_headers=["Content-Type", "Authorization"])
+else:
+    CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 @app.route('/__test__')
 def test():

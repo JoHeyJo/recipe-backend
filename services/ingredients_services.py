@@ -1,5 +1,5 @@
 from repository import *
-
+from utils.functions import highlight
 
 class IngredientServices():
     """Handles ingredients view business logic"""
@@ -118,6 +118,7 @@ class IngredientServices():
         ingredients = []
         try:
             for ingredient in instance.ingredients:
+                highlight(ingredient,"#")
                 amount = QuantityAmount.serialize(ingredient.amount)
                 unit = QuantityUnit.serialize(ingredient.unit)
                 item = Item.serialize(ingredient.item)
