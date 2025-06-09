@@ -5,8 +5,8 @@ from utils.functions import highlight
 def set_environment(app):
 	"""On application load environment is set based on server software"""
 	if "gunicorn" in os.environ.get("SERVER_SOFTWARE", ""):
-		app.config.from_object(ProductionConfig)
 		fetch_secrets(app=app)
+		app.config.from_object(ProductionConfig)
 	else:
 		app.config.from_object(DevelopmentConfig)
 
