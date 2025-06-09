@@ -29,7 +29,6 @@ migrate = Migrate(app, db)
 
 connect_db(app)
 
-
 @app.route('/__test__')
 def test():
     return 'This is working'
