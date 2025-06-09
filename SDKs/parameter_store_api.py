@@ -31,6 +31,7 @@ def fetch_secrets(app):
         # access Client Origin
         parameter = ssm.get_parameter(Name='/CodeBuild/client_origin', WithDecryption=True)
         client_url = parameter['Parameter']['Value']
+        highlight(client_url,"#")
         app.config["CLIENT_ORIGIN_URL"] = client_url
     except (BotoCoreError, ClientError) as e:
         logger.error(f"Error fetching secrets from Parameter Store: {e}")
