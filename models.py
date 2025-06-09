@@ -5,6 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from annotations import str_255, str_unique_255, str_255_nullable, boolean
 from mixins import TableNameMixin, TimestampMixin, ReprMixin, AssociationTableNameMixin
 from typing import Optional, List
+from utils.functions import highlight
 
 db = SQLAlchemy()
 
@@ -126,6 +127,7 @@ class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     def serialize(self):
         """Serialize unit table data into dict"""
+        highlight(self,"&")
         return {"id": self.id, "type": self.type}
 
     books: Mapped[List['Book']] = relationship(
