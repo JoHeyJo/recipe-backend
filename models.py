@@ -127,7 +127,6 @@ class QuantityUnit(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     def serialize(self):
         """Serialize unit table data into dict"""
-        highlight(self,"&")
         return {"id": self.id, "type": self.type}
 
     books: Mapped[List['Book']] = relationship(

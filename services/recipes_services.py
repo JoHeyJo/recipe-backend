@@ -116,8 +116,6 @@ class RecipeServices():
                 recipe_build = {}
 
                 recipe = Recipe.serialize(recipe_instance)
-                highlight(recipe,"%")
-                highlight(recipe_instance, "@")
                 
                 recipe_build.update(recipe)
 

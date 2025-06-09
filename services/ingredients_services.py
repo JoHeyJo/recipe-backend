@@ -118,8 +118,6 @@ class IngredientServices():
         ingredients = []
         try:
             for ingredient in instance.ingredients:
-                highlight(ingredient,"#<")
-                highlight(ingredient.unit,"<")
                 amount = QuantityAmount.serialize(ingredient.amount) if ingredient.amount else None
                 unit = QuantityUnit.serialize(ingredient.unit) if ingredient.unit else None
                 item = Item.serialize(ingredient.item) if ingredient.item else None
