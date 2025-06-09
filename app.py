@@ -5,7 +5,6 @@ from repository import *
 from models import connect_db, db
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager, jwt_required
-from flask_cors import CORS
 from exceptions import *
 from services.user_services import UserServices
 from services.recipes_services import RecipeServices
@@ -16,27 +15,20 @@ from decorators.verify_user import check_user_identity
 from decorators.handle_route_errors import route_error_handler
 from utils.functions import highlight
 from env_config.set_environment import set_environment
+from env_config.config_cors import configure_cors
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
 
 app = Flask(__name__)
 set_environment(app)
-
+configure_cors(app)
 debug = DebugToolbarExtension(app)
 jwt = JWTManager(app)
 migrate = Migrate(app, db)
 
 connect_db(app)
 
-if app.config['ENV'] == 'production':
-    CORS(app,
-         origins=["https://slingitdrinks.com"],
-         supports_credentials=True,
-         methods=["GET", "POST", "OPTIONS"],
-         allow_headers=["Content-Type", "Authorization"])
-else:
-    CORS(app, resources={r"/*": {"origins": {os.environ["CLIENT_URL"]}}})
 
 @app.route('/__test__')
 def test():
