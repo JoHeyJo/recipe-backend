@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
+from utils.functions import highlight
 
 load_dotenv()
 
