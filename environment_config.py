@@ -16,9 +16,9 @@ class Config:
 class DevelopmentConfig(Config):
     """Development environment configuration"""
     ENV = "development"
-    SECRET_KEY = os.environ['SECRET_KEY']
-    JWT_SECRET_KEY = os.environ['JWT_SECRET_KEY']
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URI']
+    SECRET_KEY = os.getenv('SECRET_KEY')
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
     SQLALCHEMY_ECHO = True
     DEBUG = True
     DEBUG_TB_INTERCEPT_REDIRECTS = True
