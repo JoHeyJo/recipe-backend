@@ -2,6 +2,7 @@ from repository import *
 from services.ingredients_services import IngredientServices
 from services.instructions_services import InstructionServices
 from sqlalchemy.exc import SQLAlchemyError
+from utils.functions import highlight
 
 
 class RecipeServices():
@@ -115,6 +116,8 @@ class RecipeServices():
                 recipe_build = {}
 
                 recipe = Recipe.serialize(recipe_instance)
+                highlight(recipe,"%")
+                highlight(recipe_instance, "@")
                 
                 recipe_build.update(recipe)
 
