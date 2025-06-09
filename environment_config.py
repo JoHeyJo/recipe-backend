@@ -7,6 +7,7 @@ load_dotenv()
 
 class Config:
     """Standard environment configuration"""
+    highlight(os.environ,"#")
     try:
         SECRET_KEY = os.environ['SECRET_KEY']
     except KeyError:
