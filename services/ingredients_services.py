@@ -120,9 +120,9 @@ class IngredientServices():
             for ingredient in instance.ingredients:
                 highlight(ingredient,"#<")
                 highlight(ingredient.unit,"<")
-                amount = QuantityAmount.serialize(ingredient.amount)
-                unit = QuantityUnit.serialize(ingredient.unit)
-                item = Item.serialize(ingredient.item)
+                amount = QuantityAmount.serialize(ingredient.amount) if ingredient.amount else None
+                unit = QuantityUnit.serialize(ingredient.unit) if ingredient.unit else None
+                item = Item.serialize(ingredient.item) if ingredient.item else None
                 ingredients.append(
                     {"ingredient_id": ingredient.id, "amount": amount, "unit": unit, "item": item})
             return ingredients
