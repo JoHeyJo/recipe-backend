@@ -15,13 +15,14 @@ from services.instructions_services import InstructionServices
 from decorators.verify_user import check_user_identity
 from decorators.handle_route_errors import route_error_handler
 from utils.functions import highlight
-from utils.set_environment import set_environment
+from env_config.set_environment import set_environment
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
 
 app = Flask(__name__)
 set_environment(app)
+
 debug = DebugToolbarExtension(app)
 jwt = JWTManager(app)
 migrate = Migrate(app, db)
@@ -35,7 +36,7 @@ if app.config['ENV'] == 'production':
          methods=["GET", "POST", "OPTIONS"],
          allow_headers=["Content-Type", "Authorization"])
 else:
-    CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+    CORS(app, resources={r"/*": {"origins": {os.environ["CLIENT_URL"]}}})
 
 @app.route('/__test__')
 def test():
