@@ -34,7 +34,7 @@ def test():
     return 'This is working'
 
 
-@app.get("/api/")
+@app.get("/api")
 # @jwt_required()
 def index():
     header = request.headers
