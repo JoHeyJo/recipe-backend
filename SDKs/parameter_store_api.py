@@ -14,29 +14,24 @@ def fetch_secrets(app):
     try:
         # access FLASK_SECRET_KEY
         parameter = ssm.get_parameter(Name='SECRET_KEY', WithDecryption=True)
-        highlight(parameter,"!")
         secret_key_flask = parameter['Parameter']['Value']
         app.config["SECRET_KEY"] = secret_key_flask
 
         # access JWT_SECRET_KEY
         parameter = ssm.get_parameter(
             Name='JWT_SECRET_KEY', WithDecryption=True)
-        highlight(parameter,"@")
         secret_key_jwt = parameter['Parameter']['Value']
         app.config["JWT_SECRET_KEY"] = secret_key_jwt
 
         # access DATABASE_URI
         parameter = ssm.get_parameter(Name='DATABASE_URI', WithDecryption=True)
-        highlight(parameter,"#")
         database_uri = parameter['Parameter']['Value']
         app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
 
         # access Client Origin
         parameter = ssm.get_parameter(Name='/CodeBuild/client_origin', WithDecryption=True)
-        highlight(parameter,"$")
         client_url = parameter['Parameter']['Value']
         app.config["CLIENT_ORIGIN_URL"] = client_url
     except (BotoCoreError, ClientError) as e:
-        highlight(e,'#')
         logger.error(f"Error fetching secrets from Parameter Store: {e}")
         raise RuntimeError(f"Secrets retrieval failed") from e
