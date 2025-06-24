@@ -14,3 +14,4 @@ def configure_cors(app):
              allow_headers=["Content-Type", "Authorization"])
     else:
         CORS(app, resources={r"/*": {"origins": {os.environ["CLIENT_URL"]}}})
+        # CORS(app)   
