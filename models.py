@@ -38,7 +38,7 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     #     'Recipe', secondary='user_recipes', back_populates='users')
 
     books: Mapped[List['Book']] = relationship(
-        'Book', secondary='users_books', back_populates='users')
+        'Book', secondary='users_books', back_populates='users', order_by="Book.title")
 
 
 class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -94,11 +94,11 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         "Instruction", secondary='books_instructions', back_populates='books')
 
     amounts: Mapped[List['QuantityAmount']] = relationship(
-        "QuantityAmount", secondary='amounts_books', back_populates='books')
+        "QuantityAmount", secondary='amounts_books', back_populates='books', order_by="QuantityAmount.value")
     units: Mapped[List['QuantityUnit']] = relationship(
-        "QuantityUnit", secondary='units_books', back_populates='books')
+        "QuantityUnit", secondary='units_books', back_populates='books', order_by="QuantityUnit.type")
     items: Mapped[List['Item']] = relationship(
-        "Item", secondary='items_books', back_populates='books')
+        "Item", secondary='items_books', back_populates='books', order_by="Item.name")
 
 
 class QuantityAmount(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
