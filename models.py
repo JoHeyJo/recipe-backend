@@ -88,7 +88,7 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'User', secondary='users_books', back_populates='books')
 
     recipes: Mapped[List['Recipe']] = relationship(
-        'Recipe', secondary='recipes_books', back_populates='books')
+        'Recipe', secondary='recipes_books', back_populates='books', order_by="Recipe.name")
 
     instructions: Mapped[List['Instruction']] = relationship(
         "Instruction", secondary='books_instructions', back_populates='books')

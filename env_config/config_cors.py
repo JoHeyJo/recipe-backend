@@ -13,5 +13,5 @@ def configure_cors(app):
              methods=["GET", "POST", "OPTIONS", "PATCH", "DELETE"],
              allow_headers=["Content-Type", "Authorization"])
     else:
-        CORS(app, resources={r"/*": {"origins": {os.environ["CLIENT_URL"]}}})
-        # CORS(app)   
+        # CORS(app, resources={r"/*": {"origins": {os.environ["CLIENT_URL"]}}})
+        CORS(app)   
