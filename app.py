@@ -20,7 +20,7 @@ from env_config.config_cors import configure_cors
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
 # Execute to allow mobile connection
-# flask run - -host = 0.0.0.0
+# flask run --host=0.0.0.0
 
 app = Flask(__name__)
 set_environment(app)

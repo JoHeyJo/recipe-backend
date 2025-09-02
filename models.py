@@ -91,7 +91,7 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'Recipe', secondary='recipes_books', back_populates='books', order_by="Recipe.name")
 
     instructions: Mapped[List['Instruction']] = relationship(
-        "Instruction", secondary='books_instructions', back_populates='books')
+        "Instruction", secondary='books_instructions', back_populates='books', order_by="Instruction.instruction")
 
     amounts: Mapped[List['QuantityAmount']] = relationship(
         "QuantityAmount", secondary='amounts_books', back_populates='books', order_by="QuantityAmount.value")
@@ -217,6 +217,7 @@ class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"))
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    permission: Mapped[str_255]
 
 
 class BookInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
