@@ -217,7 +217,7 @@ class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"))
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
-    permission: Mapped[str_255]
+    permission: Mapped[str_255_nullable]
 
 
 class BookInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
