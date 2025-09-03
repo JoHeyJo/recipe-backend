@@ -1,13 +1,21 @@
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import BIGINT, String, Integer, ForeignKey, Boolean
+from sqlalchemy import BIGINT, String, Integer, ForeignKey, Boolean, Enum, Index, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from annotations import str_255, str_unique_255, str_255_nullable, boolean
 from mixins import TableNameMixin, TimestampMixin, ReprMixin, AssociationTableNameMixin
 from typing import Optional, List
 from utils.functions import highlight
+from enum import Enum as PyEnum
+
 
 db = SQLAlchemy()
+
+
+class Role(PyEnum):
+    owner = "owner"
+    collaborator = "collaborator"
+    viewer = "viewer"
 
 
 class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -188,8 +196,10 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     recipe_id: Mapped[int] = mapped_column(Integer, ForeignKey(
         'recipes.id', ondelete="CASCADE"), nullable=False)
-    quantity_amount_id: Mapped[int] = mapped_column(Integer, ForeignKey('quantity_amounts.id'), nullable=True)
-    quantity_unit_id: Mapped[int] = mapped_column(Integer, ForeignKey('quantity_units.id'), nullable=True)
+    quantity_amount_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey('quantity_amounts.id'), nullable=True)
+    quantity_unit_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey('quantity_units.id'), nullable=True)
     item_id: Mapped[int] = mapped_column(
         Integer, ForeignKey('items.id'), nullable=False)
 
@@ -205,7 +215,7 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
 
 class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
-    """Association table for books and recipes"""
+    """Association table for books and recipes."""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"))
     recipe_id: Mapped[int] = mapped_column(
@@ -213,11 +223,23 @@ class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model)
 
 
 class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
-    """Association table for users and books"""
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"))
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
-    permission: Mapped[str_255_nullable]
+    """Association table for users and books. Partial unique index set with 
+    book_id where role = 'owner'"""
+    book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"),primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"),primary_key=True)
+    role: Mapped[Role] = mapped_column(Enum(Role, name="book_role"))
+    __table_args__ = (
+        # exactly one owner per book (Postgres partial unique index)
+        Index(
+            "ux_one_owner_per_book",
+            "book_id",
+            unique=True,
+            postgresql_where=text("role = 'owner'")
+        ),
+        # handy lookup indexes
+        Index("ix_users_books_user", "user_id"),
+        Index("ix_users_books_book", "book_id"),
+    )
 
 
 class BookInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
@@ -271,7 +293,7 @@ def connect_db(app):
     db.init_app(app)
     with app.app_context():
         try:
-            # db.drop_all()
+            db.drop_all()
             db.create_all()
         except Exception as e:
             print(f"Error creating database tables: {e}")
