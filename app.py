@@ -135,13 +135,15 @@ def get_user_books(user_id):
     return jsonify(books), 200
 
 
-@app.get("/users/<user_id>/books/<book_id>")
+@app.post("/users/<user_id>/books/<book_id>")
 @check_user_identity
 @route_error_handler
 def add_shared_book(recipient_id, book_id):
     """Shares book with User provided in query"""
-    response = BookServices.process_shared_book(recipient_id=recipient_id, book_id=book_id)
+    recipient = request.json["recipient"]
+    response = BookServices.process_shared_book(recipient=recipient, book_id=book_id)
     return jsonify(response), 200
+
 ###########  COMPONENT OPTIONS = {amount, unit, item} = INGREDIENT ###########
 
 

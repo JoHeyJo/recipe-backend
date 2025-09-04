@@ -39,9 +39,12 @@ class BookServices():
             raise
 
     @staticmethod
-    def process_shared_book(recipient_id, book_id):
+    def process_shared_book(recipient, book_id):
         """Calls services for book processing"""
         try:
+            stmt = db.select(User).where(User.user_name == recipient)
+            user = db.session.execute(stmt).scalar_one_or_none()
+            recipient_id = user.id
             user = UserRepo.query_user(user_id=recipient_id)
             if user:
                 relation_exists = db.session.get(
