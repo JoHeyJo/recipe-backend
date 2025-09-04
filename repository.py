@@ -1,6 +1,6 @@
 from flask_jwt_extended import create_access_token
 from flask_bcrypt import Bcrypt
-from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, Ingredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction, AmountBook, UnitBook, ItemBook
+from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, Ingredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction, AmountBook, UnitBook, ItemBook, BookRole
 from exceptions import *
 from utils.functions import insert_first, highlight
 
@@ -331,7 +331,7 @@ class UserBookRepo():
     def create_entry(user_id, book_id):
         """Create user and book association -> add to database"""
         try:
-            entry = UserBook(user_id=user_id, book_id=book_id)
+            entry = UserBook(user_id=user_id, book_id=book_id, role=BookRole.owner)
             db.session.add(entry)
         except Exception as e:
             raise type(e)(f"UserBookRepo - create_entry error:{e}") from e

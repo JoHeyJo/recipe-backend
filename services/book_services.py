@@ -32,5 +32,6 @@ class BookServices():
             return BookRepo.query_user_books(user_id=user_id)
         except Exception as e:
             raise
-        
 
+    @staticmethod
+    def 

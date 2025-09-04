@@ -12,7 +12,7 @@ from enum import Enum as PyEnum
 db = SQLAlchemy()
 
 
-class Role(PyEnum):
+class BookRole(PyEnum):
     owner = "owner"
     collaborator = "collaborator"
     viewer = "viewer"
@@ -227,7 +227,7 @@ class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     book_id where role = 'owner'"""
     book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"),primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"),primary_key=True)
-    role: Mapped[Role] = mapped_column(Enum(Role, name="book_role"))
+    role: Mapped[BookRole] = mapped_column(Enum(BookRole, name="book_role"))
     __table_args__ = (
         # exactly one owner per book (Postgres partial unique index)
         Index(
@@ -293,7 +293,7 @@ def connect_db(app):
     db.init_app(app)
     with app.app_context():
         try:
-            db.drop_all()
+            # db.drop_all()
             db.create_all()
         except Exception as e:
             print(f"Error creating database tables: {e}")

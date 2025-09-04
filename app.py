@@ -116,7 +116,6 @@ def get_delete_recipe(user_id, book_id, recipe_id):
 
 ########### BOOKS ###########
 
-
 @app.post("/users/<user_id>/books")
 @check_user_identity
 @route_error_handler
@@ -135,6 +134,12 @@ def get_user_books(user_id):
     return jsonify(books), 200
 
 
+@app.get("/users/<user_id>/books/<book_id>")
+@check_user_identity
+@route_error_handler
+def add_shared_book(user_id, book_id):
+    """Shares book with User provided in query"""
+    # message = 
 ###########  COMPONENT OPTIONS = {amount, unit, item} = INGREDIENT ###########
 
 @app.post("/users/<user_id>/books/<book_id>/ingredients/<component>")
