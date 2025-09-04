@@ -1,5 +1,8 @@
 from repository import BookRepo, UserBookRepo
 from models import db, User
+from repository import UserRepo
+from models import UserBook, BookRole
+
 
 class BookServices():
     """Handles book view business logic"""
@@ -10,10 +13,12 @@ class BookServices():
         description = request.json["description"]
         book_data = {"title": title, "description": description}
         try:
-            new_book = BookRepo.create_book(title=book_data["title"], description=book_data["description"])
+            new_book = BookRepo.create_book(
+                title=book_data["title"], description=book_data["description"])
             # associate book to user
             if new_book["id"]:
-                UserBookRepo.create_entry(user_id=user_id, book_id=new_book["id"])
+                UserBookRepo.create_entry(
+                    user_id=user_id, book_id=new_book["id"])
             # add book id to default if necessary
             user = User.query.get(user_id)
             if user.default_book_id == None:
@@ -23,7 +28,7 @@ class BookServices():
             return new_book
         except Exception as e:
             db.session.rollback()
-            raise 
+            raise
 
     @staticmethod
     def fetch_user_books(user_id):
@@ -34,4 +39,20 @@ class BookServices():
             raise
 
     @staticmethod
-    def 
+    def process_shared_book(recipient_id, book_id):
+        """Calls services for book processing"""
+        try:
+            user = UserRepo.query_user(user_id=recipient_id)
+            if user:
+                relation_exists = db.session.get(
+                    UserBook, (book_id, recipient_id))
+                if relation_exists:
+                    return {"message": "User already has access to this book!"}
+                else:
+                    UserBookRepo.create_entry(
+                        user_id=recipient_id, book_id=book_id, role=BookRole.collaborator)
+                    return {"message": f"Book shared with {user.user_name}!"}
+            else:
+                return {"message": "User not found"}
+        except Exception as e:
+            raise

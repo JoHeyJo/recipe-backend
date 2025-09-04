@@ -31,6 +31,7 @@ migrate = Migrate(app, db)
 
 connect_db(app)
 
+
 @app.route('/__test__')
 def test():
     return 'This is working'
@@ -137,10 +138,12 @@ def get_user_books(user_id):
 @app.get("/users/<user_id>/books/<book_id>")
 @check_user_identity
 @route_error_handler
-def add_shared_book(user_id, book_id):
+def add_shared_book(recipient_id, book_id):
     """Shares book with User provided in query"""
-    # message = 
+    response = BookServices.process_shared_book(recipient_id=recipient_id, book_id=book_id)
+    return jsonify(response), 200
 ###########  COMPONENT OPTIONS = {amount, unit, item} = INGREDIENT ###########
+
 
 @app.post("/users/<user_id>/books/<book_id>/ingredients/<component>")
 @check_user_identity
@@ -197,7 +200,6 @@ def get_book_ingredient_components(user_id, book_id):
 #         return jsonify(ingredient)
 #     except IntegrityError as e:
 #         return jsonify({"error": f"add_ingredient error{e}"}), 400
-
 ########### INSTRUCTIONS ###########
 @app.post("/users/<user_id>/books/<book_id>/instructions")
 @check_user_identity
