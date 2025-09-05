@@ -43,18 +43,16 @@ class BookServices():
         """Calls services for book processing"""
         try:
             stmt = db.select(User).where(User.user_name == recipient)
-            user = db.session.execute(stmt).scalar_one_or_none()
-            recipient_id = user.id
-            user = UserRepo.query_user(user_id=recipient_id)
-            if user:
+            recipient = db.session.execute(stmt).scalar_one_or_none()
+            if recipient:
                 relation_exists = db.session.get(
-                    UserBook, (book_id, recipient_id))
+                    UserBook, (book_id, recipient["id"]))
                 if relation_exists:
                     return {"message": "User already has access to this book!"}
                 else:
                     UserBookRepo.create_entry(
-                        user_id=recipient_id, book_id=book_id, role=BookRole.collaborator)
-                    return {"message": f"Book shared with {user.user_name}!"}
+                        user_id=recipient["id"], book_id=book_id, role=BookRole.collaborator)
+                    return {"message": f"Book shared with {recipient.user_name}!"}
             else:
                 return {"message": "User not found"}
         except Exception as e:
