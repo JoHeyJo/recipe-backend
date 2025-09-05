@@ -48,16 +48,18 @@ class BookServices():
             recipient = db.session.execute(stmt).scalar_one_or_none()
             highlight(recipient,"!")
             if recipient:
-                highlight((recipient.id,user_id),"*")
+                highlight([recipient.id, user_id],"#")
                 if (recipient.id == user_id):
                     return {"message":"Don't you already have this book???"}
+                
                 relation_exists = db.session.get(
-                    UserBook, (book_id, recipient["id"]))
+                    UserBook, (book_id, recipient.id))
+                
                 if relation_exists:
                     return {"message": "User already has access to this book!"}
                 else:
                     UserBookRepo.create_entry(
-                        user_id=recipient["id"], book_id=book_id, role=BookRole.collaborator)
+                        user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
                     return {"message": f"Book shared with {recipient.user_name}!"}
             else:
                 return {"message": "User not found"}

@@ -141,7 +141,7 @@ def get_user_books(user_id):
 def add_shared_book(user_id, book_id):
     """Shares book with User provided in query"""
     recipient = request.json["recipient"]
-    response = BookServices.process_shared_book(user_id=user_id, recipient=recipient, book_id=book_id)
+    response = BookServices.process_shared_book(user_id=int(user_id), recipient=recipient, book_id=book_id)
     highlight(response,"@")
     return jsonify(response), 200
 
