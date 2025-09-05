@@ -2,6 +2,7 @@ from repository import BookRepo, UserBookRepo
 from models import db, User
 from repository import UserRepo
 from models import UserBook, BookRole
+from utils.functions import highlight
 
 
 class BookServices():
@@ -39,12 +40,17 @@ class BookServices():
             raise
 
     @staticmethod
-    def process_shared_book(recipient, book_id):
+    def process_shared_book(user_id, recipient, book_id):
         """Calls services for book processing"""
         try:
             stmt = db.select(User).where(User.user_name == recipient)
+            highlight(stmt,"#")
             recipient = db.session.execute(stmt).scalar_one_or_none()
+            highlight(recipient,"!")
             if recipient:
+                highlight((recipient.id,user_id),"*")
+                if (recipient.id == user_id):
+                    return {"message":"Don't you already have this book???"}
                 relation_exists = db.session.get(
                     UserBook, (book_id, recipient["id"]))
                 if relation_exists:
