@@ -44,9 +44,7 @@ class BookServices():
         """Calls services for book processing"""
         try:
             stmt = db.select(User).where(User.user_name == recipient)
-            highlight(stmt,"#")
             recipient = db.session.execute(stmt).scalar_one_or_none()
-            highlight(recipient,"!")
             if recipient:
                 highlight([recipient.id, user_id],"#")
                 if (recipient.id == user_id):
@@ -60,6 +58,7 @@ class BookServices():
                 else:
                     UserBookRepo.create_entry(
                         user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
+                    db.session.commit()
                     return {"message": f"Book shared with {recipient.user_name}!"}
             else:
                 return {"message": "User not found"}
