@@ -20,7 +20,7 @@ from env_config.config_cors import configure_cors
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
 # Execute to allow mobile connection
-# flask run - -host = 0.0.0.0
+# flask run --host=0.0.0.0
 
 app = Flask(__name__)
 set_environment(app)
@@ -30,6 +30,7 @@ jwt = JWTManager(app)
 migrate = Migrate(app, db)
 
 connect_db(app)
+
 
 @app.route('/__test__')
 def test():
@@ -116,7 +117,6 @@ def get_delete_recipe(user_id, book_id, recipe_id):
 
 ########### BOOKS ###########
 
-
 @app.post("/users/<user_id>/books")
 @check_user_identity
 @route_error_handler
@@ -135,7 +135,17 @@ def get_user_books(user_id):
     return jsonify(books), 200
 
 
+@app.post("/users/<user_id>/books/<book_id>")
+@check_user_identity
+@route_error_handler
+def add_shared_book(user_id, book_id):
+    """Shares book with User provided in query"""
+    recipient = request.json["recipient"]
+    response = BookServices.process_shared_book(user_id=int(user_id), recipient=recipient, book_id=book_id)
+    return jsonify(response), 200
+
 ###########  COMPONENT OPTIONS = {amount, unit, item} = INGREDIENT ###########
+
 
 @app.post("/users/<user_id>/books/<book_id>/ingredients/<component>")
 @check_user_identity
@@ -192,7 +202,6 @@ def get_book_ingredient_components(user_id, book_id):
 #         return jsonify(ingredient)
 #     except IntegrityError as e:
 #         return jsonify({"error": f"add_ingredient error{e}"}), 400
-
 ########### INSTRUCTIONS ###########
 @app.post("/users/<user_id>/books/<book_id>/instructions")
 @check_user_identity
