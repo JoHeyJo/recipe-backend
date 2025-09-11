@@ -257,9 +257,35 @@ def get_book_instructions(user_id, book_id):
 ################################################################################
 
 
+connected_users = {}
+
+
+@socketio.on('connect')
+def handle_connect(auth):
+    """Establish WebSocket connection"""
+    user_id = auth["userId"]
+    connected_users[user_id] = request.sid
+    highlight(connected_users,"#")
+    # user_sid = request.sid
+    # if user_id:
+    #     users_sids[user_id] = request.sid
+    #     print(f"User {user_id} connected with sid: {request.sid}")
+
 @socketio.on('sendMessage')
-def handle_message(message):
-    emit("receiveMessage",message, broadcast=True)
+# @check_user_identity
+# @route_error_handler
+def handle_message(user_id):
+    connected_users[user_id] = request.sid
+    highlight(connected_users,"#")
+    emit("receiveMessage",user_id, broadcast=True)
+
+
+# @socketio.on('disconnect')
+# def handle_disconnect():
+#     user_id = session.get('user_id')
+#     if user_id and user_id in users_sids and users_sids[user_id] == request.sid:
+#         del users_sids[user_id]
+#         print(f"User {user_id} disconnected.")
 
 
 @socketio.on('my_event')
