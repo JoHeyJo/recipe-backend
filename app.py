@@ -16,6 +16,7 @@ from decorators.handle_route_errors import route_error_handler
 from utils.functions import highlight
 from env_config.set_environment import set_environment
 from env_config.config_cors import configure_cors
+from flask_socketio import SocketIO, send, emit
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
@@ -23,6 +24,7 @@ from env_config.config_cors import configure_cors
 # flask run --host=0.0.0.0
 
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*")
 set_environment(app)
 configure_cors(app)
 debug = DebugToolbarExtension(app)
@@ -141,7 +143,8 @@ def get_user_books(user_id):
 def add_shared_book(user_id, book_id):
     """Shares book with User provided in query"""
     recipient = request.json["recipient"]
-    response = BookServices.process_shared_book(user_id=int(user_id), recipient=recipient, book_id=book_id)
+    response = BookServices.process_shared_book(
+        user_id=int(user_id), recipient=recipient, book_id=book_id)
     return jsonify(response), 200
 
 ###########  COMPONENT OPTIONS = {amount, unit, item} = INGREDIENT ###########
@@ -252,6 +255,21 @@ def get_book_instructions(user_id, book_id):
     return jsonify(response)
 
 ################################################################################
+
+
+@socketio.on('sendMessage')
+def handle_message(message):
+    emit("receiveMessage",message)
+
+
+@socketio.on('my_event')
+def handle_my_event(data):
+    emit('my_response', {'data': 'Server received your event!'})
+################################################################################
+
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True)
 
 
 def setup_app_context():
