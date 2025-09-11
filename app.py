@@ -259,7 +259,7 @@ def get_book_instructions(user_id, book_id):
 
 @socketio.on('sendMessage')
 def handle_message(message):
-    emit("receiveMessage",message)
+    emit("receiveMessage",message, broadcast=True)
 
 
 @socketio.on('my_event')
