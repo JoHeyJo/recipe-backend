@@ -272,8 +272,6 @@ def handle_connect(auth):
     #     print(f"User {user_id} connected with sid: {request.sid}")
 
 @socketio.on('sendMessage')
-# @check_user_identity
-# @route_error_handler
 def handle_message(user_id):
     connected_users[user_id] = request.sid
     highlight(connected_users,"#")
