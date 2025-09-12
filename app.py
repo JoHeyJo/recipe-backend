@@ -16,7 +16,7 @@ from decorators.handle_route_errors import route_error_handler
 from utils.functions import highlight
 from env_config.set_environment import set_environment
 from env_config.config_cors import configure_cors
-from flask_socketio import SocketIO, send, emit
+from flask_socketio import SocketIO, send, emit, disconnect
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 
 # Execute if app doesn't auto update code
@@ -267,24 +267,36 @@ def handle_connect(auth):
     token = auth["token"]
     user_id = auth["userId"]
     sid = request.sid
-    with app.test_request_context(headers={'Authorization': f'Bearer {token}'}):
-        verify_jwt_in_request()
-        identity = get_jwt_identity()
-        if identity == user_id:
-            connected_users[user_id] = sid
-            highlight(connected_users, "#")
+    if token:
+        try:
+            with app.test_request_context(headers={'Authorization': f'Bearer {token}'}):
+                verify_jwt_in_request()
+                identity = get_jwt_identity()
+                if identity == user_id:
+                    connected_users[user_id] = sid
+                    print("User connected")
+        except:
+            print("Invalid or missing JWT token. Disconnecting.")
+            disconnect()
+    else:
+        print("No token provided. Disconnecting.")
+        disconnect()
 
-    # highlight((jwt_id, user_id),"@")
-    # if jwt_id == user_id: 
-    #     connected_users[user_id] = request.sid
-    #     highlight(connected_users,"#")
-    #     print(f"User {user_id} connected with sid: {request.sid}")
+@socketio.on('share')
+def share_book(data):
+    """Facilitate share book request and response"""
+    user_id = data["userId"]
+    book_id = data["currentBookId"]
+    recipient = data["recipientUserName"]
+    try:
+        highlight(data,"@")
+        response = BookServices.process_shared_book(
+            user_id=int(user_id), recipient=recipient, book_id=book_id)
+        highlight(response,"#")
+        emit('share', {'data': response})
+    except Exception as e:
+        raise e
 
-@socketio.on('sendMessage')
-def handle_message(user_id):
-    connected_users[user_id] = request.sid
-    highlight(connected_users,"#")
-    emit("receiveMessage",user_id, broadcast=True)
 
 
 # @socketio.on('disconnect')
@@ -295,9 +307,6 @@ def handle_message(user_id):
 #         print(f"User {user_id} disconnected.")
 
 
-@socketio.on('my_event')
-def handle_my_event(data):
-    emit('my_response', {'data': 'Server received your event!'})
 ################################################################################
 
 

@@ -63,4 +63,5 @@ class BookServices():
             else:
                 return {"message": "User not found"}
         except Exception as e:
+            db.session.rollback()
             raise
