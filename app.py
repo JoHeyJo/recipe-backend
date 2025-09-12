@@ -17,6 +17,7 @@ from utils.functions import highlight
 from env_config.set_environment import set_environment
 from env_config.config_cors import configure_cors
 from flask_socketio import SocketIO, send, emit
+from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
@@ -263,12 +264,20 @@ connected_users = {}
 @socketio.on('connect')
 def handle_connect(auth):
     """Establish WebSocket connection"""
+    token = auth["token"]
     user_id = auth["userId"]
-    connected_users[user_id] = request.sid
-    highlight(connected_users,"#")
-    # user_sid = request.sid
-    # if user_id:
-    #     users_sids[user_id] = request.sid
+    sid = request.sid
+    with app.test_request_context(headers={'Authorization': f'Bearer {token}'}):
+        verify_jwt_in_request()
+        identity = get_jwt_identity()
+        if identity == user_id:
+            connected_users[user_id] = sid
+            highlight(connected_users, "#")
+
+    # highlight((jwt_id, user_id),"@")
+    # if jwt_id == user_id: 
+    #     connected_users[user_id] = request.sid
+    #     highlight(connected_users,"#")
     #     print(f"User {user_id} connected with sid: {request.sid}")
 
 @socketio.on('sendMessage')
