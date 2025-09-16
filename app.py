@@ -281,6 +281,7 @@ def handle_connect(auth):
     else:
         print("No token provided. Disconnecting.")
         disconnect()
+    highlight(connected_users,"#")
 
 
 @socketio.on('share')
@@ -288,20 +289,24 @@ def share_book(data):
     """Facilitate share book request and response"""
     user_id = data["userId"]
     book_id = data["currentBookId"]
-    recipient = data["recipientUserName"]
+    recipient = data["recipient"]
     sender = data["user"]
     book = data["defaultBook"]
     try:
         highlight(data, "@")
         response = BookServices.process_shared_book(
             user_id=int(user_id), recipient=recipient, book_id=book_id)
+        highlight(response,"!")
         if response["code"] == 200:
+            highlight(response,"$")
+            highlight(connected_users,"%")
             # SENDER
-            emit('share', response.message, room=user_id)
-            connection_id = connected_users[response.recipient_id]
+            emit('share', response["message"], room=user_id)
+            connection_id = connected_users[response["recipient_id"]]
+            highlight(connection_id,"*")
             if connection_id:
-                message = f"{sender} has shared {book["title"]} with you!"
-                emit('share', message, room=connection_id)
+                message = f"{sender} has shared '{book['title']}' recipe book with you!"
+                emit('share', {"data":message, "code":response["code"]}, room=connection_id)
             # else:
                 # Future logic to que up message for offline recipient
         if response["code"] == 422 or 409 or 404:
