@@ -298,6 +298,7 @@ def share_book(data):
             # SENDER
             emit('book_shared', response["message"], room=user_id)
             connection_id = connected_users[response["recipient_id"]]
+            #RECIPIENT
             if connection_id:
                 message = f"{sender} has shared '{title}' recipe book with you!"
                 books = BookServices.fetch_user_books(
