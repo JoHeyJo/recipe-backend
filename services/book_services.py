@@ -46,7 +46,6 @@ class BookServices():
             stmt = db.select(User).where(User.user_name == recipient)
             recipient = db.session.execute(stmt).scalar_one_or_none()
             if recipient:
-                highlight([recipient.id, user_id], "#")
                 if (recipient.id == user_id):
                     return {"message": "Don't you already have this book???",
                             "error": "Unprocessable Content", "code": 422

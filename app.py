@@ -274,14 +274,13 @@ def handle_connect(auth):
                 identity = get_jwt_identity()
                 if identity == user_id:
                     connected_users[user_id] = sid
-                    print("User connected")
+                    highlight("User connected","#")
         except:
-            print("Invalid or missing JWT token. Disconnecting.")
+            highlight("Invalid or missing JWT token. Disconnecting.", "#")
             disconnect()
     else:
-        print("No token provided. Disconnecting.")
+        highlight("No token provided. Disconnecting.", "#")
         disconnect()
-    highlight(connected_users,"#")
 
 
 @socketio.on('share')
@@ -291,40 +290,39 @@ def share_book(data):
     book_id = data["currentBookId"]
     recipient = data["recipient"]
     sender = data["user"]
-    book = data["defaultBook"]
+    title = data["currentBook"]
     try:
-        highlight(data, "@")
         response = BookServices.process_shared_book(
             user_id=int(user_id), recipient=recipient, book_id=book_id)
-        highlight(response,"!")
         if response["code"] == 200:
-            highlight(response,"$")
-            highlight(connected_users,"%")
             # SENDER
-            emit('share', response["message"], room=user_id)
+            emit('book_shared', response["message"], room=user_id)
             connection_id = connected_users[response["recipient_id"]]
-            highlight(connection_id,"*")
             if connection_id:
-                message = f"{sender} has shared '{book['title']}' recipe book with you!"
-                emit('share', {"data":message, "code":response["code"]}, room=connection_id)
+                message = f"{sender} has shared '{title}' recipe book with you!"
+                books = BookServices.fetch_user_books(
+                    user_id=response["recipient_id"])
+                emit('user_shared_book', {
+                     "message": message, "books": books}, room=connection_id)
             # else:
                 # Future logic to que up message for offline recipient
         if response["code"] == 422 or 409 or 404:
-            emit('share', {'data': response["message"]})
+            emit('error_sharing_book', {'data': response["message"]})
     except Exception as e:
         raise e
 
 
-# @socketio.on('disconnect')
-# def handle_disconnect():
-#     user_id = session.get('user_id')
-#     if user_id and user_id in users_sids and users_sids[user_id] == request.sid:
-#         del users_sids[user_id]
-#         print(f"User {user_id} disconnected.")
+@socketio.on('disconnect')
+def disconnected():
+    user_sid = request.sid
+    for key, value in connected_users.items():
+        if user_sid == value:
+            del connected_users[key]
+            highlight("user disconnected","#")
+            return
 
 
 ################################################################################
-
 if __name__ == '__main__':
     socketio.run(app, debug=True)
 
