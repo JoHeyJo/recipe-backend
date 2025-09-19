@@ -16,6 +16,8 @@ from decorators.handle_route_errors import route_error_handler
 from utils.functions import highlight
 from env_config.set_environment import set_environment
 from env_config.config_cors import configure_cors
+from flask_socketio import SocketIO, send, emit, disconnect
+from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
@@ -23,6 +25,7 @@ from env_config.config_cors import configure_cors
 # flask run --host=0.0.0.0
 
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*")
 set_environment(app)
 configure_cors(app)
 debug = DebugToolbarExtension(app)
@@ -141,7 +144,8 @@ def get_user_books(user_id):
 def add_shared_book(user_id, book_id):
     """Shares book with User provided in query"""
     recipient = request.json["recipient"]
-    response = BookServices.process_shared_book(user_id=int(user_id), recipient=recipient, book_id=book_id)
+    response = BookServices.process_shared_book(
+        user_id=int(user_id), recipient=recipient, book_id=book_id)
     return jsonify(response), 200
 
 ###########  COMPONENT OPTIONS = {amount, unit, item} = INGREDIENT ###########
@@ -252,6 +256,76 @@ def get_book_instructions(user_id, book_id):
     return jsonify(response)
 
 ################################################################################
+
+
+connected_users = {}
+
+
+@socketio.on('connect')
+def handle_connect(auth):
+    """Establish WebSocket connection"""
+    token = auth["token"]
+    user_id = auth["userId"]
+    sid = request.sid
+    if token:
+        try:
+            with app.test_request_context(headers={'Authorization': f'Bearer {token}'}):
+                verify_jwt_in_request()
+                identity = get_jwt_identity()
+                if identity == user_id:
+                    connected_users[user_id] = sid
+                    highlight("User connected","#")
+        except:
+            highlight("Invalid or missing JWT token. Disconnecting.", "#")
+            disconnect()
+    else:
+        highlight("No token provided. Disconnecting.", "#")
+        disconnect()
+
+
+@socketio.on('share')
+def share_book(data):
+    """Facilitate share book request and response"""
+    user_id = data["userId"]
+    book_id = data["currentBookId"]
+    recipient = data["recipient"]
+    sender = data["user"]
+    title = data["currentBook"]
+    try:
+        response = BookServices.process_shared_book(
+            user_id=int(user_id), recipient=recipient, book_id=book_id)
+        if response["code"] == 200:
+            # SENDER
+            emit('book_shared', response["message"], room=user_id)
+            connection_id = connected_users[response["recipient_id"]]
+            #RECIPIENT
+            if connection_id:
+                message = f"{sender} has shared '{title}' recipe book with you!"
+                books = BookServices.fetch_user_books(
+                    user_id=response["recipient_id"])
+                emit('user_shared_book', {
+                     "message": message, "books": books}, room=connection_id)
+            # else:
+                # Future logic to que up message for offline recipient
+        if response["code"] == 422 or 409 or 404:
+            emit('error_sharing_book', {'data': response["message"]})
+    except Exception as e:
+        raise e
+
+
+@socketio.on('disconnect')
+def disconnected():
+    user_sid = request.sid
+    for key, value in connected_users.items():
+        if user_sid == value:
+            del connected_users[key]
+            highlight("user disconnected","#")
+            return
+
+
+################################################################################
+if __name__ == '__main__':
+    socketio.run(app, debug=True)
 
 
 def setup_app_context():

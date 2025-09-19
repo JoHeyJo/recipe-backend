@@ -46,21 +46,28 @@ class BookServices():
             stmt = db.select(User).where(User.user_name == recipient)
             recipient = db.session.execute(stmt).scalar_one_or_none()
             if recipient:
-                highlight([recipient.id, user_id],"#")
                 if (recipient.id == user_id):
-                    return {"message":"Don't you already have this book???"}
-                
+                    return {"message": "Don't you already have this book???",
+                            "error": "Unprocessable Content", "code": 422
+                            }
+
                 relation_exists = db.session.get(
                     UserBook, (book_id, recipient.id))
-                
+
                 if relation_exists:
-                    return {"message": "User already has access to this book!"}
+                    return {"message": "User already has access to this book!",
+                            "error": "Unprocessable Content", "code": 409
+                            }
                 else:
                     UserBookRepo.create_entry(
                         user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
                     db.session.commit()
-                    return {"message": f"Book shared with {recipient.user_name}!"}
+                    return {"recipient_id": recipient.id,
+                            "message": f"Book shared with {recipient.user_name}!",
+                            "error": "Unprocessable Content", "code": 200
+                            }
             else:
-                return {"message": "User not found"}
+                return {"message": "User not found", "error": "Not Found", "code": 404}
         except Exception as e:
+            db.session.rollback()
             raise
