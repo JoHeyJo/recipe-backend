@@ -275,8 +275,8 @@ def handle_connect(auth):
                 identity = get_jwt_identity()
                 if identity == user_id:
                     connected_users[user_id] = sid
-                    highlight(("Connecting user:",user_id),"#")
-                    highlight(("Users connected:",connected_users),"#")
+                    # highlight(("Connecting user:",user_id),"#")
+                    # highlight(("Users connected:",connected_users),"#")
 
         except:
             highlight("Invalid or missing JWT token. Disconnecting.", "#")
@@ -298,9 +298,9 @@ def share_book(data):
         response = BookServices.process_shared_book(
             user_id=int(user_id), recipient=recipient, book_id=book_id)
         if response["code"] == 200:
-            highlight(("Sender",sender),"@")
-            highlight(("Sent to",recipient),"@")
-            highlight(("Connected users",connected_users),"@")
+            # highlight(("Sender",sender),"@")
+            # highlight(("Sent to",recipient),"@")
+            # highlight(("Connected users",connected_users),"@")
             # SENDER
             emit('book_shared', response["message"], room=user_id)
             connection_id = connected_users[response["recipient_id"]]
