@@ -293,7 +293,7 @@ def connect_db(app):
     db.init_app(app)
     with app.app_context():
         try:
-            db.drop_all()
+            # db.drop_all()
             db.create_all()
         except Exception as e:
             print(f"Error creating database tables: {e}")
