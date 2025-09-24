@@ -16,7 +16,7 @@ from decorators.handle_route_errors import route_error_handler
 from utils.functions import highlight
 from env_config.set_environment import set_environment
 from env_config.config_cors import configure_cors
-from flask_socketio import SocketIO, send, emit, disconnect
+from flask_socketio import SocketIO, emit, disconnect
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 
 # Execute if app doesn't auto update code
@@ -31,6 +31,7 @@ configure_cors(app)
 debug = DebugToolbarExtension(app)
 jwt = JWTManager(app)
 migrate = Migrate(app, db)
+# socketio = SocketIO(app, async_mode="eventlet") THIS needs to be set up in production environment 
 
 connect_db(app)
 
@@ -274,7 +275,9 @@ def handle_connect(auth):
                 identity = get_jwt_identity()
                 if identity == user_id:
                     connected_users[user_id] = sid
-                    highlight("User connected","#")
+                    highlight(("Connecting user:",user_id),"#")
+                    highlight(("Users connected:",connected_users),"#")
+
         except:
             highlight("Invalid or missing JWT token. Disconnecting.", "#")
             disconnect()
@@ -295,6 +298,9 @@ def share_book(data):
         response = BookServices.process_shared_book(
             user_id=int(user_id), recipient=recipient, book_id=book_id)
         if response["code"] == 200:
+            highlight(("Sender",sender),"@")
+            highlight(("Sent to",recipient),"@")
+            highlight(("Connected users",connected_users),"@")
             # SENDER
             emit('book_shared', response["message"], room=user_id)
             connection_id = connected_users[response["recipient_id"]]
