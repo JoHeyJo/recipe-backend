@@ -31,7 +31,6 @@ configure_cors(app)
 debug = DebugToolbarExtension(app)
 jwt = JWTManager(app)
 migrate = Migrate(app, db)
-# socketio = SocketIO(app, async_mode="eventlet", cors_allowed_origins="*") ##### THIS needs to be set up in production environment
 
 connect_db(app)
 

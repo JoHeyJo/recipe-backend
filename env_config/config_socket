@@ -1,0 +1,8 @@
+from flask_socketio import SocketIO
+
+def configure_socket(app):
+    """Dynamically configure SocketIO based on environment"""
+    if app.config["ENV"] == 'production':
+        SocketIO(app, cors_allowed=app.config["CLIENT_ORIGIN_URL"])
+    else:
+        SocketIO(app, cors_allowed=app.config["CLIENT_URL"])
