@@ -16,7 +16,8 @@ from decorators.handle_route_errors import route_error_handler
 from utils.functions import highlight
 from env_config.set_environment import set_environment
 from env_config.config_cors import configure_cors
-from flask_socketio import SocketIO, emit, disconnect
+from env_config.config_socket import configure_socket
+from flask_socketio import emit, disconnect
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 
 # Execute if app doesn't auto update code
@@ -25,9 +26,9 @@ from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 # flask run --host=0.0.0.0
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
 set_environment(app)
 configure_cors(app)
+socketio = configure_socket(app)
 debug = DebugToolbarExtension(app)
 jwt = JWTManager(app)
 migrate = Migrate(app, db)
