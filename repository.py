@@ -75,7 +75,6 @@ class RecipeRepo():
         """Retrieve recipes corresponding to user's book"""
         try:
             book = db.session.query(Book).filter_by(id=book_id).first()
-            # highlight(book,"#")////////////
             recipes = book.recipes
             return [Recipe.serialize(recipe) for recipe in recipes]
         except Exception as e:

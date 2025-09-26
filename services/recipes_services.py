@@ -1,7 +1,6 @@
 from repository import *
 from services.ingredients_services import IngredientServices
 from services.instructions_services import InstructionServices
-from sqlalchemy.exc import SQLAlchemyError
 from utils.functions import highlight
 
 
