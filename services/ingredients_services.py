@@ -143,7 +143,7 @@ class ItemServices():
 
             if is_empty_value:
                 item["name"] = None
-                raise ValueError("Ingredient template must have at least an item name")
+                raise ValueError("Ingredient must have item name")
 
             elif is_stored is None:
                 item = ItemRepo.create_item(name=item["name"])
