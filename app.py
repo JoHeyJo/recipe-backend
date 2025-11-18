@@ -19,6 +19,7 @@ from env_config.config_cors import configure_cors
 from env_config.config_socket import configure_socket
 from flask_socketio import emit, disconnect
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
+from sqlalchemy import func
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
@@ -82,8 +83,12 @@ def get_user(user_id):
 @route_error_handler
 def verify_email(email):
     """Verifies User email exists"""
-    exists = db.session.query(db.session.query(
-        User).filter_by(email=email).exists()).scalar()
+    exists = (
+        db.session.query(User.id)
+        .filter(func.lower(User.email) == email.lower())
+        .first()
+        is not None
+    )
     return jsonify({"user": exists})
 
 
