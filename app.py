@@ -78,6 +78,15 @@ def get_user(user_id):
     return jsonify(UserServices.fetch_user(user_id=user_id))
 
 
+@app.get("/verify_email/<email>")
+@route_error_handler
+def verify_email(email):
+    """Verifies User email exists"""
+    exists = db.session.query(db.session.query(
+        User).filter_by(email=email).exists()).scalar()
+    return jsonify({"user": exists})
+
+
 ############ RECIPES ###########
 
 
@@ -299,7 +308,7 @@ def share_book(data):
             # SENDER
             emit('book_shared', response["message"], room=user_id)
             connection_id = connected_users[response["recipient_id"]]
-            #RECIPIENT
+            # RECIPIENT
             if connection_id:
                 message = f"{sender} has shared '{title}' recipe book with you!"
                 books = BookServices.fetch_user_books(
@@ -320,15 +329,15 @@ def disconnected():
     for key, value in connected_users.items():
         if user_sid == value:
             del connected_users[key]
-            highlight("user disconnected","#")
+            highlight("user disconnected", "#")
             return
 
 
 ################################################################################
-if __name__ == '__main__':
-    socketio.run(app, debug=True)
-
-
 def setup_app_context():
     """Function to setup app context. Allows database access via IPython shell"""
     app.app_context().push()
+
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True)
