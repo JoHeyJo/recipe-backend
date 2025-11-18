@@ -78,6 +78,7 @@ def get_user(user_id):
     return jsonify(UserServices.fetch_user(user_id=user_id))
 
 
+
 ############ RECIPES ###########
 
 
