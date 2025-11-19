@@ -78,6 +78,17 @@ def get_user(user_id):
     return jsonify(UserServices.fetch_user(user_id=user_id))
 
 
+@app.get("/verify_email/<email>")
+@route_error_handler
+def verify_email(email):
+    """Verifies User email exists"""
+    user = db.session.query(User).filter(User.email == email).first()
+    if user:
+        return jsonify({"user": user.id})
+    else:
+        return jsonify({"message": "invalid email"})
+
+
 ############ RECIPES ###########
 
 
