@@ -55,6 +55,9 @@ class UserRepo():
             return user
         except Exception as e:
             raise type(e)(f"UserRepo -> query_user error:{e}")
+        
+    # @staticmethod
+    # def reset_password
 
 
 class RecipeRepo():

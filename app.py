@@ -19,6 +19,7 @@ from env_config.config_cors import configure_cors
 from env_config.config_socket import configure_socket
 from flask_socketio import emit, disconnect
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
+from services.email_services import send_email_ses
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
@@ -83,10 +84,14 @@ def get_user(user_id):
 def verify_email(email):
     """Verifies User email exists"""
     user = db.session.query(User).filter(User.email == email).first()
-    if user:
-        return jsonify({"user": user.id})
-    else:
-        return jsonify({"message": "invalid email"})
+    response = send_email_ses(recipient_email=email,subject="testing ses", body_text="Hello Jo!")
+    highlight(response,"#")
+    return jsonify(response)
+    
+    # if user:
+    #     return jsonify({"user": user.id})
+    # else:
+    #     return jsonify({"message": "invalid email"})
 
 
 ############ RECIPES ###########
