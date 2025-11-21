@@ -51,14 +51,17 @@ def index():
 @app.post("/signup")
 @route_error_handler
 def signup():
+    highlight(request,"#")
     """Facilitates new user data, return token"""
     token = UserServices.authenticate_signup(request=request)
     return jsonify({"token": token})
 
 
 @app.post('/login')
+@route_error_handler
 def login():
     """Validate user credentials"""
+    highlight(request, "!")
     try:
         token = UserServices.authenticate_login(request=request)
         if token:
