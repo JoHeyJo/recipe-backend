@@ -48,14 +48,14 @@ def index():
     return f"Environment: {app.config['ENV']} - Debug: {app.config['DEBUG']} - Server: {os.environ.get('SERVER_SOFTWARE')}"
 
 
-@app.post("/signup")
-@route_error_handler
-def signup():
-    highlight(request,"#")
-    print(request,"signup")
-    """Facilitates new user data, return token"""
-    token = UserServices.authenticate_signup(request=request)
-    return jsonify({"token": token})
+# @app.post("/signup")
+# @route_error_handler
+# def signup():
+#     highlight(request,"#")
+#     print(request,"signup")
+#     """Facilitates new user data, return token"""
+#     token = UserServices.authenticate_signup(request=request)
+#     return jsonify({"token": token})
 
 
 @app.post('/login')
