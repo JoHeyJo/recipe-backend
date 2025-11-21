@@ -84,7 +84,7 @@ def get_user(user_id):
 def verify_email(email):
     """Verifies User email exists"""
     user = db.session.query(User).filter(User.email == email).first()
-    response = send_email_ses(recipient_email=email,subject="testing ses", body_text="Hello Jo!")
+    response = send_email_ses(recipient_email=email,subject="testing ses #2", body_text="Hello Jo!")
     highlight(response,"#")
     return jsonify(response)
     
@@ -341,10 +341,11 @@ def disconnected():
 
 
 ################################################################################
+def setup_app_context():
+    """Function to setup app context. Allows database access via IPython shell"""
+    app.app_context().push()
+
 if __name__ == '__main__':
     socketio.run(app, debug=True)
 
 
-def setup_app_context():
-    """Function to setup app context. Allows database access via IPython shell"""
-    app.app_context().push()
