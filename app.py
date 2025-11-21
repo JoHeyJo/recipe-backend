@@ -52,6 +52,7 @@ def index():
 @route_error_handler
 def signup():
     highlight(request,"#")
+    print(request,"signup")
     """Facilitates new user data, return token"""
     token = UserServices.authenticate_signup(request=request)
     return jsonify({"token": token})
@@ -62,6 +63,7 @@ def signup():
 def login():
     """Validate user credentials"""
     highlight(request, "!")
+    print(request, "login")
     try:
         token = UserServices.authenticate_login(request=request)
         if token:
