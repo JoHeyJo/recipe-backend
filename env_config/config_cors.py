@@ -8,7 +8,8 @@ def configure_cors(app):
     """Dynamically handle configuration of CORS based on environment"""
     if app.config['ENV'] == 'production':
         CORS(app,
-             origins=app.config["CLIENT_ORIGIN_URL"],
+            #  origins=app.config["CLIENT_ORIGIN_URL"],
+             origins="*",
              supports_credentials=True,
              methods=["GET", "POST", "OPTIONS", "PATCH", "DELETE"],
              allow_headers=["Content-Type", "Authorization"])
