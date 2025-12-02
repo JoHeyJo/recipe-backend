@@ -44,25 +44,23 @@ def test():
 @app.get("/")
 # @jwt_required()
 def index():
-    header = request.headers
     return f"Environment: {app.config['ENV']} - Debug: {app.config['DEBUG']} - Server: {os.environ.get('SERVER_SOFTWARE')}"
 
 
-# @app.post("/signup")
-# @route_error_handler
-# def signup():
-#     highlight(request,"#")
-#     print(request,"signup")
-#     """Facilitates new user data, return token"""
-#     token = UserServices.authenticate_signup(request=request)
-#     return jsonify({"token": token})
+@app.post("/signup")
+@route_error_handler
+def signup():
+    highlight(request,"#")
+    print(request,"signup")
+    """Facilitates new user data, return token"""
+    token = UserServices.authenticate_signup(request=request)
+    return jsonify({"token": token})
 
 
 @app.post('/login')
 @route_error_handler
 def login():
     """Validate user credentials"""
-    highlight(request, "HIT route.login")
     try:
         token = UserServices.authenticate_login(request=request)
         if token:
@@ -70,7 +68,7 @@ def login():
         else:
             return jsonify({"error": "Invalid credentials"}), 401
     except Exception as e:
-        current_app.logger.exception("Login error")
+        # current_app.logger.exception("Login error")
         return jsonify({"error": "An error occurred during login"}), 500
 
 

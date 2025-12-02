@@ -38,9 +38,7 @@ class UserRepo():
     @staticmethod
     def login(user_name, password):
         """Find user with username and password. Return False for incorrect credentials"""
-        highlight("in Repository", " HIT UserRepo.login")
         user = User.query.filter_by(user_name=user_name).first()
-        highlight(user, " HIT UserRepo.login")
         # If user exists AND user is authorized 
         if user and bcrypt.check_password_hash(user.password, password):
             return create_access_token(identity=user.id)
@@ -56,6 +54,9 @@ class UserRepo():
             return user
         except Exception as e:
             raise type(e)(f"UserRepo -> query_user error:{e}")
+        
+    # @staticmethod
+    # def reset_password
 
 
 class RecipeRepo():
