@@ -28,6 +28,7 @@ class UserServices():
         password = request.json["password"]
         try:
             token = UserRepo.login(user_name=user_name, password=password)
+            highlight(token, "HIT token")
             return token
         except Exception:
             db.session.rollback()
