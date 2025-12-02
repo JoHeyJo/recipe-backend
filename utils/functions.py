@@ -31,12 +31,14 @@ def insert_first(Model, data, column_name, db):
 
 
 def highlight(value, divider):
-    print(divider * 10)
-    print(value)
-    logger = current_app.logger if current_app else logging.getLogger(
-        "flaskapp")
-    logger.warning("🔆 %s %s", divider, value)
-    print(divider * 10)
+    # print(divider * 10)
+    # print(value)
+    # logger = current_app.logger if current_app else logging.getLogger(
+    #     "flaskapp")
+    # logger.warning("🔆 %s %s", divider, value)
+    # print(divider * 10)
+    current_app.logger.warning(
+        "highlight called: args=%s kwargs=%s", divider, value)
 
 # Future implementation - Template of helper functions for role modification of UserBook table
 
