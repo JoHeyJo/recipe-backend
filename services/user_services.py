@@ -23,7 +23,7 @@ class UserServices():
     @staticmethod
     def authenticate_login(request):
         """Process user credentials - read-only operation"""
-        highlight(request,"@")
+        highlight(request,"HIT authenticate_login")
         user_name = request.json["userName"]
         password = request.json["password"]
         try:

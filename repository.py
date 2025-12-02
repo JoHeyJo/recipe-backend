@@ -38,7 +38,7 @@ class UserRepo():
     @staticmethod
     def login(user_name, password):
         """Find user with username and password. Return False for incorrect credentials"""
-        highlight("Repository","^")
+        highlight("Repository", " HIT UserRepo.login")
         user = User.query.filter_by(user_name=user_name).first()
         # If user exists AND user is authorized 
         if user and bcrypt.check_password_hash(user.password, password):

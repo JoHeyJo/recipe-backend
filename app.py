@@ -62,8 +62,7 @@ def index():
 @route_error_handler
 def login():
     """Validate user credentials"""
-    highlight(request, "!")
-    print(request, "login")
+    highlight(request, "HIT route.login")
     try:
         token = UserServices.authenticate_login(request=request)
         if token:
