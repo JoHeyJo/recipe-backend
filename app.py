@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify, current_app
+from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from repository import *
 from models import connect_db, db
@@ -50,8 +50,6 @@ def index():
 @app.post("/signup")
 @route_error_handler
 def signup():
-    highlight(request,"#")
-    print(request,"signup")
     """Facilitates new user data, return token"""
     token = UserServices.authenticate_signup(request=request)
     return jsonify({"token": token})
