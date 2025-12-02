@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, current_app
 from flask_debugtoolbar import DebugToolbarExtension
 from repository import *
 from models import connect_db, db
@@ -64,14 +64,15 @@ def login():
     """Validate user credentials"""
     highlight(request, "!")
     print(request, "login")
-    # try:
-    token = UserServices.authenticate_login(request=request)
-    if token:
-        return jsonify({"token": token}), 200
-    else:
-        return jsonify({"error": "Invalid credentials"}), 401
-    # except Exception as e:
-        # return jsonify({"error": "An error occurred during login"}), 500
+    try:
+        token = UserServices.authenticate_login(request=request)
+        if token:
+            return jsonify({"token": token}), 200
+        else:
+            return jsonify({"error": "Invalid credentials"}), 401
+    except Exception as e:
+        current_app.logger.exception("Login error")
+        return jsonify({"error": "An error occurred during login"}), 500
 
 
 ########### USERS ###########
