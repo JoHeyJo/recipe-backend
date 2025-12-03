@@ -19,8 +19,9 @@ from env_config.config_cors import configure_cors
 from env_config.config_socket import configure_socket
 from flask_socketio import emit, disconnect
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
-from services.email_services import send_email_ses
+from services.email_services import EmailServices
 from datetime import timedelta
+
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
@@ -85,12 +86,10 @@ def get_user(user_id):
 def verify_email(email):
     """Verifies User email exists"""
     user = db.session.query(User).filter(User.email == email).first()
-    response = send_email_ses(recipient_email=email,subject="testing ses #2", body_text="Hello Jo!")
-    
     if user:
         reset_token = create_access_token(identity=user.id, expires_delta=timedelta(minutes=15))
-        send_email_ses()
-        return jsonify({"user": user.id})
+        EmailServices.create_password_reset_email(
+            token=reset_token, recipient_email=user.email)
     return jsonify({"message": "If an account exists, a reset link has been sent."})
 
 # receive request - check for email - if email exists - send link - link will have reset url and jwt embeded - user needs to manually enter username during reset 
