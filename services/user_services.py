@@ -65,7 +65,7 @@ class UserServices():
     def reset_password(request, user_id):
         """Replaces current User password with new password"""
         password = request["password"]
-        user_name = request["user_name"]
+        user_name = request["userName"]
         try:
             user = UserRepo.query_user(user_id=user_id)
             if user.user_name == user_name:
@@ -74,7 +74,7 @@ class UserServices():
                 return {"message": "Successful password update!"}
             else:
                 db.session.rollback()
-                return {"message": "Error updating password - incorrect username"}
+                return {"error": "Error updating password - incorrect username"}
         except Exception:
             db.session.rollback()
         raise

@@ -97,12 +97,12 @@ def request_reset(email):
 
 @app.post("/request_reset")
 @route_error_handler
-@jwt_required
+@jwt_required()
 def confirm_reset():
     """Resets User password"""
     user_id = get_jwt_identity()
     highlight("#",user_id)
-    message = UserServices.reset_password(user_id=user_id, request=request)
+    message = UserServices.reset_password(user_id=user_id, request=request.json)
     return jsonify(message)
 
 
