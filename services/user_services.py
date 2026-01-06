@@ -3,7 +3,6 @@ from utils.functions import highlight
 from datetime import timedelta
 from flask_jwt_extended import create_access_token, get_jwt_identity
 
-
 class UserServices():
     """Handles ingredients view business logic"""
     @staticmethod
@@ -69,7 +68,8 @@ class UserServices():
         try:
             user = UserRepo.query_user(user_id=user_id)
             if user.user_name == user_name:
-                user.password = password
+                hashed_password = UserRepo.hash_password(string=password)
+                user.password = hashed_password
                 db.session.commit()
                 return {"message": "Successful password update!"}
             else:

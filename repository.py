@@ -56,8 +56,10 @@ class UserRepo():
         except Exception as e:
             raise type(e)(f"UserRepo -> query_user error:{e}")
         
-    # @staticmethod
-    # def reset_password
+    @staticmethod
+    def hash_password(string):
+        """Hashes string sequence"""
+        return bcrypt.generate_password_hash(string).decode('UTF-8')
 
 
 class RecipeRepo():
