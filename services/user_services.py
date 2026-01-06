@@ -62,7 +62,7 @@ class UserServices():
         return reset_token
 
     @staticmethod
-    def reset_password(user_id, password):
+    def reset_password(user_id, data):
         """Replaces current User password with new password"""
         try:
             user = UserRepo.query_user(user_id=user_id)

@@ -97,11 +97,13 @@ def request_reset(email):
     return jsonify({"message": "If an account exists, a reset link has been sent."})
 
 
-@app.post("/password")
+@app.post("/password/")
 @route_error_handler
 @jwt_required
 def confirm_reset():
     """Resets User password"""
+    highlight(request,"#")
+    # UserServices.reset_password(user_id=user_id, data=request)
     
 
 
