@@ -4,7 +4,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from repository import *
 from models import connect_db, db
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, get_jwt_identity, verify_jwt_in_request, jwt_required
 from exceptions import *
 from services.user_services import UserServices
 from services.recipes_services import RecipeServices
@@ -18,11 +18,9 @@ from env_config.set_environment import set_environment
 from env_config.config_cors import configure_cors
 from env_config.config_socket import configure_socket
 from flask_socketio import emit, disconnect
-from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 from services.email_services import EmailServices
 from datetime import timedelta
 from sqlalchemy import func
-from flask_jwt_extended import jwt_required
 
 
 # Execute if app doesn't auto update code
@@ -83,7 +81,7 @@ def get_user(user_id):
     return jsonify(UserServices.fetch_user(user_id=user_id))
 
 
-@app.post("/request_reset/<email>")
+@app.post("/initiate_reset/<email>")
 @route_error_handler
 def request_reset(email):
     """Verifies User email exists"""
@@ -97,15 +95,14 @@ def request_reset(email):
     return jsonify({"message": "If an account exists, a reset link has been sent."})
 
 
-@app.post("/password/")
+@app.post("/request_reset")
 @route_error_handler
 @jwt_required
 def confirm_reset():
     """Resets User password"""
-    highlight(request,"#")
-    # UserServices.reset_password(user_id=user_id, data=request)
-    
-
+    user_id = get_jwt_identity()
+    message = UserServices.reset_password(user_id=user_id, request=request)
+    return jsonify(message)
 
 
 ############ RECIPES ###########

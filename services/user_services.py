@@ -1,7 +1,7 @@
 from repository import db, UserRepo, Book, User
 from utils.functions import highlight
 from datetime import timedelta
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt_identity
 
 
 class UserServices():
@@ -62,12 +62,19 @@ class UserServices():
         return reset_token
 
     @staticmethod
-    def reset_password(user_id, data):
+    def reset_password(request, user_id):
         """Replaces current User password with new password"""
+        password = request["password"]
+        user_name = request["user_name"]
         try:
             user = UserRepo.query_user(user_id=user_id)
-            user.password = password
-            db.session.commit()
+            if user.user_name == user_name:
+                user.password = password
+                db.session.commit()
+                return {"message": "Successful password update!"}
+            else:
+                db.session.rollback()
+                return {"message": "Error updating password - incorrect username"}
         except Exception:
             db.session.rollback()
         raise
