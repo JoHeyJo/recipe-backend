@@ -55,8 +55,20 @@ class UserServices():
 
     @staticmethod
     def generate_password_reset_token(user_id):
-        """Resets User password"""
+        """Generates specialized time sensitive token"""
         expires = timedelta(minutes=30)
         reset_token = create_access_token(
         identity=user_id, expires_delta=expires, additional_claims={"type": "password_reset"})
         return reset_token
+
+    @staticmethod
+    def reset_password(user_id, password):
+        """Replaces current User password with new password"""
+        try:
+            user = UserRepo.query_user(user_id=user_id)
+            user.password = password
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+        raise
+        

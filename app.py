@@ -22,6 +22,7 @@ from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 from services.email_services import EmailServices
 from datetime import timedelta
 from sqlalchemy import func
+from flask_jwt_extended import jwt_required
 
 
 # Execute if app doesn't auto update code
@@ -82,21 +83,28 @@ def get_user(user_id):
     return jsonify(UserServices.fetch_user(user_id=user_id))
 
 
-@app.get("/verify_email/<email>")
+@app.post("/request_reset/<email>")
 @route_error_handler
-def verify_email(email):
+def request_reset(email):
     """Verifies User email exists"""
     user = db.session.query(User).filter(
         func.lower(User.email) == email.lower()).first()
     if user:
         reset_token = create_access_token(
             identity=user.id, expires_delta=timedelta(minutes=15))
-        response = EmailServices.create_password_reset_email(
+        EmailServices.create_password_reset_email(
             token=reset_token, recipient_email=user.email)
-        highlight(response, "@")
     return jsonify({"message": "If an account exists, a reset link has been sent."})
 
-# receive request - check for email - if email exists - send link - link will have reset url and jwt embeded - user needs to manually enter username during reset
+
+@app.post("/password")
+@route_error_handler
+@jwt_required
+def confirm_reset():
+    """Resets User password"""
+    
+
+
 
 ############ RECIPES ###########
 
