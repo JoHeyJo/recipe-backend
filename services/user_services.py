@@ -3,6 +3,7 @@ from utils.functions import highlight
 from datetime import timedelta
 from flask_jwt_extended import create_access_token, get_jwt_identity
 
+
 class UserServices():
     """Handles ingredients view business logic"""
     @staticmethod
@@ -25,10 +26,9 @@ class UserServices():
     @staticmethod
     def authenticate_login(request):
         """Process user credentials - read-only operation"""
-        user_name = request.json["userName"]
-        password = request.json["password"]
         try:
-            token = UserRepo.login(user_name=user_name, password=password)
+            token = UserRepo.login(
+                user_name=request.json["userName"], password=request.json["password"])
             return token
         except Exception:
             db.session.rollback()
@@ -57,25 +57,22 @@ class UserServices():
         """Generates specialized time sensitive token"""
         expires = timedelta(minutes=30)
         reset_token = create_access_token(
-        identity=user_id, expires_delta=expires, additional_claims={"type": "password_reset"})
+            identity=user_id, expires_delta=expires, additional_claims={"type": "password_reset"})
         return reset_token
 
     @staticmethod
     def reset_password(request, user_id):
         """Replaces current User password with new password"""
-        password = request["password"]
-        user_name = request["userName"]
         try:
             user = UserRepo.query_user(user_id=user_id)
-            if user.user_name == user_name:
-                hashed_password = UserRepo.hash_password(string=password)
-                user.password = hashed_password
-                db.session.commit()
-                return {"message": "Successful password update!"}
-            else:
-                db.session.rollback()
-                return {"error": "Error updating password - incorrect username"}
-        except Exception:
+
+            if user.user_name != request["userName"]:
+                return {"error": "Error updating password - incorrect username"}, 400
+
+            user.password = UserRepo.hash_password(string=request["password"])
+            db.session.commit()
+
+            return {"message": "Successful password update!"}
+        except Exception as e:
             db.session.rollback()
-        raise
-        
+            raise

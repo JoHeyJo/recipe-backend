@@ -5,6 +5,7 @@ from functools import wraps
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from exceptions import *
+from utils.functions import highlight
 
 def route_error_handler(func):
     """Decorator to handle errors in Flask routes or services."""
@@ -59,6 +60,7 @@ def handle_error(error):
     elif issubclass(error_type, (EmailAlreadyRegisteredError, UsernameAlreadyTakenError, SignUpError)):
         http_status = 409
 
+    highlight([error_message, error_code, http_status])
     return jsonify({
         "error": error_message,
         "type": error_type_name,

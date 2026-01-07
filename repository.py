@@ -49,7 +49,7 @@ class UserRepo():
     def query_user(user_id):
         """Query user corresponding with id"""
         try:
-            user = db.session.query(User).filter_by(id=user_id).first() #shoudl this user Session.get(User,1)
+            user = db.session.query(User).filter_by(id=user_id).first() #should this user Session.get(User,1)
             if user is None:
                 return None 
             return user

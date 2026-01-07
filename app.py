@@ -103,6 +103,7 @@ def confirm_reset():
     user_id = get_jwt_identity()
     highlight("#",user_id)
     message = UserServices.reset_password(user_id=user_id, request=request.json)
+    highlight(message,"#")
     return jsonify(message)
 
 
