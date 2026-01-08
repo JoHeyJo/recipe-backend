@@ -64,10 +64,10 @@ def login():
     """Validate user credentials"""
     try:
         token = UserServices.authenticate_login(request=request)
-        if token:
-            return jsonify({"token": token}), 200
-        else:
+        if not token:
             return jsonify({"error": "Invalid credentials"}), 401
+        
+        return jsonify({"token": token}), 200            
     except Exception as e:
         return jsonify({"error": "An error occurred during login"}), 500
 
