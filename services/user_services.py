@@ -2,7 +2,7 @@ from repository import db, UserRepo, Book, User
 from utils.functions import highlight
 from datetime import timedelta
 from flask_jwt_extended import create_access_token, get_jwt_identity
-from exceptions import InvalidUser
+from exceptions import ForbiddenError
 
 
 class UserServices():
@@ -68,7 +68,8 @@ class UserServices():
             user = UserRepo.query_user(user_id=user_id)
 
             if user.user_name != request["userName"]:
-                raise InvalidUser("Error updating password - incorrect username")
+                raise ForbiddenError(
+                    "Error updating password. Make sure username is correct")
 
             user.password = UserRepo.hash_password(string=request["password"])
             db.session.commit()
