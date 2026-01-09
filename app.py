@@ -38,7 +38,6 @@ migrate = Migrate(app, db)
 
 connect_db(app)
 
-
 @app.route('/__test__')
 def test():
     return 'This is working'
@@ -66,8 +65,8 @@ def login():
         token = UserServices.authenticate_login(request=request)
         if not token:
             return jsonify({"error": "Invalid credentials"}), 401
-        
-        return jsonify({"token": token}), 200            
+
+        return jsonify({"token": token}), 200
     except Exception as e:
         return jsonify({"error": "An error occurred during login"}), 500
 
@@ -101,8 +100,9 @@ def request_reset(email):
 def confirm_reset():
     """Resets User password"""
     user_id = get_jwt_identity()
-    highlight("#",user_id)
-    message = UserServices.reset_password(user_id=user_id, request=request.json)
+    highlight("#", user_id)
+    message = UserServices.reset_password(
+        user_id=user_id, request=request.json)
     return jsonify(message)
 
 

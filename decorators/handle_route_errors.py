@@ -2,7 +2,7 @@ from werkzeug.exceptions import HTTPException
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError, OperationalError
 import traceback
 from functools import wraps
-from flask import jsonify
+from flask import jsonify, current_app
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from exceptions import *
 from utils.functions import highlight
@@ -44,7 +44,7 @@ def handle_error(error):
 
     # App-level expected errors
     elif isinstance(error, ForbiddenError):
-        http_status = 400
+        http_status = 403
 
     elif isinstance(error, KeyError):
         http_status = 400
@@ -52,13 +52,16 @@ def handle_error(error):
 
     elif isinstance(error, (EmailAlreadyRegisteredError, UsernameAlreadyTakenError, SignUpError)):
         http_status = 409
-
+    highlight(current_app,"$")
     # Logging (optional: only traceback for 5xx)
     tb = traceback.format_exc()
     if http_status >= 500:
+        error_message = "Internal server error."
         print("⚠️⚠️⚠️⚠️⚠️⚠️⚠️ ERROR TRACEBACK START ⚠️⚠️⚠️⚠️⚠️⚠️⚠️")
         print(tb)
         print("⚠️⚠️⚠️⚠️⚠️⚠️⚠️ ERROR TRACEBACK END ⚠️⚠️⚠️⚠️⚠️⚠️⚠️")
+        if current_app.debug:
+            raise error
     else:
         print(f"⚠️⚠️⚠️⚠️⚠️⚠️⚠️ {error_type_name}: {error_message}")
 
