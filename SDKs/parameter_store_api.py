@@ -1,13 +1,15 @@
+import os
 import boto3
+from dotenv import load_dotenv
 from utils.functions import highlight
 import logging
 from botocore.exceptions import BotoCoreError, ClientError
+
+load_dotenv()
+
 logger = logging.getLogger(__name__)
 
-# Create a Systems Manager client
-ssm = boto3.client('ssm', region_name='us-west-1')
-
-# needs error handling
+ssm = boto3.client('ssm', region_name=os.getenv("AWS_REGION"))
 
 def fetch_secrets(app):
     """Centralizes access point to parameter store"""
