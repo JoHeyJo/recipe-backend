@@ -68,7 +68,6 @@ def login():
 
         return jsonify({"token": token}), 200
     except Exception as e:
-        # current_app.logger.exception("Login error")
         return jsonify({"error": "An error occurred during login"}), 500
 
 
