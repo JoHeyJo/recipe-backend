@@ -35,8 +35,8 @@ class EmailServices():
     @staticmethod
     def create_password_reset_email(token, recipient_email):
         """Compose password reset email requested by client"""
-        link = f"http://localhost:3000/reset?{urlencode({'token': token})}"
-        # link = f"{os.environ['FRONTEND_RESET_URL']}?{urlencode({'token': token})}"
+        # link = f"http://localhost:3000/reset?{urlencode({'token': token})}"
+        link = f"{os.environ['FRONTEND_RESET_URL']}?{urlencode({'token': token})}"
         subject = "Password rest"
         body_html = f"""
         <p>We received a request to reset your password.</p>
