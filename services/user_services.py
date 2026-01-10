@@ -1,5 +1,9 @@
 from repository import db, UserRepo, Book, User
 from utils.functions import highlight
+from datetime import timedelta
+from flask_jwt_extended import create_access_token, get_jwt_identity
+from exceptions import ForbiddenError
+
 
 class UserServices():
     """Handles ingredients view business logic"""
@@ -18,34 +22,59 @@ class UserServices():
             return token
         except Exception:
             db.session.rollback()
-            raise 
-    
+            raise
+
     @staticmethod
     def authenticate_login(request):
         """Process user credentials - read-only operation"""
-        user_name = request.json["userName"]
-        password = request.json["password"]
         try:
-            token = UserRepo.login(user_name=user_name, password=password)
+            token = UserRepo.login(
+                user_name=request.json["userName"], password=request.json["password"])
             return token
         except Exception:
             db.session.rollback()
-            raise 
+            raise
 
     @staticmethod
     def fetch_user(user_id):
         """Retrieve user - inject default book object"""
-        try: 
+        try:
             user = UserRepo.query_user(user_id=user_id)
             if not user:
                 raise ValueError("User not found")
             user_data = User.serialize(user)
-            
+
             default_book_id = user_data.get("default_book_id")
-            
+
             if default_book_id:
                 default_book = Book.serialize(Book.query.get(default_book_id))
                 user_data["default_book"] = default_book
             return user_data
         except Exception:
+            raise
+
+    @staticmethod
+    def generate_password_reset_token(user_id):
+        """Generates specialized time sensitive token"""
+        expires = timedelta(minutes=30)
+        reset_token = create_access_token(
+            identity=user_id, expires_delta=expires, additional_claims={"type": "password_reset"})
+        return reset_token
+
+    @staticmethod
+    def reset_password(request, user_id):
+        """Replaces current User password with new password"""
+        try:
+            user = UserRepo.query_user(user_id=user_id)
+
+            if user.user_name != request["userName"]:
+                raise ForbiddenError(
+                    "Error updating password. Make sure username is correct")
+
+            user.password = UserRepo.hash_password(string=request["password"])
+            db.session.commit()
+
+            return {"message": "Successful password update!"}
+        except Exception as e:
+            db.session.rollback()
             raise

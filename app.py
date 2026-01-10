@@ -4,7 +4,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from repository import *
 from models import connect_db, db
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, get_jwt_identity, verify_jwt_in_request, jwt_required
 from exceptions import *
 from services.user_services import UserServices
 from services.recipes_services import RecipeServices
@@ -18,7 +18,10 @@ from env_config.set_environment import set_environment
 from env_config.config_cors import configure_cors
 from env_config.config_socket import configure_socket
 from flask_socketio import emit, disconnect
-from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
+from services.email_services import EmailServices
+from datetime import timedelta
+from sqlalchemy import func
+
 
 # Execute if app doesn't auto update code
 # flask --app app.py --debug run
@@ -34,7 +37,6 @@ jwt = JWTManager(app)
 migrate = Migrate(app, db)
 
 connect_db(app)
-
 
 @app.route('/__test__')
 def test():
@@ -61,10 +63,10 @@ def login():
     """Validate user credentials"""
     try:
         token = UserServices.authenticate_login(request=request)
-        if token:
-            return jsonify({"token": token}), 200
-        else:
+        if not token:
             return jsonify({"error": "Invalid credentials"}), 401
+
+        return jsonify({"token": token}), 200
     except Exception as e:
         # current_app.logger.exception("Login error")
         return jsonify({"error": "An error occurred during login"}), 500
@@ -77,6 +79,32 @@ def login():
 def get_user(user_id):
     """Retrieve user associated to id"""
     return jsonify(UserServices.fetch_user(user_id=user_id))
+
+
+@app.post("/initiate_reset/<email>")
+@route_error_handler
+def request_reset(email):
+    """Verifies User email exists"""
+    user = db.session.query(User).filter(
+        func.lower(User.email) == email.lower()).first()
+    if user:
+        reset_token = create_access_token(
+            identity=user.id, expires_delta=timedelta(minutes=15))
+        EmailServices.create_password_reset_email(
+            token=reset_token, recipient_email=user.email)
+    return jsonify({"message": "If an account exists, a reset link has been sent."})
+
+
+@app.post("/request_reset")
+@route_error_handler
+@jwt_required()
+def confirm_reset():
+    """Resets User password"""
+    user_id = get_jwt_identity()
+    highlight("#", user_id)
+    message = UserServices.reset_password(
+        user_id=user_id, request=request.json)
+    return jsonify(message)
 
 
 ############ RECIPES ###########
@@ -326,10 +354,10 @@ def disconnected():
 
 
 ################################################################################
-if __name__ == '__main__':
-    socketio.run(app, debug=True)
-
-
 def setup_app_context():
     """Function to setup app context. Allows database access via IPython shell"""
     app.app_context().push()
+
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True)

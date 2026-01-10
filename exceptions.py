@@ -28,3 +28,6 @@ class SignUpError(Exception):
 class NotFound(Exception):
     """Exception raised during sign up"""
     pass
+
+class ForbiddenError(Exception):
+    """Exception raised during password reset if provided user does not match user from token"""

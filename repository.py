@@ -48,15 +48,17 @@ class UserRepo():
     def query_user(user_id):
         """Query user corresponding with id"""
         try:
-            user = db.session.query(User).filter_by(id=user_id).first() #shoudl this user Session.get(User,1)
+            user = db.session.query(User).filter_by(id=user_id).first() #should this user Session.get(User,1)
             if user is None:
                 return None 
             return user
         except Exception as e:
             raise type(e)(f"UserRepo -> query_user error:{e}")
         
-    # @staticmethod
-    # def reset_password
+    @staticmethod
+    def hash_password(string):
+        """Hashes string sequence"""
+        return bcrypt.generate_password_hash(string).decode('UTF-8')
 
 
 class RecipeRepo():
