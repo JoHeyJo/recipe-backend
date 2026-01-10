@@ -46,7 +46,6 @@ def test():
 @app.get("/")
 # @jwt_required()
 def index():
-    header = request.headers
     return f"Environment: {app.config['ENV']} - Debug: {app.config['DEBUG']} - Server: {os.environ.get('SERVER_SOFTWARE')}"
 
 
@@ -59,6 +58,7 @@ def signup():
 
 
 @app.post('/login')
+@route_error_handler
 def login():
     """Validate user credentials"""
     try:
@@ -68,6 +68,7 @@ def login():
 
         return jsonify({"token": token}), 200
     except Exception as e:
+        # current_app.logger.exception("Login error")
         return jsonify({"error": "An error occurred during login"}), 500
 
 

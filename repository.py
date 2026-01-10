@@ -38,7 +38,6 @@ class UserRepo():
     @staticmethod
     def login(user_name, password):
         """Find user with username and password. Return False for incorrect credentials"""
-
         user = User.query.filter_by(user_name=user_name).first()
         # If user exists AND user is authorized 
         if user and bcrypt.check_password_hash(user.password, password):
@@ -56,10 +55,15 @@ class UserRepo():
         except Exception as e:
             raise type(e)(f"UserRepo -> query_user error:{e}")
         
+<<<<<<< HEAD
     @staticmethod
     def hash_password(string):
         """Hashes string sequence"""
         return bcrypt.generate_password_hash(string).decode('UTF-8')
+=======
+    # @staticmethod
+    # def reset_password
+>>>>>>> main
 
 
 class RecipeRepo():

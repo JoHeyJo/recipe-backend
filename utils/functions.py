@@ -1,4 +1,6 @@
 from sqlalchemy.dialects.postgresql import insert
+import logging
+from flask import current_app
 
 def insert_first(Model, data, column_name, db):
     """Insert-first data entry method leveraging SQLAlchemy CORE. Auto commits session"""
@@ -31,6 +33,9 @@ def insert_first(Model, data, column_name, db):
 def highlight(value, divider):
     print(divider * 10)
     print(value)
+    logger = current_app.logger if current_app else logging.getLogger(
+        "flaskapp")
+    logger.warning("🔆 %s %s", divider, value)
     print(divider * 10)
 
 # Future implementation - Template of helper functions for role modification of UserBook table
