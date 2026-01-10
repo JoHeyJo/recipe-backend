@@ -1,11 +1,8 @@
 import os
 import boto3
 from dotenv import load_dotenv
-<<<<<<< HEAD
 from botocore.exceptions import ClientError
 from urllib.parse import urlencode
-=======
->>>>>>> main
 
 load_dotenv()
 
@@ -14,7 +11,6 @@ ses_client = boto3.client(
     region_name=os.getenv("AWS_REGION")
 )
 
-<<<<<<< HEAD
 class EmailServices():
     """Backend email services"""
     @staticmethod
@@ -48,22 +44,3 @@ class EmailServices():
         <p>If you didn't request this, ignore this email.</p>
         """
         return EmailServices.send_email_ses(recipient_email=recipient_email,subject=subject, body_html=body_html)
-=======
-
-def send_email_ses(recipient_email, subject, body_text, body_html=None):
-    try:
-        response = ses_client.send_email(
-            Source='noreply@slingitdrinks.com',
-            Destination={'ToAddresses': [recipient_email]},
-            Message={
-                'Subject': {'Data': subject},
-                'Body': {
-                    'Text': {'Data': body_text}
-                }
-            }
-        )
-        return response
-    except Exception as e:
-        print(f"Error sending email: {e}")
-        return None
->>>>>>> main
