@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 ssm = boto3.client('ssm', region_name=os.getenv("AWS_REGION"))
 
+
 def fetch_secrets(app):
     """Centralizes access point to parameter store"""
     try:
@@ -31,9 +32,16 @@ def fetch_secrets(app):
         app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
 
         # access Client Origin
-        parameter = ssm.get_parameter(Name='/CodeBuild/client_origin', WithDecryption=True)
+        parameter = ssm.get_parameter(
+            Name='/CodeBuild/client_origin', WithDecryption=True)
         client_url = parameter['Parameter']['Value']
         app.config["CLIENT_ORIGIN_URL"] = client_url
+
+        # access AWS REGION
+        parameter = ssm.get_parameter(Name='REGION', WithDecryption=True)
+        AWS_REGION = parameter['Parameter']['Value']
+        app.config["AWS_REGION"] = AWS_REGION
+
     except (BotoCoreError, ClientError) as e:
         logger.error(f"Error fetching secrets from Parameter Store: {e}")
         raise RuntimeError(f"Secrets retrieval failed") from e
