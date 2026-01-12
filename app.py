@@ -14,7 +14,7 @@ from services.instructions_services import InstructionServices
 from decorators.verify_user import check_user_identity
 from decorators.handle_route_errors import route_error_handler
 from utils.functions import highlight
-from env_config.set_environment import set_environment
+from env_config.set_environment import set_environment_config
 from env_config.config_cors import configure_cors
 from env_config.config_socket import configure_socket
 from flask_socketio import emit, disconnect
@@ -29,7 +29,7 @@ from sqlalchemy import func
 # flask run --host=0.0.0.0
 
 app = Flask(__name__)
-set_environment(app)
+set_environment_config(app)
 configure_cors(app)
 socketio = configure_socket(app)
 debug = DebugToolbarExtension(app)

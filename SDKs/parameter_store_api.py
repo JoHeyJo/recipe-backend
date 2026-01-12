@@ -1,11 +1,15 @@
 import boto3
+from flask import current_app
 from utils.functions import highlight
 import logging
 from botocore.exceptions import BotoCoreError, ClientError
 
 logger = logging.getLogger(__name__)
 
-ssm = boto3.client('ssm', region_name=os.getenv("AWS_REGION"))
+s3_client = boto3.client("s3")
+region = current_app.config.get("AWS_REGION") or s3_client.meta.region_name
+
+ssm = boto3.client('ssm', region_name=region)
 
 
 def fetch_secrets(app):
@@ -32,11 +36,6 @@ def fetch_secrets(app):
             Name='/CodeBuild/client_origin', WithDecryption=True)
         client_url = parameter['Parameter']['Value']
         app.config["CLIENT_ORIGIN_URL"] = client_url
-
-        # access AWS REGION
-        parameter = ssm.get_parameter(Name='REGION', WithDecryption=True)
-        AWS_REGION = parameter['Parameter']['Value']
-        app.config["AWS_REGION"] = AWS_REGION
         
         # access Reset Link
         parameter = ssm.get_parameter(

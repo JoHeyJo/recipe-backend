@@ -1,23 +1,12 @@
 import boto3
-from flask import app
+from flask import current_app
 from botocore.exceptions import ClientError
 from urllib.parse import urlencode
 
-AWS_REGION = None
-SES_FROM_EMAIL = None
-
-
-if app.config['ENV'] == "production":
-    AWS_REGION = app.config["AWS_REGION"]
-    SES_FROM_EMAIL = app.config["SES_FROM_EMAIL"]
-else:
-    
-
-
-
 ses_client = boto3.client(
     'ses',
-    region_name=AWS_REGION
+    region_name=current_app.config["AWS_REGION"]
+
 )
 
 class EmailServices():
@@ -27,7 +16,7 @@ class EmailServices():
         """Calls on AWS SES to automate sending emails"""
         try:
             response = ses_client.send_email(
-                Source=SES_FROM_EMAIL,
+                Source=current_app.config["SES_FROM_EMAIL"],
                 Destination={'ToAddresses': [recipient_email]},
                 Message={
                     'Subject': {'Data': subject},
