@@ -1,11 +1,7 @@
-import os
 import boto3
 from flask import app
-from dotenv import load_dotenv
 from botocore.exceptions import ClientError
 from urllib.parse import urlencode
-
-load_dotenv()
 
 AWS_REGION = None
 SES_FROM_EMAIL = None

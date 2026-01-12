@@ -1,11 +1,7 @@
-import os
 import boto3
-from dotenv import load_dotenv
 from utils.functions import highlight
 import logging
 from botocore.exceptions import BotoCoreError, ClientError
-
-load_dotenv()
 
 logger = logging.getLogger(__name__)
 
