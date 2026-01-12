@@ -41,6 +41,18 @@ def fetch_secrets(app):
         parameter = ssm.get_parameter(Name='REGION', WithDecryption=True)
         AWS_REGION = parameter['Parameter']['Value']
         app.config["AWS_REGION"] = AWS_REGION
+        
+        # access Reset Link
+        parameter = ssm.get_parameter(
+            Name='FRONTEND_RESET_URL', WithDecryption=True)
+        FRONTEND_RESET_URL = parameter['Parameter']['Value']
+        app.config["FRONTEND_RESET_URL"] = FRONTEND_RESET_URL
+        
+        # access SES From Email(Source)
+        parameter = ssm.get_parameter(
+            Name='SES_FROM_EMAIL', WithDecryption=True)
+        SES_FROM_EMAIL = parameter['Parameter']['Value']
+        app.config["SES_FROM_EMAIL"] = SES_FROM_EMAIL
 
     except (BotoCoreError, ClientError) as e:
         logger.error(f"Error fetching secrets from Parameter Store: {e}")
