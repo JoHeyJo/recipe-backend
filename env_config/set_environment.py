@@ -10,3 +10,11 @@ def set_environment(app):
 	else:
 		app.config.from_object(DevelopmentConfig)
 
+
+# def get_config(key: str, required: bool = False, default=None):
+#     value = app.config.get(key) or os.environ.get(key) or default
+
+#     if required and value is None:
+#         raise RuntimeError(f"Missing required config: {key}")
+
+#     return value
