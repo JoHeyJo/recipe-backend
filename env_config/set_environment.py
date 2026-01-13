@@ -11,7 +11,7 @@ environment = os.getenv("ENV", "production")
 def set_environment_config(app):
 	"""On application load environment configuration is set for production or development"""
 	if environment == "production":
-		fetch_secrets(app=app)
 		app.config.from_object(ProductionConfig)
+		fetch_secrets(app=app)
 	else:
 		app.config.from_object(DevelopmentConfig)

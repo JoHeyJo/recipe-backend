@@ -1,8 +1,4 @@
-import os
 from flask_cors import CORS
-from dotenv import load_dotenv
-
-load_dotenv()
 
 def configure_cors(app):
     """Dynamically handle configuration of CORS based on environment"""

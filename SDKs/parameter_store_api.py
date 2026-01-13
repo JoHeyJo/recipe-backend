@@ -7,10 +7,8 @@ from botocore.exceptions import BotoCoreError, ClientError
 logger = logging.getLogger(__name__)
 
 s3_client = boto3.client("s3")
-region = current_app.config.get("AWS_REGION") or s3_client.meta.region_name
 
-ssm = boto3.client('ssm', region_name=region)
-
+ssm = boto3.client('ssm', region_name=s3_client.meta.region_name)
 
 def fetch_secrets(app):
     """Centralizes access point to parameter store"""
