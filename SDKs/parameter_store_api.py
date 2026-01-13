@@ -41,7 +41,7 @@ def fetch_secrets(app):
         FRONTEND_RESET_URL = parameter['Parameter']['Value']
         app.config["FRONTEND_RESET_URL"] = FRONTEND_RESET_URL
         
-        # access SES From Email(Source)
+        # access SES "From Email" (Source of sender)
         parameter = ssm.get_parameter(
             Name='SES_FROM_EMAIL', WithDecryption=True)
         SES_FROM_EMAIL = parameter['Parameter']['Value']
