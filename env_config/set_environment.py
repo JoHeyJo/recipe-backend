@@ -7,7 +7,6 @@ from utils.functions import highlight
 load_dotenv()
 
 environment = os.getenv("ENV", "production")
-
 def set_environment_config(app):
 	"""On application load environment configuration is set for production or development"""
 	if environment == "production":

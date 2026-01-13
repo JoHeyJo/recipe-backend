@@ -1,4 +1,5 @@
 from flask_cors import CORS
+from utils.functions import highlight
 
 def configure_cors(app):
     """Dynamically handle configuration of CORS based on environment"""

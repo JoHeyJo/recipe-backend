@@ -52,7 +52,6 @@ def handle_error(error):
 
     elif isinstance(error, (EmailAlreadyRegisteredError, UsernameAlreadyTakenError, SignUpError)):
         http_status = 409
-    highlight(current_app,"$")
     # Logging (optional: only traceback for 5xx)
     tb = traceback.format_exc()
     if http_status >= 500:

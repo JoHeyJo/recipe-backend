@@ -15,7 +15,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     """Development environment configuration"""
-    ENV = "production"
+    ENV = "development"
     SECRET_KEY = os.getenv('SECRET_KEY')
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
