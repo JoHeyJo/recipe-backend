@@ -48,6 +48,6 @@ def fetch_secrets(app):
         app.config["SES_FROM_EMAIL"] = SES_FROM_EMAIL
 
     except (BotoCoreError, ClientError) as e:
-        print("PRINT TEST: error fetching secrets:", repr(e))
-        logger.error(f"Error fetching secrets from Parameter Store: {e}")
+        logger.exception("Error fetching secrets from Parameter Store")
+        logger.error("SSM error response: %s", e.response)
         raise RuntimeError(f"Secrets retrieval failed") from e
