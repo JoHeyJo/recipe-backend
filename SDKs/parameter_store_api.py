@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 s3_client = boto3.client("s3")
 
-ssm = boto3.client('ssm', region_name=s3_client.meta.region_name)
+ssm = boto3.client('ssm', region_name="us-west-1")
 
 def fetch_secrets(app):
     """Centralizes access point to parameter store"""

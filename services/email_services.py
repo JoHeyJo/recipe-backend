@@ -7,7 +7,7 @@ s3_client = boto3.client("s3")
 
 ses_client = boto3.client(
     'ses',
-    region_name=s3_client.meta.region_name
+    region_name="us-west-1"
 )
 
 class EmailServices():
