@@ -69,7 +69,7 @@ class UserServices():
 
             if user.user_name != request["userName"]:
                 raise ForbiddenError(
-                    "Error updating password. Make sure username is correct")
+                    "Error updating password. Do not tamper with token. Make sure username is correct")
 
             user.password = UserRepo.hash_password(string=request["password"])
             db.session.commit()
