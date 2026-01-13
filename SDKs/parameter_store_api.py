@@ -50,4 +50,7 @@ def fetch_secrets(app):
     except (BotoCoreError, ClientError) as e:
         logger.exception("Error fetching secrets from Parameter Store")
         logger.error("SSM error response: %s", e.response)
+        print("LOGGER NAME:", logger.name, "LEVEL:", logger.level, "HAS HANDLERS:", bool(
+            logger.handlers), "PROPAGATE:", logger.propagate, flush=True)
+
         raise RuntimeError(f"Secrets retrieval failed") from e
