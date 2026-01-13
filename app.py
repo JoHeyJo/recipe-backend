@@ -21,6 +21,8 @@ from flask_socketio import emit, disconnect
 from services.email_services import EmailServices
 from datetime import timedelta
 from sqlalchemy import func
+import logging
+import sys
 
 
 # Execute if app doesn't auto update code
@@ -38,15 +40,26 @@ migrate = Migrate(app, db)
 
 connect_db(app)
 
+
+def enable_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        handlers=[logging.StreamHandler(sys.stderr)],
+    )
+
+
+app_logger = logging.getLogger("app")
+
 @app.route('/__test__')
 def test():
     return 'This is working'
 
 
-@app.get("/")
+# @app.get("/")
 # @jwt_required()
-def index():
-    return f"Environment: {app.config['ENV']} - Debug: {app.config['DEBUG']} - Server: {os.environ.get('SERVER_SOFTWARE')}"
+# def index():
+    # return f"Environment: {app.config['ENV']} - Debug: {app.config['DEBUG']} - Server: {os.environ.get('SERVER_SOFTWARE')}"
 
 
 @app.post("/signup")

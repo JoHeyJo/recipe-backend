@@ -6,6 +6,10 @@ from flask import jsonify, current_app
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from exceptions import *
 from utils.functions import highlight
+import logging
+import traceback
+
+logger = logging.getLogger("app")
 
 def route_error_handler(func):
     """Decorator to handle errors in Flask routes or services."""
@@ -55,6 +59,7 @@ def handle_error(error):
     # Logging (optional: only traceback for 5xx)
     tb = traceback.format_exc()
     if http_status >= 500:
+        logger.exception("Unhandled server error in route")
         error_message = "Internal server error."
         print("⚠️⚠️⚠️⚠️⚠️⚠️⚠️ ERROR TRACEBACK START ⚠️⚠️⚠️⚠️⚠️⚠️⚠️")
         print(tb)
@@ -62,6 +67,7 @@ def handle_error(error):
         if current_app.debug:
             raise error
     else:
+        logger.warning("%s: %s", error_type_name, error_message)
         print(f"⚠️⚠️⚠️⚠️⚠️⚠️⚠️ {error_type_name}: {error_message}")
 
     return jsonify({
