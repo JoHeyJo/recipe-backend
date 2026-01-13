@@ -1,27 +1,13 @@
-import os
 import boto3
-from flask import app
-from dotenv import load_dotenv
+from flask import current_app
 from botocore.exceptions import ClientError
 from urllib.parse import urlencode
 
-load_dotenv()
-
-AWS_REGION = None
-SES_FROM_EMAIL = None
-
-
-if app.config['ENV'] == "production":
-    AWS_REGION = app.config["AWS_REGION"]
-    SES_FROM_EMAIL = app.config["SES_FROM_EMAIL"]
-else:
-    
-
-
+s3_client = boto3.client("s3")
 
 ses_client = boto3.client(
     'ses',
-    region_name=AWS_REGION
+    region_name=s3_client.meta.region_name
 )
 
 class EmailServices():
@@ -31,7 +17,7 @@ class EmailServices():
         """Calls on AWS SES to automate sending emails"""
         try:
             response = ses_client.send_email(
-                Source=SES_FROM_EMAIL,
+                Source=current_app.config["SES_FROM_EMAIL"],
                 Destination={'ToAddresses': [recipient_email]},
                 Message={
                     'Subject': {'Data': subject},
@@ -48,8 +34,7 @@ class EmailServices():
     @staticmethod
     def create_password_reset_email(token, recipient_email):
         """Compose password reset email requested by client"""
-        # link = f"http://localhost:3000/reset?{urlencode({'token': token})}"
-        link = f"{os.environ['FRONTEND_RESET_URL']}?{urlencode({'token': token})}"
+        link = f"{current_app.config['FRONTEND_RESET_URL']}?{urlencode({'token': token})}"
         subject = "Password rest"
         body_html = f"""
         <p>We received a request to reset your password.</p>

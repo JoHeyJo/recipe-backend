@@ -1,16 +1,14 @@
-import os
 import boto3
-from dotenv import load_dotenv
+from flask import current_app
 from utils.functions import highlight
 import logging
 from botocore.exceptions import BotoCoreError, ClientError
 
-load_dotenv()
-
 logger = logging.getLogger(__name__)
 
-ssm = boto3.client('ssm', region_name=os.getenv("AWS_REGION"))
+s3_client = boto3.client("s3")
 
+ssm = boto3.client('ssm', region_name=s3_client.meta.region_name)
 
 def fetch_secrets(app):
     """Centralizes access point to parameter store"""
@@ -36,11 +34,18 @@ def fetch_secrets(app):
             Name='/CodeBuild/client_origin', WithDecryption=True)
         client_url = parameter['Parameter']['Value']
         app.config["CLIENT_ORIGIN_URL"] = client_url
-
-        # access AWS REGION
-        parameter = ssm.get_parameter(Name='REGION', WithDecryption=True)
-        AWS_REGION = parameter['Parameter']['Value']
-        app.config["AWS_REGION"] = AWS_REGION
+        
+        # access Reset Link
+        parameter = ssm.get_parameter(
+            Name='FRONTEND_RESET_URL', WithDecryption=True)
+        FRONTEND_RESET_URL = parameter['Parameter']['Value']
+        app.config["FRONTEND_RESET_URL"] = FRONTEND_RESET_URL
+        
+        # access SES "From Email" (Source of sender)
+        parameter = ssm.get_parameter(
+            Name='SES_FROM_EMAIL', WithDecryption=True)
+        SES_FROM_EMAIL = parameter['Parameter']['Value']
+        app.config["SES_FROM_EMAIL"] = SES_FROM_EMAIL
 
     except (BotoCoreError, ClientError) as e:
         logger.error(f"Error fetching secrets from Parameter Store: {e}")
