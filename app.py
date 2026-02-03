@@ -153,10 +153,16 @@ def update_user_recipe(user_id, book_id, recipe_id):
 @app.delete("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
 @check_user_identity
 @route_error_handler
-def get_delete_recipe(user_id, book_id, recipe_id):
+def delete_recipe(user_id, book_id, recipe_id):
     """Facilitate deletion of recipe record associated to user"""
     response = RecipeServices.remove_recipe(recipe_id=recipe_id)
     return jsonify(response), 200
+
+@app.post("users/<user_id>/share_recipes/<recipe_id>")
+@check_user_identity
+@route_error_handler
+def share_recipe(user_id, recipe_id):
+    """Facilitate user and recipe data to share recipe with recipient"""
 
 
 ########### BOOKS ###########
