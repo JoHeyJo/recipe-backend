@@ -17,6 +17,10 @@ class BookRole(PyEnum):
     collaborator = "collaborator"
     viewer = "viewer"
 
+class BookType(PyEnum):
+    personal = "personal"
+    shared = "shared"
+
 
 class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Users table"""
@@ -54,6 +58,9 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     name: Mapped[str_255]
     notes: Mapped[str_255_nullable]
+    created_by_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
+    forked_from_id: Mapped[int | None] = mapped_column(
+        ForeignKey('recipe.id'), default=None)
 
     def serialize(self):
         """Serialize Recipe table data into dict"""
@@ -87,6 +94,7 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     title: Mapped[str_255]
     description: Mapped[str_255]
+
 
     def serialize(self):
         """Serialize Book table data into dict"""
@@ -220,6 +228,8 @@ class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model)
     book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"))
     recipe_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
+    added_by_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+
 
 
 class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
