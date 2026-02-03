@@ -7,7 +7,7 @@ from utils.functions import highlight
 class RecipeServices():
     """Handles recipe view business logic"""
     @staticmethod
-    def process_recipe_data(request, book_id):
+    def process_recipe_data(request, book_id, user_id):
         """Consolidate 'create recipe' process"""
         try:
             recipe = request["recipe"]
@@ -20,7 +20,7 @@ class RecipeServices():
 
         try:
             recipe_data = RecipeServices.process_recipe(
-                book_id=book_id, recipe_name=recipe["name"], notes=notes)
+                book_id=book_id, recipe_name=recipe["name"], notes=notes, user_id=user_id)
 
             if ingredients:
                 recipe_data["ingredients"] = RecipeServices.process_ingredients(
@@ -42,11 +42,11 @@ class RecipeServices():
             raise type(e)(f"Failed to process_recipe_data: {e}") from e
 
     @staticmethod
-    def process_recipe(book_id, recipe_name, notes):
+    def process_recipe(book_id, recipe_name, notes, user_id):
         """Adds recipes and associates new recipe to book"""
         try:
             recipe_data = RecipeRepo.create_recipe(
-                name=recipe_name, notes=notes)
+                name=recipe_name, notes=notes, user_id=user_id)
             
             RecipeBookRepo.create_entry(
                 book_id=book_id, recipe_id=recipe_data["id"])

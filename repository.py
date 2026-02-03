@@ -64,9 +64,9 @@ class UserRepo():
 class RecipeRepo():
     """Facilitates recipes table interactions"""
     @staticmethod
-    def create_recipe(name, notes):
+    def create_recipe(name, notes, user_id):
         """Creates recipe instance and adds it to database"""
-        recipe = Recipe(name=name, notes=notes)
+        recipe = Recipe(name=name, notes=notes, created_by_id=user_id)
         try:
             db.session.add(recipe)
             db.session.flush()

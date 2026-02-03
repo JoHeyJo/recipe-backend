@@ -127,7 +127,7 @@ def confirm_reset():
 def add_recipe(user_id, book_id):
     """Consolidate recipe data. If successful recipes_ingredients record created"""
     recipe_data = RecipeServices.process_recipe_data(
-        request={"recipe": request.json}, book_id=book_id)
+        request={"recipe": request.json}, book_id=book_id, user_id=user_id)
     return jsonify(recipe_data), 200
 
 
