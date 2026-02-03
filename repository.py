@@ -227,10 +227,10 @@ class IngredientsRepo():
 class BookRepo():
     """Facilitates books table interactions"""
     @staticmethod
-    def create_book(title, description):
+    def create_book(user_id, title, description):
         """Create book and add to database"""
         try:
-            book = Book(title=title, description=description)
+            book = Book(user_id=user_id, title=title, description=description)
             db.session.add(book)
             db.session.flush()
             return Book.serialize(book)
