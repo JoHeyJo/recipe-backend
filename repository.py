@@ -83,7 +83,7 @@ class RecipeRepo():
         not exist then one will be created automatically"""
         shared_link = UserBookRepo.query_shared_link(user_id=recipient_id)
         if not shared_link:
-            book = BookRepo.create_book(user_id=recipient_id, title="Shared Recipes",
+            book = BookRepo.create_book(title="Shared Recipes",
                                  description="Inbox: Recipes shared by others")
             shared_link = UserBookRepo.create_entry(
                 user_id=recipient_id, book_id=book.id, book_type=BookType.shared_inbox)
@@ -253,10 +253,10 @@ class IngredientsRepo():
 class BookRepo():
     """Facilitates books table interactions"""
     @staticmethod
-    def create_book(user_id, title, description):
+    def create_book(title, description):
         """Create book and add to database"""
         try:
-            book = Book(user_id=user_id, title=title, description=description)
+            book = Book(title=title, description=description)
             db.session.add(book)
             db.session.flush()
             return Book.serialize(book)

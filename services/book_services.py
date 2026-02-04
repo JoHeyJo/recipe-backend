@@ -14,7 +14,7 @@ class BookServices():
         description = request.json["description"]
         book_data = {"title": title, "description": description}
         try:
-            new_book = BookRepo.create_book(user_id=user_id,
+            new_book = BookRepo.create_book(
                 title=book_data["title"], description=book_data["description"])
             # associate book to user
             if new_book["id"]:
