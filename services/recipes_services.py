@@ -237,6 +237,7 @@ class RecipeServices():
         try:
             RecipeRepo.create_recipe_link(
                 recipient_id=recipient_id, shared_id=recipe_id)
+            db.session.commit()
         except Exception as e:
             db.session.rollback()
             raise type(e)(

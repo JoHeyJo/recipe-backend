@@ -86,9 +86,9 @@ class RecipeRepo():
             book = BookRepo.create_book(title="Shared Recipes",
                                  description="Inbox: Recipes shared by others")
             shared_link = UserBookRepo.create_entry(
-                user_id=recipient_id, book_id=book.id, book_type=BookType.shared_inbox)
+                user_id=recipient_id, book_id=book["id"], book_type=BookType.shared_inbox)
         try:
-            RecipeBook(book_id=shared_link.id, recipe_id=shared_id)
+            RecipeBook(book_id=shared_link.book_id, recipe_id=shared_id)
         except Exception as e:
             raise type(e)(f"create_recipe_link error:{e}") from e
 
