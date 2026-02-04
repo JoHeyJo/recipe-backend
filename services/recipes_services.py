@@ -2,6 +2,7 @@ from repository import *
 from services.ingredients_services import IngredientServices
 from services.instructions_services import InstructionServices
 from utils.functions import highlight
+from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Conflict
 
 
 class RecipeServices():
@@ -234,10 +235,14 @@ class RecipeServices():
     @staticmethod
     def share_recipe(user_id, recipient_id, recipe_id):
         """Process sharing user recipe with recipient"""
+        recipe = Recipe.query.get(recipe_id)
+
         if user_id == recipient_id:
-            return {"message": "Why are you sharing this with yourself???"}
-        if user_id !== recipe.id:
-            return {"message":"This is not yours to share..."}
+            raise BadRequest("Why are you sharing this with yourself???")
+        
+        if not recipe.is_owned_by(user_id):
+            raise Forbidden("This is not yours to share...")
+        
         try:
             message = RecipeRepo.create_recipe_link(
                 recipient_id=recipient_id, shared_id=recipe_id)

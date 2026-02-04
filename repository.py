@@ -3,6 +3,7 @@ from flask_bcrypt import Bcrypt
 from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, Ingredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction, AmountBook, UnitBook, ItemBook, BookRole, BookType
 from exceptions import *
 from utils.functions import insert_first, highlight
+from werkzeug.exceptions import Conflict
 
 bcrypt = Bcrypt()
 
@@ -90,7 +91,7 @@ class RecipeRepo():
         try:
             is_shared = RecipeBook.query.filter_by(book_id=shared_link.book_id, recipe_id=shared_id).first()
             if is_shared:
-                return {"message":"Recipe already shared with user."}
+                raise Conflict("Recipe already shared with user.")
             
             RecipeBookRepo.create_entry(book_id=shared_link.book_id, recipe_id=shared_id)
             return {"message": "Recipe successfully shared!"}

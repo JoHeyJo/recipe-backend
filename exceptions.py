@@ -31,3 +31,4 @@ class NotFound(Exception):
 
 class ForbiddenError(Exception):
     """Exception raised during password reset if provided user does not match user from token"""
+    pass

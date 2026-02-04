@@ -62,6 +62,10 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     created_by_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     forked_from_id: Mapped[int | None] = mapped_column(
         ForeignKey('recipes.id'), default=None)
+    
+    def is_owned_by(self, user_id):
+        """Checks if User is owner of recipe"""
+        return self.created_by_id == user_id
 
     def serialize(self):
         """Serialize Recipe table data into dict"""
