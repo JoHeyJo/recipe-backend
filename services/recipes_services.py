@@ -230,6 +230,11 @@ class RecipeServices():
                         instruction_id=instruction["newId"])
         except Exception as e:
             raise type(e)(f"Failed to process_edit_instructions: {e}") from e
+        
+    @staticmethod
+    def share_recipe(user_id, recipe_id):
+        """Process sharing user recipe with recipient"""
+        
 
     @staticmethod
     def remove_recipe(recipe_id):

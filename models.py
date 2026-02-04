@@ -19,7 +19,8 @@ class BookRole(PyEnum):
 
 class BookType(PyEnum):
     personal = "personal"
-    shared = "shared"
+    collaborative = "collaborative"
+    shared_inbox = "shared_inbox"
 
 
 class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -92,10 +93,8 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Book table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     title: Mapped[str_255]
     description: Mapped[str_255]
-    is_shared_book: Mapped[bool] = mapped_column(default=False)
 
 
     def serialize(self):
@@ -251,6 +250,7 @@ class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
         Index("ix_users_books_user", "user_id"),
         Index("ix_users_books_book", "book_id"),
     )
+    book_type: Mapped[BookType] = mapped_column(Enum(BookType, name="book_type"))
 
 
 class BookInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
