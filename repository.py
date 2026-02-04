@@ -6,6 +6,7 @@ from utils.functions import insert_first, highlight
 
 bcrypt = Bcrypt()
 
+
 class UserRepo():
     """Facilitate users table interactions"""
     @staticmethod
@@ -39,7 +40,7 @@ class UserRepo():
     def login(user_name, password):
         """Find user with username and password. Return False for incorrect credentials"""
         user = User.query.filter_by(user_name=user_name).first()
-        # If user exists AND user is authorized 
+        # If user exists AND user is authorized
         if user and bcrypt.check_password_hash(user.password, password):
             return create_access_token(identity=user.id)
         return False
@@ -48,13 +49,14 @@ class UserRepo():
     def query_user(user_id):
         """Query user corresponding with id"""
         try:
-            user = db.session.query(User).filter_by(id=user_id).first() #should this user Session.get(User,1)
+            # should this user Session.get(User,1)
+            user = db.session.query(User).filter_by(id=user_id).first()
             if user is None:
-                return None 
+                return None
             return user
         except Exception as e:
             raise type(e)(f"UserRepo -> query_user error:{e}")
-        
+
     @staticmethod
     def hash_password(string):
         """Hashes string sequence"""
@@ -73,6 +75,18 @@ class RecipeRepo():
             return Recipe.serialize(recipe)
         except Exception as e:
             raise type(e)(f"create_recipe error:{e}") from e
+
+    @staticmethod
+    def create_recipe_link(recipient_id):
+        """Creates recipe association between User and Recipient. All shared
+        recipes will populate in recipient's "Shared Recipes" book. If book does
+        not exist then one will be created automatically"""
+        shared_link = UserBookRepo.query_shared_link(user_id=recipient_id)
+        if not shared_link:
+            book = BookRepo.create_book(user_id=recipient_id, title="Shared Recipes",
+                                 description="Inbox for recipes shared by others")
+            UserBookRepo.create_entry(
+                user_id=recipient_id, book_id=book.id, book_type=BookType.shared_inbox)
 
     @staticmethod
     def fetch_recipes(user_id, book_id):
@@ -106,7 +120,8 @@ class QuantityAmountRepo():
                 Model=QuantityAmount, data=value, column_name="value", db=db)
             return QuantityAmount.serialize(quantity_amount)
         except Exception as e:
-            raise type(e)(f"QuantityAmountRepo - create_amount error:{e}") from e
+            raise type(e)(
+                f"QuantityAmountRepo - create_amount error:{e}") from e
 
     @staticmethod
     def query_all_amounts():
@@ -116,16 +131,19 @@ class QuantityAmountRepo():
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
             # db.session.rollback()
-            raise type(e)(f"QuantityAmountRepo -  get_all_amounts error: {e}") from e
+            raise type(e)(
+                f"QuantityAmountRepo -  get_all_amounts error: {e}") from e
 
     @staticmethod
     def query_book_amounts(book_id):
         """Return user amounts"""
         try:
-            amounts = db.session.query(Book).filter_by(id=book_id).first().amounts
+            amounts = db.session.query(Book).filter_by(
+                id=book_id).first().amounts
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
-            raise type(e)(f"QuantityAmountRepo -  get_book_amounts error: {e}") from e
+            raise type(e)(
+                f"QuantityAmountRepo -  get_book_amounts error: {e}") from e
 
     @staticmethod
     def query_user_amounts(user_id):
@@ -138,7 +156,8 @@ class QuantityAmountRepo():
             ).filter(UserBook.user_id == user_id).all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
-            raise type(e)(f"QuantityAmountRepo - get_user_amounts error: {e}") from e
+            raise type(e)(
+                f"QuantityAmountRepo - get_user_amounts error: {e}") from e
 
 
 class QuantityUnitRepo():
@@ -164,7 +183,8 @@ class QuantityUnitRepo():
             ).filter(UserBook.user_id == user_id).all()
             return [QuantityUnit.serialize(unit) for unit in units]
         except Exception as e:
-            raise type(e)(f"QuantityUnitRepo - get_all_units error: {e}") from e
+            raise type(e)(
+                f"QuantityUnitRepo - get_all_units error: {e}") from e
 
     @staticmethod
     def query_book_units(book_id):
@@ -174,7 +194,8 @@ class QuantityUnitRepo():
                 id=book_id).first().units
             return [QuantityUnit.serialize(unit) for unit in units]
         except Exception as e:
-            raise type(e)(f"QuantityUnitRepo - get_book_units error: {e}") from e
+            raise type(e)(
+                f"QuantityUnitRepo - get_book_units error: {e}") from e
 
 
 class ItemRepo():
@@ -224,6 +245,7 @@ class ItemRepo():
 class IngredientsRepo():
     """Directs incoming data to corresponding repo methods"""
 
+
 class BookRepo():
     """Facilitates books table interactions"""
     @staticmethod
@@ -258,7 +280,8 @@ class InstructionRepo():
             db.session.flush()
             return Instruction.serialize(instruction)
         except Exception as e:
-            raise type(e)(f"InstructionRepo - create_instruction error: {e}") from e
+            raise type(e)(
+                f"InstructionRepo - create_instruction error: {e}") from e
 
     @staticmethod
     def get_instructions():
@@ -334,10 +357,20 @@ class UserBookRepo():
     def create_entry(user_id, book_id, role=BookRole.owner, book_type=BookType.personal):
         """Create user and book association -> add to database"""
         try:
-            entry = UserBook(user_id=user_id, book_id=book_id, role=role, book_type=book_type)
+            entry = UserBook(user_id=user_id, book_id=book_id,
+                             role=role, book_type=book_type)
             db.session.add(entry)
         except Exception as e:
             raise type(e)(f"UserBookRepo - create_entry error:{e}") from e
+
+    @staticmethod
+    def query_shared_link(user_id):
+        """Query for User "shared recipes" book"""
+        try:
+            return UserBook.query.filter_by(
+                user_id=user_id, book_type=BookType.shared_inbox).first()
+        except Exception as e:
+            raise type(e)(f"UserBookRepo - query_shared_link error:{e}") from e
 
 
 class BookInstructionRepo():
@@ -350,7 +383,8 @@ class BookInstructionRepo():
                 book_id=book_id, instruction_id=instruction_id)
             db.session.add(entry)
         except Exception as e:
-            raise type(e)(f"BookInstructionRepo - create_entry error :{e}") from e
+            raise type(e)(
+                f"BookInstructionRepo - create_entry error :{e}") from e
 
 
 class RecipeInstructionRepo():
@@ -365,7 +399,8 @@ class RecipeInstructionRepo():
             db.session.flush()
             return entry.id
         except Exception as e:
-            raise type(e)(f"RecipeInstructionRepo - create_entry error :{e}") from e
+            raise type(e)(
+                f"RecipeInstructionRepo - create_entry error :{e}") from e
 
 
 class AmountBookRepo():
