@@ -77,16 +77,20 @@ class RecipeRepo():
             raise type(e)(f"create_recipe error:{e}") from e
 
     @staticmethod
-    def create_recipe_link(recipient_id):
-        """Creates recipe association between User and Recipient. All shared
+    def create_recipe_link(recipient_id, shared_id):
+        """Creates recipe association between User's and Recipient. All shared
         recipes will populate in recipient's "Shared Recipes" book. If book does
         not exist then one will be created automatically"""
         shared_link = UserBookRepo.query_shared_link(user_id=recipient_id)
         if not shared_link:
             book = BookRepo.create_book(user_id=recipient_id, title="Shared Recipes",
-                                 description="Inbox for recipes shared by others")
-            UserBookRepo.create_entry(
+                                 description="Inbox: Recipes shared by others")
+            shared_link = UserBookRepo.create_entry(
                 user_id=recipient_id, book_id=book.id, book_type=BookType.shared_inbox)
+        try:
+            RecipeBook(book_id=shared_link.id, recipe_id=shared_id)
+        except Exception as e:
+            raise type(e)(f"create_recipe_link error:{e}") from e
 
     @staticmethod
     def fetch_recipes(user_id, book_id):
@@ -96,7 +100,7 @@ class RecipeRepo():
             recipes = book.recipes
             return [Recipe.serialize(recipe) for recipe in recipes]
         except Exception as e:
-            raise type(e)(f"create_recipe error:{e}")
+            raise type(e)(f"create_recipe error:{e}") from e
 
     @staticmethod
     def delete_recipe(recipe_id):
@@ -360,12 +364,14 @@ class UserBookRepo():
             entry = UserBook(user_id=user_id, book_id=book_id,
                              role=role, book_type=book_type)
             db.session.add(entry)
+            db.session.flush()
+            return entry
         except Exception as e:
             raise type(e)(f"UserBookRepo - create_entry error:{e}") from e
 
     @staticmethod
     def query_shared_link(user_id):
-        """Query for User "shared recipes" book"""
+        """Query for User's "shared recipes" book"""
         try:
             return UserBook.query.filter_by(
                 user_id=user_id, book_type=BookType.shared_inbox).first()

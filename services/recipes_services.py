@@ -232,8 +232,15 @@ class RecipeServices():
             raise type(e)(f"Failed to process_edit_instructions: {e}") from e
         
     @staticmethod
-    def share_recipe(user_id, recipe_id):
+    def share_recipe(recipient_id, recipe_id):
         """Process sharing user recipe with recipient"""
+        try:
+            RecipeRepo.create_recipe_link(
+                recipient_id=recipient_id, shared_id=recipe_id)
+        except Exception as e:
+            db.session.rollback()
+            raise type(e)(
+                f"Failed to share_recipe error: {e}") from e
         
 
     @staticmethod
@@ -246,4 +253,4 @@ class RecipeServices():
         except Exception as e:
             db.session.rollback()
             raise type(e)(
-                f"DeleteServices - remove_recipe error: {e}") from e
+                f"Failed to remove_recipe error: {e}") from e

@@ -163,6 +163,8 @@ def delete_recipe(user_id, book_id, recipe_id):
 @route_error_handler
 def post_share_recipe(user_id, recipe_id):
     """Facilitate user and recipe data to share recipe with recipient"""
+    RecipeServices.share_recipe(recipient_id=request.json["recipientId"], recipe_id=recipe_id)
+    return jsonify({"message":"Recipe successfully shared!"}), 200
 
 
 
