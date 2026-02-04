@@ -236,6 +236,8 @@ class RecipeServices():
         """Process sharing user recipe with recipient"""
         if user_id == recipient_id:
             return {"message": "Why are you sharing this with yourself???"}
+        if user_id !== recipe.id:
+            return {"message":"This is not yours to share..."}
         try:
             message = RecipeRepo.create_recipe_link(
                 recipient_id=recipient_id, shared_id=recipe_id)
