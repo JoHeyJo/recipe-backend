@@ -88,7 +88,12 @@ class RecipeRepo():
             shared_link = UserBookRepo.create_entry(
                 user_id=recipient_id, book_id=book["id"], book_type=BookType.shared_inbox)
         try:
+            is_shared = RecipeBook.query.filter_by(book_id=shared_link.book_id, recipe_id=shared_id).first()
+            if is_shared:
+                return {"message":"Recipe already shared with user."}
+            
             RecipeBookRepo.create_entry(book_id=shared_link.book_id, recipe_id=shared_id)
+            return {"message": "Recipe successfully shared!"}
         except Exception as e:
             raise type(e)(f"create_recipe_link error:{e}") from e
 

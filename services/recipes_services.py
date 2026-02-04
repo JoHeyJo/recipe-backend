@@ -232,12 +232,15 @@ class RecipeServices():
             raise type(e)(f"Failed to process_edit_instructions: {e}") from e
         
     @staticmethod
-    def share_recipe(recipient_id, recipe_id):
+    def share_recipe(user_id, recipient_id, recipe_id):
         """Process sharing user recipe with recipient"""
+        if user_id == recipient_id:
+            return {"message": "Why are you sharing this with yourself???"}
         try:
-            RecipeRepo.create_recipe_link(
+            message = RecipeRepo.create_recipe_link(
                 recipient_id=recipient_id, shared_id=recipe_id)
             db.session.commit()
+            return message
         except Exception as e:
             db.session.rollback()
             raise type(e)(
