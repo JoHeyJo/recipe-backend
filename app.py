@@ -51,6 +51,7 @@ def enable_logging():
 
 app_logger = logging.getLogger("app")
 
+
 @app.route('/__test__')
 def test():
     return 'This is working'
@@ -158,14 +159,15 @@ def delete_recipe(user_id, book_id, recipe_id):
     response = RecipeServices.remove_recipe(recipe_id=recipe_id)
     return jsonify(response), 200
 
+
 @app.post("/users/<user_id>/share_recipes/<recipe_id>")
 @check_user_identity
 @route_error_handler
 def post_share_recipe(user_id, recipe_id):
     """Facilitate user and recipe data to share recipe with recipient"""
-    message = RecipeServices.share_recipe(user_id=user_id, recipient_id=request.json["recipientId"], recipe_id=recipe_id)
+    message = RecipeServices.share_recipe(
+        user_id=user_id, recipient_id=request.json["recipientId"], recipe_id=recipe_id)
     return jsonify(message), 200
-
 
 
 ########### BOOKS ###########

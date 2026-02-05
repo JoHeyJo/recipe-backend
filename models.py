@@ -65,7 +65,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     
     def is_owned_by(self, user_id):
         """Checks if User is owner of recipe"""
-        return self.created_by_id == user_id
+        return self.created_by_id == int(user_id)
 
     def serialize(self):
         """Serialize Recipe table data into dict"""

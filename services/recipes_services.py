@@ -4,7 +4,6 @@ from services.instructions_services import InstructionServices
 from utils.functions import highlight
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Conflict
 
-
 class RecipeServices():
     """Handles recipe view business logic"""
     @staticmethod
@@ -239,7 +238,7 @@ class RecipeServices():
 
         if user_id == recipient_id:
             raise BadRequest("Why are you sharing this with yourself???")
-        
+        highlight(recipe.is_owned_by(user_id), "#")
         if not recipe.is_owned_by(user_id):
             raise Forbidden("This is not yours to share...")
         
