@@ -133,6 +133,7 @@ class RecipeServices():
     @staticmethod
     def process_edit(data, recipe_id):
         """Consolidates recipe edit process"""
+        
         try:
             name = data.get("name")
             ingredients = data.get("ingredients")

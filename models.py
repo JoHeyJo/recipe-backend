@@ -17,6 +17,7 @@ class BookRole(PyEnum):
     collaborator = "collaborator"
     viewer = "viewer"
 
+
 class BookType(PyEnum):
     personal = "personal"
     collaborative = "collaborative"
@@ -62,14 +63,14 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     created_by_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     forked_from_id: Mapped[int | None] = mapped_column(
         ForeignKey('recipes.id'), default=None)
-    
+
     def is_owned_by(self, user_id):
         """Checks if User is owner of recipe"""
         return self.created_by_id == int(user_id)
 
     def serialize(self):
         """Serialize Recipe table data into dict"""
-        return {"id": self.id, "name": self.name, "notes": self.notes}
+        return {"id": self.id, "name": self.name, "notes": self.notes, "created_by_id": self.created_by_id}
 
     # opens up access to data spread across multiple primary tables
     # (amounts, units, items) consolidated in Ingredient
@@ -99,7 +100,6 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     title: Mapped[str_255]
     description: Mapped[str_255]
-
 
     def serialize(self):
         """Serialize Book table data into dict"""
@@ -235,12 +235,13 @@ class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model)
         Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
 
 
-
 class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for users and books. Partial unique index set with 
     book_id where role = 'owner'"""
-    book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"),primary_key=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"),primary_key=True)
+    book_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("books.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), primary_key=True)
     role: Mapped[BookRole] = mapped_column(Enum(BookRole, name="book_role"))
     __table_args__ = (
         # exactly one owner per book (Postgres partial unique index)
@@ -254,7 +255,8 @@ class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
         Index("ix_users_books_user", "user_id"),
         Index("ix_users_books_book", "book_id"),
     )
-    book_type: Mapped[BookType] = mapped_column(Enum(BookType, name="book_type"))
+    book_type: Mapped[BookType] = mapped_column(
+        Enum(BookType, name="book_type"))
 
 
 class BookInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):

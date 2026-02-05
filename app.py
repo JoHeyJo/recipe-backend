@@ -146,6 +146,8 @@ def get_book_recipes(user_id, book_id):
 @route_error_handler
 def update_user_recipe(user_id, book_id, recipe_id):
     """Facilitate editing of recipe and records associated to book"""
+    highlight(request.json,"#")
+    return jsonify({"message:":"testing"})
     recipe = RecipeServices.process_edit(
         data=request.json, recipe_id=recipe_id)
     return jsonify(recipe), 200
