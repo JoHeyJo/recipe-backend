@@ -1,7 +1,7 @@
 from repository import BookRepo, UserBookRepo
 from models import db, User
 from repository import UserRepo
-from models import UserBook, BookRole
+from models import UserBook, BookRole, BookType
 from utils.functions import highlight
 
 

@@ -100,10 +100,12 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     title: Mapped[str_255]
     description: Mapped[str_255]
+    book_type: Mapped[BookType] = mapped_column(
+        Enum(BookType, name="book_type"))
 
     def serialize(self):
         """Serialize Book table data into dict"""
-        return {"id": self.id, "title": self.title, "description": self.description}
+        return {"id": self.id, "book_type": self.book_type, "title": self.title, "description": self.description}
 
     users: Mapped[List['User']] = relationship(
         'User', secondary='users_books', back_populates='books')
@@ -255,8 +257,6 @@ class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
         Index("ix_users_books_user", "user_id"),
         Index("ix_users_books_book", "book_id"),
     )
-    book_type: Mapped[BookType] = mapped_column(
-        Enum(BookType, name="book_type"))
 
 
 class BookInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):

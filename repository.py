@@ -85,9 +85,9 @@ class RecipeRepo():
         shared_link = UserBookRepo.query_shared_link(user_id=recipient_id)
         if not shared_link:
             book = BookRepo.create_book(title="Shared Recipes",
-                                 description="Inbox: Recipes shared by others")
+                                        description="Inbox: Recipes shared by others", book_type=BookType.shared_inbox)
             shared_link = UserBookRepo.create_entry(
-                user_id=recipient_id, book_id=book["id"], book_type=BookType.shared_inbox)
+                user_id=recipient_id, book_id=book["id"])
         try:
             is_shared = RecipeBook.query.filter_by(book_id=shared_link.book_id, recipe_id=shared_id).first()
             if is_shared:
@@ -259,10 +259,10 @@ class IngredientsRepo():
 class BookRepo():
     """Facilitates books table interactions"""
     @staticmethod
-    def create_book(title, description):
+    def create_book(title, description, book_type=BookType.personal):
         """Create book and add to database"""
         try:
-            book = Book(title=title, description=description)
+            book = Book(title=title, description=description, book_type=book_type)
             db.session.add(book)
             db.session.flush()
             return Book.serialize(book)
@@ -365,11 +365,11 @@ class RecipeBookRepo():
 class UserBookRepo():
     """Facilitates association of users & books"""
     @staticmethod
-    def create_entry(user_id, book_id, role=BookRole.owner, book_type=BookType.personal):
+    def create_entry(user_id, book_id, role=BookRole.owner):
         """Create user and book association -> add to database"""
         try:
             entry = UserBook(user_id=user_id, book_id=book_id,
-                             role=role, book_type=book_type)
+                             role=role)
             db.session.add(entry)
             db.session.flush()
             return entry
