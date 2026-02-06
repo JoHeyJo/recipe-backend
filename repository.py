@@ -274,6 +274,7 @@ class BookRepo():
         """Returns all books associated to user"""
         try:
             user = db.session.query(User).filter_by(id=user_id).first()
+            highlight(user.books,"$")
             return [Book.serialize(book) for book in user.books]
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
