@@ -109,7 +109,7 @@ class RecipeServices():
             book = Book.query.get(book_id)
             if not book:
                 raise ValueError(f"No book found with ID {book_id}")
-
+            highlight(book.recipes,"$")
             recipes_instances = book.recipes
             for recipe_instance in recipes_instances:
                 recipe_build = {}
@@ -131,9 +131,10 @@ class RecipeServices():
             raise type(e)(f"RecipeServices - build_recipes error: {e}") from e
 
     @staticmethod
-    def process_edit(data, recipe_id):
+    def process_edit(user_id, data, recipe_id):
         """Consolidates recipe edit process"""
-        
+        if user_id != data.get("created_by_id"):
+            raise Forbidden("Not authorized to make edits")
         try:
             name = data.get("name")
             ingredients = data.get("ingredients")
