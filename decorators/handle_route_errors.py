@@ -8,6 +8,7 @@ from exceptions import *
 from utils.functions import highlight
 import logging
 import traceback
+from models import db
 
 logger = logging.getLogger("app")
 
@@ -69,6 +70,8 @@ def handle_error(error):
     else:
         logger.warning("%s: %s", error_type_name, error_message)
         print(f"⚠️⚠️⚠️⚠️⚠️⚠️⚠️ {error_type_name}: {error_message}")
+
+    db.session.rollback()
 
     return jsonify({
         "error": error_message,

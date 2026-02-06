@@ -24,6 +24,17 @@ class BookType(PyEnum):
     shared_inbox = "shared_inbox"
 
 
+def book_to_dict(book_type):
+    """Convert instance of custom enum class to dict"""
+    book = {
+        BookType.personal: "personal",
+        Book.collaborative: "collaborative",
+        Book.shared_inbox: "shared_inbox"
+    }
+    highlight(book, '!')
+    return book[book_type]
+
+
 class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Users table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
@@ -105,7 +116,7 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     def serialize(self):
         """Serialize Book table data into dict"""
-        return {"id": self.id, "book_type": self.book_type, "title": self.title, "description": self.description}
+        return {"id": self.id, "book_type": book_to_dict(self.book_type), "title": self.title, "description": self.description}
 
     users: Mapped[List['User']] = relationship(
         'User', secondary='users_books', back_populates='books')

@@ -179,6 +179,7 @@ def post_share_recipe(user_id, recipe_id):
 def add_book(user_id):
     """Facilitates creation of book"""
     book_data = BookServices.process_new_book(request=request, user_id=user_id)
+    highlight(book_data, "!")
     return jsonify(book_data), 200
 
 
