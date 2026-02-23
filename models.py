@@ -26,12 +26,13 @@ class BookType(PyEnum):
 
 def book_to_dict(book_type):
     """Convert instance of custom enum class to dict"""
+    highlight(book_type, '@')
     book = {
         BookType.personal: "personal",
-        Book.collaborative: "collaborative",
-        Book.shared_inbox: "shared_inbox"
+        BookType.collaborative: "collaborative",
+        BookType.shared_inbox: "shared_inbox"
     }
-    highlight(book, '!')
+    highlight(book[book_type], '!')
     return book[book_type]
 
 
