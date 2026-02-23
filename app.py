@@ -351,6 +351,7 @@ def share_book(data):
         if response["code"] == 200:
             # SENDER
             emit('book_shared', response["message"], room=user_id)
+            # Handle users that are not connected...
             connection_id = connected_users[response["recipient_id"]]
             # RECIPIENT
             if connection_id:
