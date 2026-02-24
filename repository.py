@@ -81,7 +81,7 @@ class RecipeRepo():
     def create_recipe_link(recipient_id, shared_id):
         """Creates recipe association between User's and Recipient. All shared
         recipes will populate in recipient's "Shared Recipes" book. If book does
-        not exist then one will be created automatically"""
+        not exist one will be created automatically"""
         shared_link = UserBookRepo.query_shared_link(user_id=recipient_id)
         if not shared_link:
             book = BookRepo.create_book(title="Shared Recipes",
@@ -277,6 +277,7 @@ class BookRepo():
         """Returns all books associated to user"""
         try:
             user = db.session.query(User).filter_by(id=user_id).first()
+            highlight(user.books[0],"@")
             return [Book.serialize(book) for book in user.books]
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e

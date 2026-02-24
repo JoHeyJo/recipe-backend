@@ -21,7 +21,7 @@ class BookRole(PyEnum):
 class BookType(PyEnum):
     personal = "personal"
     collaborative = "collaborative"
-    shared_inbox = "shared_inbox"
+    shared = "shared"
 
 
 def book_to_dict(book_type):
@@ -29,7 +29,7 @@ def book_to_dict(book_type):
     book = {
         BookType.personal: "personal",
         BookType.collaborative: "collaborative",
-        BookType.shared_inbox: "shared_inbox"
+        BookType.shared: "shared"
     }
     return book[book_type]
 
