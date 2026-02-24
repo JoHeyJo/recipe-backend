@@ -3,6 +3,7 @@ from models import db, User
 from repository import UserRepo
 from models import UserBook, BookRole, BookType
 from utils.functions import highlight
+from services.user_services import UserServices
 
 
 class BookServices():
@@ -21,10 +22,8 @@ class BookServices():
                 UserBookRepo.create_entry(
                     user_id=user_id, book_id=new_book["id"])
             # add book id to default if necessary
-            user = User.query.get(user_id)
-            if user.default_book_id == None:
-                user.default_book_id = new_book["id"]
-                db.session.add(user)
+            UserServices.assign_default_book_if_none_set(
+                user_id=user_id, book_id=new_book["id"])
             db.session.commit()
             return new_book
         except Exception as e:
@@ -61,10 +60,11 @@ class BookServices():
                 else:
                     UserBookRepo.create_entry(
                         user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
+                    UserServices.assign_default_book_if_none_set(user_id=recipient.id, book_id=book_id)
                     db.session.commit()
                     return {"recipient_id": recipient.id,
                             "message": f"Book shared with {recipient.user_name}!",
-                            "error": "Unprocessable Content", "code": 200
+                            "code": 200
                             }
             else:
                 return {"message": "User not found", "error": "Not Found", "code": 404}

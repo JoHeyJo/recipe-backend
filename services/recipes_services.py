@@ -109,7 +109,6 @@ class RecipeServices():
             book = Book.query.get(book_id)
             if not book:
                 raise ValueError(f"No book found with ID {book_id}")
-            highlight(book.recipes,"$")
             recipes_instances = book.recipes
             for recipe_instance in recipes_instances:
                 recipe_build = {}
@@ -240,7 +239,6 @@ class RecipeServices():
 
         if user_id == recipient_id:
             raise BadRequest("Why are you sharing this with yourself???")
-        highlight(recipe.is_owned_by(user_id), "#")
         if not recipe.is_owned_by(user_id):
             raise Forbidden("This is not yours to share...")
         

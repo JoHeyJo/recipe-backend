@@ -56,7 +56,7 @@ class UserRepo():
                 return None
             return user
         except Exception as e:
-            raise type(e)(f"UserRepo -> query_user error:{e}")
+            raise type(e)(f"UserRepo -> query_user error:{e}") from e
 
     @staticmethod
     def hash_password(string):
@@ -89,11 +89,13 @@ class RecipeRepo():
             shared_link = UserBookRepo.create_entry(
                 user_id=recipient_id, book_id=book["id"])
         try:
-            is_shared = RecipeBook.query.filter_by(book_id=shared_link.book_id, recipe_id=shared_id).first()
+            is_shared = RecipeBook.query.filter_by(
+                book_id=shared_link.book_id, recipe_id=shared_id).first()
             if is_shared:
                 raise Conflict("Recipe already shared with user.")
-            
-            RecipeBookRepo.create_entry(book_id=shared_link.book_id, recipe_id=shared_id)
+
+            RecipeBookRepo.create_entry(
+                book_id=shared_link.book_id, recipe_id=shared_id)
             return {"message": "Recipe successfully shared!"}
         except Exception as e:
             raise type(e)(f"create_recipe_link error:{e}") from e
@@ -262,7 +264,8 @@ class BookRepo():
     def create_book(title, description, book_type=BookType.personal):
         """Create book and add to database"""
         try:
-            book = Book(title=title, description=description, book_type=book_type)
+            book = Book(title=title, description=description,
+                        book_type=book_type)
             db.session.add(book)
             db.session.flush()
             return Book.serialize(book)
@@ -274,7 +277,6 @@ class BookRepo():
         """Returns all books associated to user"""
         try:
             user = db.session.query(User).filter_by(id=user_id).first()
-            highlight(user.books,"$")
             return [Book.serialize(book) for book in user.books]
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e

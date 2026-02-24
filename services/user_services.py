@@ -78,3 +78,15 @@ class UserServices():
         except Exception as e:
             db.session.rollback()
             raise
+
+    @staticmethod
+    def assign_default_book_if_none_set(user_id, book_id):
+        try:
+            user = User.query.get(user_id)
+            if user.default_book_id is None:
+                user.default_book_id = book_id
+                # db.session.add() is unnecessary if self is already a tracked/persistent object
+        except Exception as e:
+            db.session.rollback()
+            raise type(e)(
+                f"UserServices - assign_default_book_if_none_set  error:{e}") from e

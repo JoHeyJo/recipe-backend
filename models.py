@@ -26,13 +26,11 @@ class BookType(PyEnum):
 
 def book_to_dict(book_type):
     """Convert instance of custom enum class to dict"""
-    highlight(book_type, '@')
     book = {
         BookType.personal: "personal",
         BookType.collaborative: "collaborative",
         BookType.shared_inbox: "shared_inbox"
     }
-    highlight(book[book_type], '!')
     return book[book_type]
 
 
@@ -57,6 +55,7 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
             "user_name": self.user_name,
             "default_book_id": self.default_book_id
         }
+
 
     # recipes = db.relationship('Recipe', secondary='user_recipes', backref='users')
     ### Instead Use type annotation for better type checking and readability ###
