@@ -351,7 +351,7 @@ def share_book(data):
             # SENDER
             emit('book_shared', response["message"], room=user_id)
             # Handle users that are not connected...
-            connection_id = connected_users[response["recipient_id"]]
+            connection_id = connected_users.get(response["recipient_id"])
             # RECIPIENT
             if connection_id:
                 message = f"{sender} has shared '{title}' recipe book with you!"
