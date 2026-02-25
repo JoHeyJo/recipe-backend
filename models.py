@@ -64,6 +64,9 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='users_books', back_populates='users', order_by="Book.title")
+    
+    user_books: Mapped[List['UserBook']] = relationship(
+        'UserBook', backref='users')
 
 
 class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
