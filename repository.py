@@ -142,7 +142,6 @@ class QuantityAmountRepo():
             amounts = QuantityAmount.query.all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
-            # db.session.rollback()
             raise type(e)(
                 f"QuantityAmountRepo -  get_all_amounts error: {e}") from e
 
@@ -277,8 +276,15 @@ class BookRepo():
         """Returns all books associated to user"""
         try:
             user = db.session.query(User).filter_by(id=user_id).first()
-            highlight(user.books[0].role,"%")
-            return [Book.serialize(book) for book in user.books]
+            highlight(user.user_books,"#")
+            return [
+                {
+                    **Book.serialize(user_book.book),
+                    "book_role": user_book.role.value
+                }
+                for user_book in user.user_books
+            ]
+
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
 

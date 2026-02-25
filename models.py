@@ -259,6 +259,9 @@ class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id"), primary_key=True)
     role: Mapped[BookRole] = mapped_column(Enum(BookRole, name="book_role"))
+
+    user = db.relationship('User', back_populates='user_books')
+    book = db.relationship('Book', back_populates='user_books')
     __table_args__ = (
         # exactly one owner per book (Postgres partial unique index)
         Index(
