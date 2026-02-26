@@ -40,11 +40,15 @@ class UserRepo():
     @staticmethod
     def login(user_name, password):
         """Find user with username and password. Return False for incorrect credentials"""
-        user = User.query.filter_by(user_name=user_name).first()
-        # If user exists AND user is authorized
-        if user and bcrypt.check_password_hash(user.password, password):
-            return create_access_token(identity=user.id)
-        return False
+        try:
+            user = User.query.filter_by(user_name=user_name).first()
+            highlight("HIT","%")
+            # If user exists AND user is authorized
+            if user and bcrypt.check_password_hash(user.password, password):
+                return create_access_token(identity=user.id)
+            return False
+        except Exception as e:
+            raise type(e)(f"UserRepo -> login error:{e}") from e
 
     @staticmethod
     def query_user(user_id):
@@ -277,13 +281,15 @@ class BookRepo():
         try:
             user = db.session.query(User).filter_by(id=user_id).first()
             highlight(user.user_books,"#")
-            return [
+            res =  [
                 {
                     **Book.serialize(user_book.book),
                     "book_role": user_book.role.value
                 }
                 for user_book in user.user_books
             ]
+            highlight(res,"%")
+            return res
 
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
