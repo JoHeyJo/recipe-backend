@@ -264,7 +264,7 @@ class IngredientsRepo():
 class BookRepo():
     """Facilitates books table interactions"""
     @staticmethod
-    def create_book(title, description, book_type=BookType.personal):
+    def create_book(title, description, book_type=BookType.standard):
         """Create book and add to database"""
         try:
             book = Book(title=title, description=description,
@@ -395,8 +395,8 @@ class UserBookRepo():
     def query_shared_link(user_id):
         """Query for User's "shared recipes" book"""
         try:
-            return UserBook.query.filter_by(
-                user_id=user_id, book_type=BookType.shared_inbox).first()
+            return Book.query.filter_by(
+                user_id=user_id, role=BookType.shared_inbox).first()
         except Exception as e:
             raise type(e)(f"UserBookRepo - query_shared_link error:{e}") from e
 

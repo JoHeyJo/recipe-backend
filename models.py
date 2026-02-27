@@ -19,17 +19,15 @@ class BookRole(PyEnum):
 
 
 class BookType(PyEnum):
-    personal = "personal"
-    collaborative = "collaborative"
-    shared = "shared"
+    standard = "standard"
+    shared_inbox = "shared_inbox"
 
 
 def book_to_dict(book_type):
     """Convert instance of custom enum class to dict"""
     book = {
-        BookType.personal: "personal",
-        BookType.collaborative: "collaborative",
-        BookType.shared: "shared"
+        BookType.standard: "standard",
+        BookType.shared_inbox: "shared_inbox"
     }
     return book[book_type]
 
