@@ -9,7 +9,6 @@ class UserServices():
     """Handles ingredients view business logic"""
     @staticmethod
     def authenticate_signup(request):
-        highlight(request.json, "%")
         """Process new user information"""
         user_name = request.json["userName"]
         first_name = request.json["firstName"]

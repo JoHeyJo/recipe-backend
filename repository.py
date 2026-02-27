@@ -42,7 +42,6 @@ class UserRepo():
         """Find user with username and password. Return False for incorrect credentials"""
         try:
             user = User.query.filter_by(user_name=user_name).first()
-            highlight("HIT","%")
             # If user exists AND user is authorized
             if user and bcrypt.check_password_hash(user.password, password):
                 return create_access_token(identity=user.id)
@@ -86,7 +85,8 @@ class RecipeRepo():
         """Creates recipe association between User's and Recipient. All shared
         recipes will populate in recipient's "Shared Recipes" book. If book does
         not exist one will be created automatically"""
-        shared_link = UserBookRepo.query_shared_link(user_id=recipient_id)
+        shared_link = UserBookRepo.query_shared_link(recipient_id=recipient_id)
+
         if not shared_link:
             book = BookRepo.create_book(title="Shared Recipes",
                                         description="Inbox: Recipes shared by others", book_type=BookType.shared_inbox)
@@ -280,17 +280,13 @@ class BookRepo():
         """Returns all books associated to user"""
         try:
             user = db.session.query(User).filter_by(id=user_id).first()
-            highlight(user.user_books,"#")
-            res =  [
+            return [
                 {
                     **Book.serialize(user_book.book),
                     "book_role": user_book.role.value
                 }
                 for user_book in user.user_books
             ]
-            highlight(res,"%")
-            return res
-
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
 
@@ -392,11 +388,12 @@ class UserBookRepo():
             raise type(e)(f"UserBookRepo - create_entry error:{e}") from e
 
     @staticmethod
-    def query_shared_link(user_id):
+    def query_shared_link(recipient_id):
         """Query for User's "shared recipes" book"""
         try:
-            return Book.query.filter_by(
-                user_id=user_id, role=BookType.shared_inbox).first()
+            user_book = UserBook.query.join(Book).filter(
+                UserBook.user_id == recipient_id, Book.book_type == BookType.shared_inbox).first()
+            return user_book
         except Exception as e:
             raise type(e)(f"UserBookRepo - query_shared_link error:{e}") from e
 

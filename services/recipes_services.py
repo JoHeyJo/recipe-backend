@@ -241,7 +241,6 @@ class RecipeServices():
             raise BadRequest("Why are you sharing this with yourself???")
         if not recipe.is_owned_by(user_id):
             raise Forbidden("This is not yours to share...")
-        
         try:
             message = RecipeRepo.create_recipe_link(
                 recipient_id=recipient_id, shared_id=recipe_id)

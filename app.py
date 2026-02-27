@@ -188,7 +188,6 @@ def add_book(user_id):
 def get_user_books(user_id):
     """Returns all books associated with user"""
     books = BookServices.fetch_user_books(user_id=user_id)
-    # highlight(books[0].users,"%")
     return jsonify(books), 200
 
 
