@@ -148,7 +148,7 @@ def update_user_recipe(user_id, book_id, recipe_id):
     """Facilitate editing of recipe and records associated to book"""
     auth_user = get_jwt_identity()
     recipe = RecipeServices.process_edit(user_id=auth_user,
-        data=request.json, recipe_id=recipe_id)
+                                         data=request.json, recipe_id=recipe_id)
     return jsonify(recipe), 200
 
 
@@ -157,7 +157,9 @@ def update_user_recipe(user_id, book_id, recipe_id):
 @route_error_handler
 def delete_recipe(user_id, book_id, recipe_id):
     """Facilitate deletion of recipe record associated to user"""
-    response = RecipeServices.remove_recipe(recipe_id=recipe_id)
+    auth_user = get_jwt_identity()
+    response = RecipeServices.remove_recipe(
+        auth_id=auth_user, recipe_id=recipe_id, data=request.json)
     return jsonify(response), 200
 
 

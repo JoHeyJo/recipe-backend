@@ -132,7 +132,7 @@ class RecipeServices():
     @staticmethod
     def process_edit(user_id, data, recipe_id):
         """Consolidates recipe edit process"""
-        if user_id != data.get("created_by_id"):
+        if user_id is not data.get("created_by_id"):
             raise Forbidden("Not authorized to make edits")
         try:
             name = data.get("name")
@@ -253,11 +253,13 @@ class RecipeServices():
         
 
     @staticmethod
-    def remove_recipe(recipe_id):
+    def remove_recipe(auth_id, recipe_id, data):
         """Deletes book recipe"""
+        if auth_id is not data["createdById"]:
+            raise Forbidden("Not authorized to delete!")
         try:
             RecipeRepo.delete_recipe(recipe_id=recipe_id)
-            db.session.commit()
+            # db.session.commit()
             return {"message": "deletion successful"}
         except Exception as e:
             db.session.rollback()
