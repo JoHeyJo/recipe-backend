@@ -255,11 +255,11 @@ class RecipeServices():
     @staticmethod
     def remove_recipe(auth_id, recipe_id, data):
         """Deletes book recipe"""
-        if auth_id is not data["createdById"]:
+        if auth_id is not int(data["createdById"]):
             raise Forbidden("Not authorized to delete!")
         try:
             RecipeRepo.delete_recipe(recipe_id=recipe_id)
-            # db.session.commit()
+            db.session.commit()
             return {"message": "deletion successful"}
         except Exception as e:
             db.session.rollback()
