@@ -42,8 +42,7 @@ class BookServices():
     def process_shared_book(user_id, recipient, book_id):
         """Calls services for book processing"""
         try:
-            stmt = db.select(User).where(User.user_name == recipient)
-            user = db.session.execute(stmt).scalar_one_or_none()
+            recipient = UserRepo.query_user_name(user_name=recipient)
             if recipient:
                 if (recipient.id == user_id):
                     return {"message": "Don't you already have this book???",
