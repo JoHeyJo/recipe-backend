@@ -54,14 +54,10 @@ class UserRepo():
         return db.select(User)
 
     @staticmethod
-    def query_user(user_id):
-        """Query user by id. Returns User or None if not found"""
+    def query_user(user_pk):
+        """Query user by PK. Returns User or None if not found"""
         try:
-            stmt = UserRepo._base_query().where(User.id == user_id)
-            user = db.session.execute(stmt).scalar_one_or_none()
-            if user is None:
-                return None
-            return user
+            return db.session.get(User, user_pk)
         except Exception as e:
             raise type(e)(f"UserRepo -> query_user error:{e}") from e
 
@@ -86,6 +82,15 @@ class UserRepo():
 
 class RecipeRepo():
     """Facilitates recipes table interactions"""
+
+    @staticmethod
+    def query_recipe(recipe_pk):
+        """Query recipe by PK. Return Recipe or None if not found"""
+        try:
+            return db.session.get(Recipe, recipe_id)
+        except Exception as e:
+            raise type(e)(f"RecipeRepo -> create_recipe error:{e}") from e
+
     @staticmethod
     def create_recipe(name, notes, user_id):
         """Creates recipe instance and adds it to database"""
@@ -95,7 +100,7 @@ class RecipeRepo():
             db.session.flush()
             return Recipe.serialize(recipe)
         except Exception as e:
-            raise type(e)(f"create_recipe error:{e}") from e
+            raise type(e)(f"RecipeRepo -> create_recipe error:{e}") from e
 
     @staticmethod
     def create_recipe_link(recipient_id, shared_id):
@@ -119,7 +124,7 @@ class RecipeRepo():
                 book_id=shared_link.book_id, recipe_id=shared_id)
             return {"message": "Recipe successfully shared!"}
         except Exception as e:
-            raise type(e)(f"create_recipe_link error:{e}") from e
+            raise type(e)(f"RecipeRepo -> create_recipe_link error:{e}") from e
 
     @staticmethod
     def fetch_recipes(user_id, book_id):
@@ -129,7 +134,7 @@ class RecipeRepo():
             recipes = book.recipes
             return [Recipe.serialize(recipe) for recipe in recipes]
         except Exception as e:
-            raise type(e)(f"create_recipe error:{e}") from e
+            raise type(e)(f"RecipeRepo -> create_recipe error:{e}") from e
 
     @staticmethod
     def delete_recipe(recipe_id):
@@ -140,7 +145,7 @@ class RecipeRepo():
                 db.delete(Recipe).where(Recipe.id == int(recipe_id))
             )
         except Exception as e:
-            raise type(e)(f"delete_recipe error:{e}") from e
+            raise type(e)(f"RecipeRepo -> delete_recipe error:{e}") from e
 
 
 class QuantityAmountRepo():

@@ -39,7 +39,7 @@ class UserServices():
     def fetch_user(user_id):
         """Retrieve user - inject default book object"""
         try:
-            user = UserRepo.query_user(user_id=user_id)
+            user = UserRepo.query_user(user_pk=user_id)
             if not user:
                 raise ValueError("User not found")
             user_data = User.serialize(user)
@@ -65,7 +65,7 @@ class UserServices():
     def reset_password(request, user_id):
         """Replaces current User password with new password"""
         try:
-            user = UserRepo.query_user(user_id=user_id)
+            user = UserRepo.query_user(user_pk=user_id)
 
             if user.user_name != request["userName"]:
                 raise ForbiddenError(

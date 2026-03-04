@@ -236,7 +236,7 @@ class RecipeServices():
     def share_recipe(user_id, recipient, recipe_id):
         """Process sharing user recipe with recipient"""
         recipient_id = UserRepo.query_user_name(user_name=recipient)
-        recipe = Recipe.query.get(recipe_id)
+        recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
 
         if user_id == recipient_id:
             raise BadRequest("Why are you sharing this with yourself???")
