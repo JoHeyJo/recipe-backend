@@ -169,7 +169,7 @@ def delete_recipe(user_id, book_id, recipe_id):
 def post_share_recipe(user_id, recipe_id):
     """Facilitate user and recipe data to share recipe with recipient"""
     message = RecipeServices.share_recipe(
-        user_id=user_id, recipient_id=request.json["recipientId"], recipe_id=recipe_id)
+        user_id=user_id, recipient=request.json["recipient"], recipe_id=recipe_id)
     return jsonify(message), 200
 
 

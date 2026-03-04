@@ -233,8 +233,9 @@ class RecipeServices():
             raise type(e)(f"Failed to process_edit_instructions: {e}") from e
         
     @staticmethod
-    def share_recipe(user_id, recipient_id, recipe_id):
+    def share_recipe(user_id, recipient, recipe_id):
         """Process sharing user recipe with recipient"""
+        recipient_id = UserRepo.query_user_name(user_name=recipient)
         recipe = Recipe.query.get(recipe_id)
 
         if user_id == recipient_id:
