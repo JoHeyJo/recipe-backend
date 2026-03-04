@@ -141,10 +141,10 @@ def get_book_recipes(user_id, book_id):
     return jsonify(recipes), 200
 
 
-@app.patch("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
+@app.patch("/recipes/<recipe_id>")
 @check_user_identity
 @route_error_handler
-def update_user_recipe(user_id, book_id, recipe_id):
+def patch_user_recipe(recipe_id):
     """Facilitate editing of recipe and records associated to book"""
     auth_user = get_jwt_identity()
     recipe = RecipeServices.process_edit(user_id=auth_user,
