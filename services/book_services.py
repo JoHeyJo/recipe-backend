@@ -43,7 +43,7 @@ class BookServices():
         """Calls services for book processing"""
         try:
             stmt = db.select(User).where(User.user_name == recipient)
-            recipient = db.session.execute(stmt).scalar_one_or_none()
+            user = db.session.execute(stmt).scalar_one_or_none()
             if recipient:
                 if (recipient.id == user_id):
                     return {"message": "Don't you already have this book???",
