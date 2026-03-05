@@ -23,6 +23,7 @@ from datetime import timedelta
 from sqlalchemy import func
 import logging
 import sys
+from flask import session
 
 
 # Execute if app doesn't auto update code
@@ -330,6 +331,7 @@ def handle_connect(auth):
                 identity = get_jwt_identity()
                 if identity == user_id:
                     connected_users[user_id] = sid
+                    session["verified_user_id"] = identity
 
         except:
             highlight("Invalid or missing JWT token. Disconnecting.", "#")
@@ -339,10 +341,10 @@ def handle_connect(auth):
         disconnect()
 
 
-@socketio.on('share')
+@socketio.on('share_book')
 def share_book(data):
     """Facilitate share book request and response"""
-    user_id = data["userId"]
+    user_id = session.get("verified_user_id")
     book_id = data["currentBookId"]
     recipient = data["recipient"]
     sender = data["user"]
