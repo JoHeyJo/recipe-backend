@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from repository import *
 from models import connect_db, db
@@ -315,6 +315,7 @@ def get_book_instructions(user_id, book_id):
 
 # replace with Redis when working with multiple server instances
 connected_users = {}
+authorized_user = {}
 
 
 @socketio.on('connect')
@@ -330,7 +331,7 @@ def handle_connect(auth):
                 identity = get_jwt_identity()
                 if identity == user_id:
                     connected_users[user_id] = sid
-                    session["verified_user_id"] = identity
+                    authorized_user[sid] = identity
 
         except:
             highlight("Invalid or missing JWT token. Disconnecting.", "#")
@@ -343,12 +344,18 @@ def handle_connect(auth):
 @socketio.on('share_book')
 def share_book(data):
     """Facilitate share book request and response"""
-    user_id = session.get("verified_user_id")
+    sid = request.id
+
+    user_id = authorized_user.get(sid)
+
+    if not user_id:
+        emit('error_sharing_book', {'data': 'Unauthorized'})
+        return
+    
     book_id = data["currentBookId"]
     recipient = data["recipient"]
     sender = data["user"]
     title = data["currentBook"]
-
     try:
         if not all(k in data for k in ["recipient", "currentBookId", "currentBook"]):
             emit('error_sharing_book', {'data': 'Invalid request'})
@@ -380,6 +387,7 @@ def share_book(data):
 
 @socketio.on('disconnect')
 def disconnected():
+    user_sid = session.get("verified_user_id")
     user_to_remove = next(
         (k for k, v in connected_users.items() if v == user_sid), None)
     if user_to_remove:
