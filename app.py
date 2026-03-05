@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from flask_debugtoolbar import DebugToolbarExtension
 from repository import *
 from models import connect_db, db
@@ -23,7 +23,6 @@ from datetime import timedelta
 from sqlalchemy import func
 import logging
 import sys
-from flask import session
 
 
 # Execute if app doesn't auto update code
@@ -314,7 +313,7 @@ def get_book_instructions(user_id, book_id):
 
 ################################################################################
 
-
+# replace with Redis when working with multiple server instances
 connected_users = {}
 
 
