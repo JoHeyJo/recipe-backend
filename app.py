@@ -344,7 +344,7 @@ def handle_connect(auth):
 @socketio.on('share_book')
 def share_book(data):
     """Facilitate share book request and response"""
-    sid = request.id
+    sid = request.sid
 
     user_id = authorized_user.get(sid)
 

@@ -65,11 +65,8 @@ class UserRepo():
     def query_user_name(user_name):
         """Query user by username. Returns User or None if not found."""
         try:
-            stmt = UserRepo._base_query().where(User.id == user_name)
-            user = db.session.execute(stmt).scalar_one_or_none()
-            if user is None:
-                return None
-            return user
+            stmt = UserRepo._base_query().where(User.user_name == user_name)
+            return db.session.execute(stmt).scalar_one_or_none()
         except Exception as e:
             raise type(e)(f"UserRepo -> query_user_name error:{e}") from e
         
