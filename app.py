@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from flask_debugtoolbar import DebugToolbarExtension
 from repository import *
 from models import connect_db, db
@@ -315,6 +315,7 @@ def handle_connect(auth):
                 identity = get_jwt_identity()
                 if identity == user_id:
                     connected_users[user_id] = sid
+                    session["verified_user_id"] = identity
 
         except:
             highlight("Invalid or missing JWT token. Disconnecting.", "#")
@@ -324,15 +325,20 @@ def handle_connect(auth):
         disconnect()
 
 
-@socketio.on('share')
+@socketio.on('share_book')
 def share_book(data):
     """Facilitate share book request and response"""
-    user_id = data["userId"]
+    user_id = session.get("verified_user_id")
     book_id = data["currentBookId"]
     recipient = data["recipient"]
     sender = data["user"]
     title = data["currentBook"]
+
     try:
+        if not all(k in data for k in ["recipient", "currentBookId", "currentBook"]):
+            emit('error_sharing_book', {'data': 'Invalid request'})
+            return
+        
         response = BookServices.process_shared_book(
             user_id=int(user_id), recipient=recipient, book_id=book_id)
         if response["code"] == 200:
@@ -348,20 +354,21 @@ def share_book(data):
                      "message": message, "books": books}, room=connection_id)
             # else:
                 # Future logic to que up message for offline recipient
-        if response["code"] == 422 or 409 or 404:
+        if response["code"] in (422, 409, 404):
             emit('error_sharing_book', {'data': response["message"]})
     except Exception as e:
-        raise e
+        emit('error_sharing_book', {'data': 'Something went wrong'})
+        raise type(e)(
+            f"socketio - share_book: {e}") from e
 
 
 @socketio.on('disconnect')
 def disconnected():
-    user_sid = request.sid
-    for key, value in connected_users.items():
-        if user_sid == value:
-            del connected_users[key]
-            highlight("user disconnected", "#")
-            return
+    user_to_remove = next(
+        (k for k, v in connected_users.items() if v == user_sid), None)
+    if user_to_remove:
+        del connected_users[user_to_remove]
+        highlight("user disconnected", "#")
 
 
 ################################################################################
