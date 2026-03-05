@@ -163,13 +163,14 @@ def delete_recipe(user_id, book_id, recipe_id):
     return jsonify(response), 200
 
 
-@app.post("/users/<user_id>/share_recipes/<recipe_id>")
+@app.post("/share_recipes/<recipe_id>")
 @check_user_identity
 @route_error_handler
-def post_share_recipe(user_id, recipe_id):
+def post_share_recipe(recipe_id):
     """Facilitate user and recipe data to share recipe with recipient"""
+    auth_id = get_jwt_identity()
     message = RecipeServices.share_recipe(
-        user_id=user_id, recipient=request.json["recipient"], recipe_id=recipe_id)
+        auth_id=auth_id, recipient=request.json["recipient"], recipe_id=recipe_id)
     return jsonify(message), 200
 
 
