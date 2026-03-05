@@ -313,6 +313,7 @@ def get_book_instructions(user_id, book_id):
 
 ################################################################################
 
+
 # replace with Redis when working with multiple server instances
 connected_users = {}
 authorized_user = {}
@@ -351,7 +352,7 @@ def share_book(data):
     if not user_id:
         emit('error_sharing_book', {'data': 'Unauthorized'})
         return
-    
+
     book_id = data["currentBookId"]
     recipient = data["recipient"]
     sender = data["user"]
@@ -360,21 +361,23 @@ def share_book(data):
         if not all(k in data for k in ["recipient", "currentBookId", "currentBook"]):
             emit('error_sharing_book', {'data': 'Invalid request'})
             return
-        
+
         response = BookServices.process_shared_book(
             user_id=int(user_id), recipient=recipient, book_id=book_id)
         if response["code"] == 200:
             # SENDER
-            emit('book_shared', response["message"], room=user_id)
+            sender_id = connected_users.get("user_id")
+            emit('book_shared', {
+                 "message": response["message"]}, room=sender_id)
             # Handle users that are not connected...
-            connection_id = connected_users.get(response["recipient_id"])
+            recipient_id = connected_users.get(response["recipient_id"])
             # RECIPIENT
-            if connection_id:
+            if recipient_id:
                 message = f"{sender} has shared '{title}' recipe book with you!"
                 books = BookServices.fetch_user_books(
                     user_id=response["recipient_id"])
                 emit('user_shared_book', {
-                     "message": message, "books": books}, room=connection_id)
+                     "message": message, "books": books}, room=recipient_id)
             # else:
                 # Future logic to que up message for offline recipient
         if response["code"] in (422, 409, 404):
@@ -387,7 +390,8 @@ def share_book(data):
 
 @socketio.on('disconnect')
 def disconnected():
-    user_sid = session.get("verified_user_id")
+
+    user_sid = request.sid
     user_to_remove = next(
         (k for k, v in connected_users.items() if v == user_sid), None)
     if user_to_remove:

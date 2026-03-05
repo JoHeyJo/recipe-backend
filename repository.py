@@ -84,7 +84,7 @@ class RecipeRepo():
     def query_recipe(recipe_pk):
         """Query recipe by PK. Return Recipe or None if not found"""
         try:
-            return db.session.get(Recipe, recipe_id)
+            return db.session.get(Recipe, recipe_pk)
         except Exception as e:
             raise type(e)(f"RecipeRepo -> create_recipe error:{e}") from e
 
