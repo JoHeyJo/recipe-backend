@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from flask_debugtoolbar import DebugToolbarExtension
 from repository import *
 from models import connect_db, db
@@ -315,6 +315,7 @@ def handle_connect(auth):
                 identity = get_jwt_identity()
                 if identity == user_id:
                     connected_users[user_id] = sid
+                    session["verified_user_id"] = identity
 
         except:
             highlight("Invalid or missing JWT token. Disconnecting.", "#")
@@ -327,7 +328,7 @@ def handle_connect(auth):
 @socketio.on('share')
 def share_book(data):
     """Facilitate share book request and response"""
-    user_id = data["userId"]
+    user_id = session.get("verified_user_id")
     book_id = data["currentBookId"]
     recipient = data["recipient"]
     sender = data["user"]
