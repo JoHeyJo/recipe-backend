@@ -4,6 +4,7 @@ from services.instructions_services import InstructionServices
 from utils.functions import highlight
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Conflict
 
+
 class RecipeServices():
     """Handles recipe view business logic"""
     @staticmethod
@@ -47,7 +48,7 @@ class RecipeServices():
         try:
             recipe_data = RecipeRepo.create_recipe(
                 name=recipe_name, notes=notes, user_id=user_id)
-            
+
             RecipeBookRepo.create_entry(
                 book_id=book_id, recipe_id=recipe_data["id"])
 
@@ -62,11 +63,11 @@ class RecipeServices():
         try:
             ingredients_data = IngredientServices.process_ingredient_components(
                 book_id=book_id, ingredients=ingredients)
-            
+
             if not ingredients_data:
                 raise ValueError(
                     f"No ingredients data returned for recipe {recipe_id}")
-            
+
             for ingredient in ingredients_data:
                 id = RecipeIngredientRepo.create_ingredient(
                     recipe_id=recipe_id,
@@ -85,11 +86,11 @@ class RecipeServices():
         """Processes consolidated instructions and associates each instruction to Recipe"""
         try:
             instructions_data = InstructionServices.process_instructions(
-                instructions=instructions,book_id=book_id)
+                instructions=instructions, book_id=book_id)
 
             if not instructions_data:
                 raise ValueError(
-                    f"No instructions data returned for book id: {book_id}") 
+                    f"No instructions data returned for book id: {book_id}")
 
             for instruction in instructions_data:
                 id = RecipeInstructionRepo.create_entry(
@@ -114,14 +115,15 @@ class RecipeServices():
                 recipe_build = {}
 
                 recipe = Recipe.serialize(recipe_instance)
-                
+
                 recipe_build.update(recipe)
 
                 instructions = InstructionServices.build_instructions(
                     instances=recipe_instance.instructions, recipe_id=recipe["id"])
                 recipe_build["instructions"] = instructions
 
-                ingredients = IngredientServices.build_ingredients(instance=recipe_instance)
+                ingredients = IngredientServices.build_ingredients(
+                    instance=recipe_instance)
                 recipe_build["ingredients"] = ingredients
 
                 complete_recipes.append(recipe_build)
@@ -186,7 +188,8 @@ class RecipeServices():
                 amount = ingredient.get("amount")
                 unit = ingredient.get("unit")
                 if not item and not amount and not unit:
-                    raise ValueError("No values in ingredient components to edit") 
+                    raise ValueError(
+                        "No values in ingredient components to edit")
 
                 quantity_amount_id = amount["id"] if amount else None
                 quantity_unit_id = unit["id"] if unit else None
@@ -196,8 +199,9 @@ class RecipeServices():
                     recipe_ingredient = Ingredient.query.get(
                         ingredient["id"])
                     if not recipe_ingredient:
-                        raise NotFound(f"No ingredient matching id #: {ingredient['id']}")
-                    
+                        raise NotFound(
+                            f"No ingredient matching id #: {ingredient['id']}")
+
                     if amount:
                         recipe_ingredient.quantity_amount_id = quantity_amount_id
                     if unit:
@@ -214,7 +218,7 @@ class RecipeServices():
             raise type(e)(f"Failed to process_edit_ingredients: {e}") from e
 
     @staticmethod
-    def process_edit_instructions(instructions,recipe_id):
+    def process_edit_instructions(instructions, recipe_id):
         """Edits recipe's instructions by modifying RecipeInstruction association"""
         try:
             for instruction in instructions:
@@ -231,27 +235,31 @@ class RecipeServices():
                         instruction_id=instruction["newId"])
         except Exception as e:
             raise type(e)(f"Failed to process_edit_instructions: {e}") from e
-        
+
     @staticmethod
     def share_recipe(user_id, recipient, recipe_id):
         """Process sharing user recipe with recipient"""
         recipient_id = UserRepo.query_user_name(user_name=recipient)
         recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
 
+        if not recipient_id:
+            return {"message": "User not found", "error": "Not Found", "code": 404}
         if user_id == recipient_id:
-            raise BadRequest("Why are you sharing this with yourself???")
+            return {"message": "Why are you sharing this with yourself???", 
+                    "error": "BadRequest", "code": "400"}
         if not recipe.is_owned_by(user_id):
-            raise Forbidden("This is not yours to share...")
+            return {"message": "This is not yours to share...",
+                    "error": "Forbidden", "code": "403"}
         try:
             message = RecipeRepo.create_recipe_link(
                 recipient_id=recipient_id, shared_id=recipe_id)
             db.session.commit()
             return message
+        
         except Exception as e:
             db.session.rollback()
             raise type(e)(
                 f"Failed to share_recipe error: {e}") from e
-        
 
     @staticmethod
     def remove_recipe(auth_id, recipe_id, data):

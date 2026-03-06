@@ -163,15 +163,15 @@ def delete_recipe(user_id, book_id, recipe_id):
     return jsonify(response), 200
 
 
-@app.post("/share_recipes/<recipe_id>")
-@check_user_identity
-@route_error_handler
-def post_share_recipe(recipe_id):
-    """Facilitate user and recipe data to share recipe with recipient"""
-    auth_id = get_jwt_identity()
-    message = RecipeServices.share_recipe(
-        auth_id=auth_id, recipient=request.json["recipient"], recipe_id=recipe_id)
-    return jsonify(message), 200
+# @app.post("/share_recipes/<recipe_id>")
+# @check_user_identity
+# @route_error_handler
+# def post_share_recipe(recipe_id):
+#     """Facilitate user and recipe data to share recipe with recipient"""
+#     auth_id = get_jwt_identity()
+    # message = RecipeServices.share_recipe(
+    #     auth_id=auth_id, recipient=request.json["recipient"], recipe_id=recipe_id)
+#     return jsonify(message), 200
 
 
 ########### BOOKS ###########
@@ -356,11 +356,11 @@ def share_book(data):
     sender = data["user"]
     title = data["currentBook"]
 
+    if not all(k in data for k in ["recipient", "currentBookId", "currentBook"]):
+        emit('error sharing book', {'data': 'Invalid request missing data'})
+        return
+    
     try:
-        if not all(k in data for k in ["recipient", "currentBookId", "currentBook"]):
-            emit('error_sharing_book', {'data': 'Invalid request'})
-            return
-
         response = BookServices.process_shared_book(
             user_id=int(user_id), recipient=recipient, book_id=book_id)
         if response["code"] == 200:
@@ -396,8 +396,11 @@ def share_recipe(data):
         return
     
     recipe_id = data["recipeId"]
+    if not recipe_id:
+            emit('error sharing recipe', {'data':'Invalid request missing data'})
     try:
-        
+        response = RecipeServices.share_recipe(
+            auth_id=user_id, recipient=request.json["recipient"], recipe_id=recipe_id)
 
     except Exception as e:
         emit('error_sharing_recipe', {'data': 'Something went wrong'})
