@@ -383,7 +383,7 @@ def share_book(data):
             emit('error_sharing_book', {'data': response["message"]})
     except Exception as e:
         emit('error_sharing_book', {'data': 'Something went wrong'})
-        raise type(e)(f"socketio - share_book: {e}") from e
+        app.logger.error(f"socketio - share_book: {e}")
     
 
 @socketio.on('share_recipe')
@@ -398,9 +398,10 @@ def share_recipe(data):
     recipe_id = data["recipeId"]
     try:
         
+
     except Exception as e:
         emit('error_sharing_recipe', {'data': 'Something went wrong'})
-        raise type(e)(f"socketio - share_recipe: {e}") from e
+        app.logger.error(f"socketio - share_recipe: {e}")
 
 
 @socketio.on('disconnect')
