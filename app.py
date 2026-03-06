@@ -355,6 +355,7 @@ def share_book(data):
     recipient = data["recipient"]
     sender = data["user"]
     title = data["currentBook"]
+
     try:
         if not all(k in data for k in ["recipient", "currentBookId", "currentBook"]):
             emit('error_sharing_book', {'data': 'Invalid request'})
@@ -382,8 +383,7 @@ def share_book(data):
             emit('error_sharing_book', {'data': response["message"]})
     except Exception as e:
         emit('error_sharing_book', {'data': 'Something went wrong'})
-        raise type(e)(
-            f"socketio - share_book: {e}") from e
+        raise type(e)(f"socketio - share_book: {e}") from e
     
 
 @socketio.on('share_recipe')
@@ -394,6 +394,13 @@ def share_recipe(data):
     if not user_id:
         emit('error_sharing_book', {'data': 'Unauthorized'})
         return
+    
+    recipe_id = data["recipeId"]
+    try:
+        
+    except Exception as e:
+        emit('error_sharing_recipe', {'data': 'Something went wrong'})
+        raise type(e)(f"socketio - share_recipe: {e}") from e
 
 
 @socketio.on('disconnect')
