@@ -2,6 +2,11 @@ from sqlalchemy.dialects.postgresql import insert
 import logging
 from flask import current_app
 
+def check_auth_users(user_id):
+    """authorize incoming request after initial websocket handshake"""
+    return user_id
+
+
 def insert_first(Model, data, column_name, db):
     """Insert-first data entry method leveraging SQLAlchemy CORE. Auto commits session"""
     try:

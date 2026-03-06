@@ -13,7 +13,7 @@ from services.book_services import BookServices
 from services.instructions_services import InstructionServices
 from decorators.verify_user import check_user_identity
 from decorators.handle_route_errors import route_error_handler
-from utils.functions import highlight
+from utils.functions import highlight, check_auth_users
 from env_config.set_environment import set_environment_config
 from env_config.config_cors import configure_cors
 from env_config.config_socket import configure_socket
@@ -344,11 +344,9 @@ def handle_connect(auth):
 
 @socketio.on('share_book')
 def share_book(data):
-    """Facilitate share book request and response"""
-    sid = request.sid
-
-    user_id = authorized_user.get(sid)
-
+    """Facilitates book sharing request and response"""
+    user_id = check_auth_users(user_id=authorized_user.get(request.sid))
+    
     if not user_id:
         emit('error_sharing_book', {'data': 'Unauthorized'})
         return
@@ -386,6 +384,16 @@ def share_book(data):
         emit('error_sharing_book', {'data': 'Something went wrong'})
         raise type(e)(
             f"socketio - share_book: {e}") from e
+    
+
+@socketio.on('share_recipe')
+def share_recipe(data):
+    """Facilitates recipe sharing request and response"""
+    user_id = check_auth_users(user_id=authorized_user.get(request.sid))
+
+    if not user_id:
+        emit('error_sharing_book', {'data': 'Unauthorized'})
+        return
 
 
 @socketio.on('disconnect')
