@@ -363,6 +363,10 @@ def share_book(data):
     try:
         response = BookServices.process_shared_book(
             user_id=int(user_id), recipient=recipient, book_id=book_id)
+        
+        if response["code"] in (422, 409, 404):
+            emit('error_sharing_book', {'data': response["message"]})
+
         if response["code"] == 200:
             # SENDER
             sender_id = connected_users.get("user_id")
@@ -378,9 +382,7 @@ def share_book(data):
                 emit('user_shared_book', {
                      "message": message, "books": books}, room=recipient_id)
             # else:
-                # Future logic to que up message for offline recipient
-        if response["code"] in (422, 409, 404):
-            emit('error_sharing_book', {'data': response["message"]})
+                # Future logic to que up message for offline recipient       
     except Exception as e:
         emit('error_sharing_book', {'data': 'Something went wrong'})
         app.logger.error(f"socketio - share_book: {e}")
@@ -399,7 +401,7 @@ def share_recipe(data):
     sender = data.get("user")
     recipe = data.get("recipeName")
 
-    if not all([recipe_id, sender, recipe])
+    if not all([recipe_id, sender, recipe]):
             emit('error sharing recipe', {'data':'Invalid request missing data'})
             return
     try:
@@ -417,8 +419,10 @@ def share_recipe(data):
         recipient_id = connected_users.get(response["recipient_id"])
 
         if recipient_id:
-            message = f"{sender} has shared '{title}' recipe book with you!"
-
+            message = f"{sender} has shared '{recipe}'recipe with you!"
+            emit('user_shared_recipe', {"message": message}, room=recipient_id)
+        # else:
+            # Future logic to que up message for offline recipient
     except Exception as e:
         emit('error_sharing_recipe', {'data': 'Something went wrong'})
         app.logger.error(f"socketio - share_recipe: {e}")
