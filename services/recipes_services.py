@@ -239,12 +239,12 @@ class RecipeServices():
     @staticmethod
     def share_recipe(user_id, recipient, recipe_id):
         """Process sharing user recipe with recipient"""
-        recipient_id = UserRepo.query_user_name(user_name=recipient)
+        recipient.id = UserRepo.query_user_name(user_name=recipient)
         recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
 
-        if not recipient_id:
+        if not recipient:
             return {"message": "User not found", "error": "Not Found", "code": 404}
-        if user_id == recipient_id:
+        if user_id == recipient.id:
             return {"message": "Why are you sharing this with yourself???", 
                     "error": "BadRequest", "code": "400"}
         if not recipe.is_owned_by(user_id):
@@ -252,7 +252,7 @@ class RecipeServices():
                     "error": "Forbidden", "code": "403"}
         try:
             message = RecipeRepo.create_recipe_link(
-                recipient_id=recipient_id, shared_id=recipe_id)
+                recipient_id=recipient.id, shared_id=recipe_id)
             db.session.commit()
             return message
         

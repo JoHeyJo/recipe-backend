@@ -43,30 +43,31 @@ class BookServices():
         """Calls services for book processing"""
         try:
             recipient = UserRepo.query_user_name(user_name=recipient)
-            if recipient:
-                if (recipient.id == user_id):
-                    return {"message": "Don't you already have this book???",
-                            "error": "Unprocessable Content", "code": 422
-                            }
 
-                relation_exists = db.session.get(
-                    UserBook, (book_id, recipient.id))
-
-                if relation_exists:
-                    return {"message": "User already has access to this book!",
-                            "error": "Unprocessable Content", "code": 409
-                            }
-                else:
-                    UserBookRepo.create_entry(
-                        user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
-                    UserServices.assign_default_book_if_none_set(user_id=recipient.id, book_id=book_id)
-                    db.session.commit()
-                    return {"recipient_id": recipient.id,
-                            "message": f"Book shared with {recipient.user_name}!",
-                            "code": 200
-                            }
-            else:
+            if not recipient:
                 return {"message": "User not found", "error": "Not Found", "code": 404}
+             
+            if (recipient.id == user_id):
+                return {"message": "Don't you already have this book???",
+                        "error": "Unprocessable Content", "code": 422
+                        }
+            
+            relation_exists = db.session.get(UserBook, (book_id, recipient.id))
+
+            if relation_exists:
+                return {"message": "User already has access to this book!",
+                        "error": "Unprocessable Content", "code": 409
+                        }
+            else:
+                UserBookRepo.create_entry(
+                    user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
+                UserServices.assign_default_book_if_none_set(user_id=recipient.id, book_id=book_id)
+                db.session.commit()
+                return {"recipient_id": recipient.id,
+                        "message": f"Book shared with {recipient.user_name}!",
+                        "code": 200
+                        }
+                
         except Exception as e:
             db.session.rollback()
             raise
