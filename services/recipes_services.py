@@ -246,10 +246,10 @@ class RecipeServices():
             return {"message": "User not found", "error": "Not Found", "code": 404}
         if user_id == recipient.id:
             return {"message": "Why are you sharing this with yourself???", 
-                    "error": "BadRequest", "code": "400"}
+                    "error": "BadRequest", "code": 400}
         if not recipe.is_owned_by(user_id):
             return {"message": "This is not yours to share...",
-                    "error": "Forbidden", "code": "403"}
+                    "error": "Forbidden", "code": 403}
         try:
             message = RecipeRepo.create_recipe_link(
                 recipient_id=recipient.id, shared_id=recipe_id)

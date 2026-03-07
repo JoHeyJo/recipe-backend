@@ -351,12 +351,12 @@ def share_book(data):
         emit('error_sharing_book', {'data': 'Unauthorized'})
         return
 
-    book_id = data["currentBookId"]
-    recipient = data["recipient"]
-    sender = data["user"]
-    title = data["currentBook"]
+    book_id = data.get("currentBookId")
+    recipient = data.get("recipient")
+    sender = data.get("user")
+    title = data.get("currentBook")
 
-    if not all(k in data for k in ["recipient", "currentBookId", "currentBook"]):
+    if not all([recipient, book_id, title]):
         emit('error sharing book', {'data': 'Invalid request missing data'})
         return
     
@@ -395,12 +395,29 @@ def share_recipe(data):
         emit('error_sharing_book', {'data': 'Unauthorized'})
         return
     
-    recipe_id = data["recipeId"]
-    if not recipe_id:
+    recipe_id = data.get("recipeId")
+    sender = data.get("user")
+    recipe = data.get("recipeName")
+
+    if not all([recipe_id, sender, recipe])
             emit('error sharing recipe', {'data':'Invalid request missing data'})
+            return
     try:
         response = RecipeServices.share_recipe(
             auth_id=user_id, recipient=request.json["recipient"], recipe_id=recipe_id)
+        
+        if response["code"] in (403,404, 409):
+            emit('error_sharing_book', {'data': response["message"]})
+
+        if response["code"] == 200:
+            sender_id = connected_users.get("user_id")
+            emit('book_shared', {
+                 "message": response["message"]}, room=sender_id)
+            
+        recipient_id = connected_users.get(response["recipient_id"])
+
+        if recipient_id:
+            message = f"{sender} has shared '{title}' recipe book with you!"
 
     except Exception as e:
         emit('error_sharing_recipe', {'data': 'Something went wrong'})
