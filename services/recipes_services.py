@@ -237,23 +237,24 @@ class RecipeServices():
             raise type(e)(f"Failed to process_edit_instructions: {e}") from e
 
     @staticmethod
-    def share_recipe(user_id, recipient, recipe_id):
+    def share_recipe(auth_id, recipient, recipe_id):
         """Process sharing user recipe with recipient"""
+        highlight([auth_id,recipient, recipe_id],"%")
         recipient.id = UserRepo.query_user_name(user_name=recipient)
         recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
 
         if not recipient:
             return {"message": "User not found", "error": "Not Found", "code": 404}
-        if user_id == recipient.id:
+        if auth_id == recipient.id:
             return {"message": "Why are you sharing this with yourself???", 
                     "error": "BadRequest", "code": 400}
-        if not recipe.is_owned_by(user_id):
+        if not recipe.is_owned_by(auth_id):
             return {"message": "This is not yours to share...",
                     "error": "Forbidden", "code": 403}
         try:
             message = RecipeRepo.create_recipe_link(
                 recipient_id=recipient.id, shared_id=recipe_id)
-            db.session.commit()
+            # db.session.commit()
             return message
         
         except Exception as e:
