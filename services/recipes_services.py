@@ -239,10 +239,8 @@ class RecipeServices():
     @staticmethod
     def share_recipe(auth_id, recipient, recipe_id):
         """Process sharing user recipe with recipient"""
-        highlight([auth_id,recipient, recipe_id],"%")
-        recipient.id = UserRepo.query_user_name(user_name=recipient)
+        recipient = UserRepo.query_user_name(user_name=recipient)
         recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
-
         if not recipient:
             return {"message": "User not found", "error": "Not Found", "code": 404}
         if auth_id == recipient.id:
@@ -254,7 +252,8 @@ class RecipeServices():
         try:
             message = RecipeRepo.create_recipe_link(
                 recipient_id=recipient.id, shared_id=recipe_id)
-            # db.session.commit()
+            db.session.commit()
+            message["recipient_id"] = recipient.id
             return message
         
         except Exception as e:

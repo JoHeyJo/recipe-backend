@@ -392,7 +392,6 @@ def share_book(data):
 def share_recipe(data):
     """Facilitates recipe sharing request and response"""
     user_id = check_auth_users(user_id=authorized_user.get(request.sid))
-    highlight(data,"%")
     if not user_id:
         emit('error_sharing_book', {'data': 'Unauthorized'})
         return
@@ -408,7 +407,6 @@ def share_recipe(data):
     try:
         response = RecipeServices.share_recipe(
             auth_id=user_id, recipient=recipient, recipe_id=recipe_id)
-        
         if response["code"] in (403,404, 409):
             emit('error_sharing_book', {'data': response["message"]})
 
@@ -416,7 +414,7 @@ def share_recipe(data):
             sender_id = connected_users.get("user_id")
             emit('recipe_shared', {
                  "message": response["message"]}, room=sender_id)
-    
+        #Check if recipient is connected
         recipient_id = connected_users.get(response["recipient_id"])
 
         if recipient_id:
