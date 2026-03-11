@@ -115,7 +115,8 @@ class RecipeRepo():
             is_shared = RecipeBook.query.filter_by(
                 book_id=shared_link.book_id, recipe_id=shared_id).first()
             if is_shared:
-                raise Conflict("Recipe already shared with user.")
+                return {"message": "Recipe already shared with user.",
+                        "error": "Conflict", "code": 409}
 
             RecipeBookRepo.create_entry(
                 book_id=shared_link.book_id, recipe_id=shared_id)

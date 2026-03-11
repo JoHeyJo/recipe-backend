@@ -395,20 +395,19 @@ def share_recipe(data):
     if not user_id:
         emit('error_sharing_book', {'data': 'Unauthorized'})
         return
-    
     recipe_id = data.get("recipeId")
     sender = data.get("user")
     recipe = data.get("recipeName")
     recipient = data.get("recipient")
 
-    if not all([recipe_id, sender, recipe]):
-            emit('error sharing recipe', {'data':'Invalid request missing data'})
+    if not all([recipe_id, sender, recipe, recipient]):
+            emit('error_sharing_recipe', {'data':'Invalid request missing data'})
             return
     try:
         response = RecipeServices.share_recipe(
             auth_id=user_id, recipient=recipient, recipe_id=recipe_id)
-        if response["code"] in (403,404, 409):
-            emit('error_sharing_book', {'data': response["message"]})
+        if response["code"] in (400, 403,404, 409):
+            emit('error_sharing_recipe', {'data': response["message"]})
 
         if response["code"] == 200:
             sender_id = connected_users.get("user_id")
@@ -419,7 +418,7 @@ def share_recipe(data):
 
         if recipient_id:
             message = f"{sender} has shared '{recipe}'recipe with you!"
-            emit('user_shared_recipe', {"message": message}, room=recipient_id)
+            emit('user_shared_recipe', {"message": message, "recipe": recipe}, room=recipient_id)
         # else:
             # Future logic to que up message for offline recipient
     except Exception as e:
