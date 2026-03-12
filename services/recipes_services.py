@@ -142,6 +142,7 @@ class RecipeServices():
             highlight(recipe.instructions,"#")
             highlight(recipe.ingredients,"#")
             return {
+                    "is_owned_by": recipe.is_owned_by,
                     "id":recipe.id, 
                     "created_by_id":recipe.created_by_id, 
                     "name": recipe.name,
