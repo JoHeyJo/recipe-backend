@@ -415,10 +415,10 @@ def share_recipe(data):
                  "message": response["message"]}, room=sender_id)
         #Check if recipient is connected
         recipient_id = connected_users.get(response["recipient_id"])
-
+        highlight(response,"@")
         if recipient_id:
             message = f"{sender} has shared '{recipe}'recipe with you!"
-            emit('user_shared_recipe', {"message": message, "recipe": recipe}, room=recipient_id)
+            emit('user_shared_recipe', {"message": message, "recipe": response["recipe"]}, room=recipient_id)
         # else:
             # Future logic to que up message for offline recipient
     except Exception as e:

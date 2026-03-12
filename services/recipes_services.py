@@ -1,7 +1,6 @@
 from repository import *
 from services.ingredients_services import IngredientServices
 from services.instructions_services import InstructionServices
-from utils.functions import highlight
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Conflict
 
 
@@ -136,13 +135,10 @@ class RecipeServices():
         """Builds individual recipes"""
         try:
             recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
-            highlight(recipe,"$")
             Instructions = InstructionServices.build_instructions(instances=recipe.instructions, recipe_id=recipe_id)
             ingredients = IngredientServices.build_ingredients(instance=recipe.ingredients)
-            highlight(recipe.instructions,"#")
-            highlight(recipe.ingredients,"#")
             return {
-                    "is_owned_by": recipe.is_owned_by,
+                    "is_owned_by": recipe.created_by_id,
                     "id":recipe.id, 
                     "created_by_id":recipe.created_by_id, 
                     "name": recipe.name,
