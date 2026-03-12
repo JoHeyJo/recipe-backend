@@ -366,7 +366,8 @@ def share_book(data):
         
         if response["code"] in (422, 409, 404):
             emit('error_sharing_book', {'data': response["message"]})
-
+            return
+        
         if response["code"] == 200:
             # SENDER
             sender_id = connected_users.get("user_id")
@@ -381,11 +382,13 @@ def share_book(data):
                     user_id=response["recipient_id"])
                 emit('user_shared_book', {
                      "message": message, "books": books}, room=recipient_id)
+                return
             # else:
                 # Future logic to que up message for offline recipient       
     except Exception as e:
         emit('error_sharing_book', {'data': 'Something went wrong'})
         app.logger.error(f"socketio - share_book: {e}")
+        return
     
 
 @socketio.on('share_recipe')
@@ -406,8 +409,10 @@ def share_recipe(data):
     try:
         response = RecipeServices.share_recipe(
             auth_id=user_id, recipient=recipient, recipe_id=recipe_id)
-        if response["code"] in (400, 403,404, 409):
+        
+        if response["code"] in (400, 403, 404, 409):
             emit('error_sharing_recipe', {'data': response["message"]})
+            return
 
         if response["code"] == 200:
             sender_id = connected_users.get("user_id")
@@ -415,15 +420,17 @@ def share_recipe(data):
                  "message": response["message"]}, room=sender_id)
         #Check if recipient is connected
         recipient_id = connected_users.get(response["recipient_id"])
-        highlight(response,"@")
+        
         if recipient_id:
             message = f"{sender} has shared '{recipe}'recipe with you!"
             emit('user_shared_recipe', {"message": message, "recipe": response["recipe"]}, room=recipient_id)
+            return
         # else:
             # Future logic to que up message for offline recipient
     except Exception as e:
         emit('error_sharing_recipe', {'data': 'Something went wrong'})
         app.logger.error(f"socketio - share_recipe: {e}")
+        return
 
 
 @socketio.on('disconnect')

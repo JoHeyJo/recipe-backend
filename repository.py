@@ -117,10 +117,10 @@ class RecipeRepo():
             if is_shared:
                 return {"message": "Recipe already shared with user.",
                         "error": "Conflict", "code": 409}
-
-            RecipeBookRepo.create_entry(
-                book_id=shared_link.book_id, recipe_id=shared_id)
-            return {"message": "Recipe successfully shared!","code":200}
+            if not is_shared:
+                RecipeBookRepo.create_entry(
+                    book_id=shared_link.book_id, recipe_id=shared_id)
+                return {"message": "Recipe successfully shared!","code":200}
         except Exception as e:
             raise type(e)(f"RecipeRepo -> create_recipe_link error:{e}") from e
 
