@@ -116,7 +116,10 @@ class IngredientServices():
     def build_ingredients(instance):
         """Build ingredient from corresponding instances(Recipe)"""
         ingredients = []
+        if not instance:
+            return []
         try:
+            highlight(instance,"#")
             for ingredient in instance.ingredients:
                 amount = QuantityAmount.serialize(ingredient.amount) if ingredient.amount else None
                 unit = QuantityUnit.serialize(ingredient.unit) if ingredient.unit else None
@@ -126,7 +129,7 @@ class IngredientServices():
             return ingredients
         except Exception as e:
             raise type(e)(
-                f"Ingredient_services - build_ingredients error, missing value: {e}") from e
+                f"Ingredient_services - build_ingredients error: {e}") from e
 
 
 class ItemServices():

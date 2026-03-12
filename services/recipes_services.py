@@ -130,7 +130,28 @@ class RecipeServices():
             return complete_recipes
         except Exception as e:
             raise type(e)(f"RecipeServices - build_recipes error: {e}") from e
-
+    
+    @staticmethod 
+    def build_recipe(recipe_id):
+        """Builds individual recipes"""
+        try:
+            recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
+            highlight(recipe,"$")
+            Instructions = InstructionServices.build_instructions(instances=recipe.instructions, recipe_id=recipe_id)
+            ingredients = IngredientServices.build_ingredients(instance=recipe.ingredients)
+            highlight(recipe.instructions,"#")
+            highlight(recipe.ingredients,"#")
+            return {
+                    "id":recipe.id, 
+                    "created_by_id":recipe.created_by_id, 
+                    "name": recipe.name,
+                    "ingredients": ingredients,
+                    "instructions": Instructions,
+                    "notes": recipe.notes
+                    }
+        except Exception as e:
+            raise type(e)(f"RecipeServices - build_recipe error: {e}") from e
+        
     @staticmethod
     def process_edit(user_id, data, recipe_id):
         """Consolidates recipe edit process"""
@@ -241,6 +262,7 @@ class RecipeServices():
         """Process sharing user recipe with recipient"""
         recipient = UserRepo.query_user_name(user_name=recipient)
         recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
+        recipe_build = RecipeServices.build_recipe(recipe_id=recipe_id)
         if not recipient:
             return {"message": "User not found", "error": "Not Found", "code": 404}
         if auth_id == recipient.id:
@@ -254,7 +276,7 @@ class RecipeServices():
                 recipient_id=recipient.id, shared_id=recipe_id)
             db.session.commit()
             message["recipient_id"] = recipient.id
-            return {**message, "recipe": recipe}
+            return {**message, "recipe": recipe_build}
         except Exception as e:
             db.session.rollback()
             raise type(e)(
