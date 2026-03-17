@@ -162,6 +162,13 @@ def delete_recipe(user_id, book_id, recipe_id):
         auth_id=auth_user, recipe_id=recipe_id, data=request.json)
     return jsonify(response), 200
 
+@app.delete("/books/<books_id>/recipes/<recipes_id>")
+@check_user_identity
+@route_error_handler
+def delete_shared_recipe(books_id, recipes_id):
+    """Facilitates deletion of association record linking shared recipe to recipient"""
+    # auth_user = get_jwt_identity()
+
 
 # @app.post("/share_recipes/<recipe_id>")
 # @check_user_identity

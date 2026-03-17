@@ -292,3 +292,6 @@ class RecipeServices():
             db.session.rollback()
             raise type(e)(
                 f"Failed to remove_recipe error: {e}") from e
+
+    @staticmethod
+    def remove_shared_recipe(auth_id, recipe_id, )
