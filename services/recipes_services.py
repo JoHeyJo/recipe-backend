@@ -1,4 +1,5 @@
 from repository import *
+from sqlalchemy.orm import joinedload
 from services.ingredients_services import IngredientServices
 from services.instructions_services import InstructionServices
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Conflict
@@ -286,7 +287,7 @@ class RecipeServices():
             raise Forbidden("Not authorized to delete!")
         try:
             RecipeRepo.delete_recipe(recipe_id=recipe_id)
-            db.session.commit()
+            # db.session.commit()
             return {"message": "deletion successful"}
         except Exception as e:
             db.session.rollback()
@@ -294,4 +295,10 @@ class RecipeServices():
                 f"Failed to remove_recipe error: {e}") from e
 
     @staticmethod
-    def remove_shared_recipe(auth_id, recipe_id, )
+    def remove_shared_recipe(auth_id, recipe_id):
+        """Verifies shared recipe belongs to user. Then deletes association"""
+        recipe = (db.query(Recipe).options(joinedload(Recipe.book))
+            .filter_by(id=recipe_id)
+            .first())
+        highlight(recipe,"$")
+        
