@@ -135,7 +135,7 @@ class RecipeServices():
         """Builds individual recipes"""
         try:
             recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
-            Instructions = InstructionServices.build_instructions(instances=recipe.instructions, recipe_id=recipe_id)
+            instructions = InstructionServices.build_instructions(instances=recipe.instructions, recipe_id=recipe_id)
             ingredients = IngredientServices.build_ingredients(instance=recipe.ingredients)
             return {
                     "is_owned_by": recipe.created_by_id,
@@ -143,7 +143,7 @@ class RecipeServices():
                     "created_by_id":recipe.created_by_id, 
                     "name": recipe.name,
                     "ingredients": ingredients,
-                    "instructions": Instructions,
+                    "instructions": instructions,
                     "notes": recipe.notes
                     }
         except Exception as e:
