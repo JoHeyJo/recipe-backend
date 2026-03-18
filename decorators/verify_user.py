@@ -3,14 +3,13 @@ from flask import request, jsonify, make_response
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from utils.functions import highlight
 
-def check_user_identity(f):
-    """Decorator to handle user verification in routes."""
+def verify_jwt_identity(f):
+    """Decorator that simply extracts and injects the verified user."""
     @wraps(f)
     @jwt_required()
     def decorated_function(*args, **kwargs):
         current_user_id = get_jwt_identity()
-        if str(current_user_id) != str(kwargs.get('user_id')):
-            return make_response(jsonify({'message': 'Unauthorized access'}), 403)
+        kwargs['authed_user_id'] = current_user_id
         return f(*args, **kwargs)
 
     return decorated_function

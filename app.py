@@ -11,7 +11,7 @@ from services.recipes_services import RecipeServices
 from services.ingredients_services import IngredientServices
 from services.book_services import BookServices
 from services.instructions_services import InstructionServices
-from decorators.verify_user import check_user_identity
+from decorators.verify_user import verify_jwt_identity
 from decorators.handle_route_errors import route_error_handler
 from utils.functions import highlight, check_auth_users
 from env_config.set_environment import set_environment_config
@@ -87,7 +87,7 @@ def login():
 
 ########### USERS ###########
 @app.get("/users/<user_id>")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def get_user(user_id):
     """Retrieve user associated to id"""
@@ -123,7 +123,7 @@ def confirm_reset():
 
 
 @app.post("/users/<user_id>/books/<book_id>/recipes")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def add_recipe(user_id, book_id):
     """Consolidate recipe data. If successful recipes_ingredients record created"""
@@ -133,7 +133,7 @@ def add_recipe(user_id, book_id):
 
 
 @app.get("/users/<user_id>/books/<book_id>/recipes")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def get_book_recipes(user_id, book_id):
     """Return recipes associated to user's book"""
@@ -142,7 +142,7 @@ def get_book_recipes(user_id, book_id):
 
 
 @app.patch("/recipes/<recipe_id>")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def patch_user_recipe(recipe_id):
     """Facilitate editing of recipe and records associated to book"""
@@ -153,7 +153,7 @@ def patch_user_recipe(recipe_id):
 
 
 @app.delete("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def delete_recipe(user_id, book_id, recipe_id):
     """Facilitate deletion of recipe record associated to user"""
@@ -164,7 +164,7 @@ def delete_recipe(user_id, book_id, recipe_id):
     return jsonify(response), 200
 
 @app.delete("/share_recipes/<recipe_id>")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def delete_shared_recipe(recipe_id):
     """Facilitates deletion of association record linking shared recipe to recipient"""
@@ -175,7 +175,7 @@ def delete_shared_recipe(recipe_id):
 
 
 # @app.post("/share_recipes/<recipe_id>")
-# @check_user_identity
+# @verify_jwt_identity
 # @route_error_handler
 # def post_share_recipe(recipe_id):
 #     """Facilitate user and recipe data to share recipe with recipient"""
@@ -188,7 +188,7 @@ def delete_shared_recipe(recipe_id):
 ########### BOOKS ###########
 
 @app.post("/users/<user_id>/books")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def add_book(user_id):
     """Facilitates creation of book"""
@@ -197,7 +197,7 @@ def add_book(user_id):
 
 
 @app.get("/users/<user_id>/books")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def get_user_books(user_id):
     """Returns all books associated with user"""
@@ -206,7 +206,7 @@ def get_user_books(user_id):
 
 
 @app.post("/users/<user_id>/books/<book_id>")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def add_shared_book(user_id, book_id):
     """Shares book with User provided in query"""
@@ -219,7 +219,7 @@ def add_shared_book(user_id, book_id):
 
 
 @app.post("/users/<user_id>/books/<book_id>/ingredients/<component>")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def add_book_ingredient(user_id, book_id, component):
     """Facilitates creation of book's component option"""
@@ -228,7 +228,7 @@ def add_book_ingredient(user_id, book_id, component):
 
 
 @app.post("/users/<user_id>/books/<book_id>/components/<component>/options/<option_id>")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def add_option_association(user_id, book_id, component, option_id):
     """Facilitates association of user option to book"""
@@ -247,7 +247,7 @@ def add_option_association(user_id, book_id, component, option_id):
 
 
 @app.get("/users/<user_id>/ingredients/components")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def get_user_ingredients(user_id):
     """Facilitates retrieval of components options associated to User"""
@@ -255,7 +255,7 @@ def get_user_ingredients(user_id):
 
 
 @app.get("/users/<user_id>/books/<book_id>/ingredients/components")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def get_book_ingredient_components(user_id, book_id):
     """Facilitates retrieval of components options associated to Book"""
@@ -275,7 +275,7 @@ def get_book_ingredient_components(user_id, book_id):
 #         return jsonify({"error": f"add_ingredient error{e}"}), 400
 ########### INSTRUCTIONS ###########
 @app.post("/users/<user_id>/books/<book_id>/instructions")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def add_instruction(user_id, book_id):
     """Facilitates creation of book instruction"""
@@ -285,7 +285,7 @@ def add_instruction(user_id, book_id):
 
 
 @app.post("/users/<user_id>/books/<book_id>/instructions/<instruction_id>")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def add_instruction_association(user_id, book_id, instruction_id):
     """Facilitates association of user instruction to book"""
@@ -295,7 +295,7 @@ def add_instruction_association(user_id, book_id, instruction_id):
 
 
 @app.get("/instructions")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def get_instructions():
     """Facilitates retrieval of instructions"""
@@ -304,7 +304,7 @@ def get_instructions():
 
 
 @app.get("/users/<user_id>/instructions")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def get_user_instructions(user_id):
     """Facilitates retrieval of user instructions"""
@@ -314,7 +314,7 @@ def get_user_instructions(user_id):
 
 
 @app.get("/users/<user_id>/books/<book_id>/instructions")
-@check_user_identity
+@verify_jwt_identity
 @route_error_handler
 def get_book_instructions(user_id, book_id):
     """Facilitates retrieval of book instructions"""
