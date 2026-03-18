@@ -283,6 +283,7 @@ class RecipeServices():
     @staticmethod
     def remove_recipe(auth_id, recipe_id, data):
         """Deletes book recipe"""
+        highlight([auth_id,data["createdById"]],"#")
         if auth_id is not int(data["createdById"]):
             raise Forbidden("Not authorized to delete!")
         try:
