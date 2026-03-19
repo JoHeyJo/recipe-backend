@@ -89,7 +89,7 @@ def login():
 @app.get("/users/<user_id>")
 @verify_jwt_identity
 @route_error_handler
-def get_user(authed_user_id):
+def get_user(authed_user_id, user_id):
     """Retrieve user associated to id"""
     return jsonify(UserServices.fetch_user(user_id=authed_user_id))
 
@@ -124,7 +124,7 @@ def confirm_reset(authed_user_id):
 @app.post("/users/<user_id>/books/<book_id>/recipes")
 @verify_jwt_identity
 @route_error_handler
-def add_recipe(authed_user_id, book_id):
+def add_recipe(authed_user_id, book_id, user_id):
     """Consolidate recipe data. If successful recipes_ingredients record created"""
     recipe_data = RecipeServices.process_recipe_data(
         request={"recipe": request.json}, book_id=book_id, user_id=authed_user_id)
@@ -134,7 +134,7 @@ def add_recipe(authed_user_id, book_id):
 @app.get("/users/<user_id>/books/<book_id>/recipes")
 @verify_jwt_identity
 @route_error_handler
-def get_book_recipes(authed_user_id, book_id):
+def get_book_recipes(authed_user_id, book_id, user_id):
     """Return recipes associated to user's book"""
     recipes = RecipeServices.build_recipes(book_id=book_id)
     return jsonify(recipes), 200
@@ -184,7 +184,7 @@ def delete_shared_recipe(authed_user_id, book_id, recipe_id):
 @app.post("/users/<user_id>/books")
 @verify_jwt_identity
 @route_error_handler
-def add_book(authed_user_id):
+def add_book(authed_user_id, user_id):
     """Facilitates creation of book"""
     book_data = BookServices.process_new_book(request=request, user_id=authed_user_id)
     return jsonify(book_data), 200
@@ -193,7 +193,7 @@ def add_book(authed_user_id):
 @app.get("/users/<user_id>/books")
 @verify_jwt_identity
 @route_error_handler
-def get_user_books(authed_user_id):
+def get_user_books(authed_user_id, user_id):
     """Returns all books associated with user"""
     books = BookServices.fetch_user_books(user_id=authed_user_id)
     return jsonify(books), 200
@@ -202,7 +202,7 @@ def get_user_books(authed_user_id):
 @app.post("/users/<user_id>/books/<book_id>")
 @verify_jwt_identity
 @route_error_handler
-def add_shared_book(authed_user_id, book_id):
+def add_shared_book(authed_user_id, book_id, user_id):
     """Shares book with User provided in query"""
     recipient = request.json["recipient"]
     response = BookServices.process_shared_book(
@@ -215,7 +215,7 @@ def add_shared_book(authed_user_id, book_id):
 @app.post("/users/<user_id>/books/<book_id>/ingredients/<component>")
 @verify_jwt_identity
 @route_error_handler
-def add_book_ingredient(authed_user_id, book_id, component):
+def add_book_ingredient(authed_user_id, book_id, component, user_id):
     """Facilitates creation of book's component option"""
     return IngredientServices.post_component_option(
         component=component, option=request.json, book_id=book_id)
@@ -224,7 +224,7 @@ def add_book_ingredient(authed_user_id, book_id, component):
 @app.post("/users/<user_id>/books/<book_id>/components/<component>/options/<option_id>")
 @verify_jwt_identity
 @route_error_handler
-def add_option_association(authed_user_id, book_id, component, option_id):
+def add_option_association(authed_user_id, book_id, component, option_id, user_id):
     """Facilitates association of user option to book"""
     response = IngredientServices.create_option_association(
         component=component, book_id=book_id, option_id=option_id)
@@ -243,7 +243,7 @@ def add_option_association(authed_user_id, book_id, component, option_id):
 @app.get("/users/<user_id>/ingredients/components")
 @verify_jwt_identity
 @route_error_handler
-def get_user_ingredients(authed_user_id):
+def get_user_ingredients(authed_user_id, user_id):
     """Facilitates retrieval of components options associated to User"""
     return IngredientServices.fetch_user_components_options(user_id=authed_user_id)
 
@@ -251,7 +251,7 @@ def get_user_ingredients(authed_user_id):
 @app.get("/users/<user_id>/books/<book_id>/ingredients/components")
 @verify_jwt_identity
 @route_error_handler
-def get_book_ingredient_components(authed_user_id, book_id):
+def get_book_ingredient_components(authed_user_id, book_id, user_id):
     """Facilitates retrieval of components options associated to Book"""
     return IngredientServices.fetch_book_components_options(book_id=book_id)
 
@@ -271,7 +271,7 @@ def get_book_ingredient_components(authed_user_id, book_id):
 @app.post("/users/<user_id>/books/<book_id>/instructions")
 @verify_jwt_identity
 @route_error_handler
-def add_instruction(authed_user_id, book_id):
+def add_instruction(authed_user_id, book_id, user_id):
     """Facilitates creation of book instruction"""
     instruction = InstructionServices.process_book_instruction(
         request=request.json, book_id=book_id)
@@ -281,7 +281,7 @@ def add_instruction(authed_user_id, book_id):
 @app.post("/users/<user_id>/books/<book_id>/instructions/<instruction_id>")
 @verify_jwt_identity
 @route_error_handler
-def add_instruction_association(authed_user_id, book_id, instruction_id):
+def add_instruction_association(authed_user_id, book_id, instruction_id, user_id):
     """Facilitates association of user instruction to book"""
     message = InstructionServices.create_instruction_association(
         book_id=book_id, instruction_id=instruction_id)
@@ -300,7 +300,7 @@ def get_instructions():
 @app.get("/users/<user_id>/instructions")
 @verify_jwt_identity
 @route_error_handler
-def get_user_instructions(authed_user_id):
+def get_user_instructions(authed_user_id, user_id):
     """Facilitates retrieval of user instructions"""
     instructions = InstructionServices.fetch_user_instructions(
         user_id=authed_user_id)
@@ -310,7 +310,7 @@ def get_user_instructions(authed_user_id):
 @app.get("/users/<user_id>/books/<book_id>/instructions")
 @verify_jwt_identity
 @route_error_handler
-def get_book_instructions(authed_user_id, book_id):
+def get_book_instructions(authed_user_id, book_id, user_id):
     """Facilitates retrieval of book instructions"""
     response = InstructionServices.fetch_book_instructions(
         book_id=book_id, user_id=authed_user_id)
