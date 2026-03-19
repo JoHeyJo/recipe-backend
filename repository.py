@@ -394,7 +394,7 @@ class RecipeBookRepo():
         
     @staticmethod
     def remove_book_association(book_id, recipe_id):
-        """Delete recipe association to shared_book"""
+        """Delete association sharing recipe to recipient"""
         try:
             stmt = db.select(RecipeBook).filter_by(book_id=book_id,recipe_id=recipe_id)
             return db.session.execute(stmt).scalar_one_or_none()
