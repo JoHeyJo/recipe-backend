@@ -119,7 +119,6 @@ class IngredientServices():
         if not instance:
             return []
         try:
-            highlight(instance,"#")
             for ingredient in instance.ingredients:
                 amount = QuantityAmount.serialize(ingredient.amount) if ingredient.amount else None
                 unit = QuantityUnit.serialize(ingredient.unit) if ingredient.unit else None

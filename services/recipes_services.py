@@ -300,7 +300,6 @@ class RecipeServices():
         user_book = UserBookRepo.query_user_book(book_id=book_id, user_id=authed_id)
         if not user_book:
                 raise NotFound("Not found")
-        # highlight(user_book,"!")
         is_book_type_shared = user_book.book.book_type 
         if not is_book_type_shared: 
             raise ForbiddenError("Forbidden request")
