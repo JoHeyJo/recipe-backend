@@ -155,22 +155,19 @@ def patch_user_recipe(recipe_id):
 @app.delete("/users/<user_id>/books/<book_id>/recipes/<recipe_id>")
 @verify_jwt_identity
 @route_error_handler
-def delete_recipe(user_id, book_id, recipe_id):
+def delete_recipe(authed_user_id, user_id, book_id, recipe_id):
     """Facilitate deletion of recipe record associated to user"""
-    highlight(request.json,"#")
-    auth_user = get_jwt_identity()
     response = RecipeServices.remove_recipe(
-        auth_id=auth_user, recipe_id=recipe_id, data=request.json)
+        auth_id=authed_user_id, recipe_id=recipe_id, data=request.json)
     return jsonify(response), 200
 
-@app.delete("/share_recipes/<recipe_id>")
+@app.delete("/books/<book_id>/share_recipes/<recipe_id>")
 @verify_jwt_identity
 @route_error_handler
-def delete_shared_recipe(recipe_id):
+def delete_shared_recipe(authed_user_id,book_id, recipe_id):
     """Facilitates deletion of association record linking shared recipe to recipient"""
-    authed_user = get_jwt_identity()
-    highlight("HIT","#")
-    response = RecipeServices.remove_shared_recipe(auth_id=authed_user, recipe_id=recipe_id)
+    authed_user = authed_user_id
+    response = RecipeServices.remove_shared_recipe(auth_id=authed_user, recipe_id=recipe_id, book_id=book_id)
     return
 
 

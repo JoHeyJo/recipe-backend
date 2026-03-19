@@ -288,7 +288,7 @@ class RecipeServices():
             raise Forbidden("Not authorized to delete!")
         try:
             RecipeRepo.delete_recipe(recipe_id=recipe_id)
-            # db.session.commit()
+            db.session.commit()
             return {"message": "deletion successful"}
         except Exception as e:
             db.session.rollback()
@@ -296,10 +296,23 @@ class RecipeServices():
                 f"Failed to remove_recipe error: {e}") from e
 
     @staticmethod
-    def remove_shared_recipe(auth_id, recipe_id):
+    def remove_shared_recipe(auth_id, recipe_id, book_id):
         """Verifies shared recipe belongs to user. Then deletes association"""
-        recipe = (db.query(Recipe).options(joinedload(Recipe.book))
-            .filter_by(id=recipe_id)
-            .first())
-        highlight(recipe,"$")
+        # check if user has a shared book -  user_id(in jwt) & book_id(in request)
+        # query book, check if it's a shared book.
+        stmt = db.select(UserBook).filter_by(book_id=book_id,user_id=auth_id)
+        highlight(stmt,"$")
+        user_book = db.session.execute(stmt).scalar_one_or_none()
+        book_type = user_book.book.book_type 
+        highlight(book_type == BookType.shared_inbox, "!")
+        if not user_book: 
+            raise ForbiddenError("Forbidden request")
+        # user = UserRepo.query_user(user_pk=auth_id)
+        # eager loading to avoid N+1 queries
+        # recipe = (db.session.query(Recipe).options(joinedload(Recipe.books))
+        #     .filter_by(id=recipe_id)
+        #     .first())
+        # highlight(recipe.book,"$")
+        # if recipe.book not in user.books:
+        #     highlight(recipe.book,'!')
         
