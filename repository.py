@@ -392,6 +392,15 @@ class RecipeBookRepo():
         except Exception as e:
             raise type(e)(f"RecipeBookRep - create_entry error:{e}") from e
         
+    @staticmethod
+    def remove_book_association(book_id, recipe_id):
+        """Delete recipe association to shared_book"""
+        try:
+            stmt = db.select(RecipeBook).filter_by(book_id=book_id,recipe_id=recipe_id)
+            return db.session.execute(stmt).scalar_one_or_none()
+        except Exception as e:
+            raise type(e)(f"RecipeBookRep - remove_book_association error:{e}") from e
+        
 
 class UserBookRepo():
     """Facilitates association of users & books"""
