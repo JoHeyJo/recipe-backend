@@ -300,14 +300,14 @@ class RecipeServices():
         user_book = UserBookRepo.query_user_book(book_id=book_id, user_id=authed_id)
         if not user_book:
                 raise NotFound("Not found")
-        highlight(user_book,"!")
+        # highlight(user_book,"!")
         is_book_type_shared = user_book.book.book_type 
         if not is_book_type_shared: 
             raise ForbiddenError("Forbidden request")
         try:
-            message = RecipeBookRepo.remove_book_association(book_id=book_id,recipe_id=recipe_id)
-            highlight(message,"!")
+            response = RecipeBookRepo.remove_book_association(book_id=book_id,recipe_id=recipe_id)
             db.session.commit()
+            return response
         except Exception as e:
             db.session.rollback()
             raise type(e)(f"Failed to remove_shared_recipe error: {e}") from e
