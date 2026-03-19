@@ -391,7 +391,7 @@ class RecipeBookRepo():
             db.session.add(entry)
         except Exception as e:
             raise type(e)(f"RecipeBookRep - create_entry error:{e}") from e
-
+        
 
 class UserBookRepo():
     """Facilitates association of users & books"""
@@ -407,6 +407,15 @@ class UserBookRepo():
         except Exception as e:
             raise type(e)(f"UserBookRepo - create_entry error:{e}") from e
 
+    @staticmethod
+    def query_user_book(book_id, user_id):
+        """Query UserBook by user id and book id. Return user_book or none"""
+        try:
+            stmt = db.select(UserBook).filter_by(book_id=book_id,user_id=user_id)
+            return db.session.execute(stmt).scalar_one_or_none()
+        except Exception as e:
+            raise type(e)(f"RecipeBookRep - query_user_book error:{e}") from e
+        
     @staticmethod
     def query_shared_link(recipient_id):
         """Query for User's "shared recipes" book"""

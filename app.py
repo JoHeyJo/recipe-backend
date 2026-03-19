@@ -167,7 +167,7 @@ def delete_recipe(authed_user_id, user_id, book_id, recipe_id):
 def delete_shared_recipe(authed_user_id,book_id, recipe_id):
     """Facilitates deletion of association record linking shared recipe to recipient"""
     authed_user = authed_user_id
-    response = RecipeServices.remove_shared_recipe(auth_id=authed_user, recipe_id=recipe_id, book_id=book_id)
+    response = RecipeServices.remove_shared_recipe(authed_id=authed_user, recipe_id=recipe_id, book_id=book_id)
     return
 
 
