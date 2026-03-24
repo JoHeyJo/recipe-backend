@@ -398,6 +398,7 @@ class RecipeBookRepo():
         try:
             stmt = db.select(RecipeBook).filter_by(book_id=book_id,recipe_id=recipe_id)
             recipe = db.session.execute(stmt).scalar_one_or_none()
+            highlight(recipe,"$")
             db.session.delete(recipe)
             return {"message":"Recipe is no longer shared"}
         except Exception as e:
