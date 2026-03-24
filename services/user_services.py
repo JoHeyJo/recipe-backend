@@ -39,7 +39,7 @@ class UserServices():
     def fetch_user(user_id):
         """Retrieve user - inject default book object"""
         try:
-            user = UserRepo.query_user(user_id=user_id)
+            user = UserRepo.query_user(user_pk=user_id)
             if not user:
                 raise ValueError("User not found")
             user_data = User.serialize(user)
@@ -65,7 +65,7 @@ class UserServices():
     def reset_password(request, user_id):
         """Replaces current User password with new password"""
         try:
-            user = UserRepo.query_user(user_id=user_id)
+            user = UserRepo.query_user(user_pk=user_id)
 
             if user.user_name != request["userName"]:
                 raise ForbiddenError(
@@ -78,3 +78,15 @@ class UserServices():
         except Exception as e:
             db.session.rollback()
             raise
+
+    @staticmethod
+    def assign_default_book_if_none_set(user_id, book_id):
+        try:
+            user = User.query.get(user_id)
+            if user.default_book_id is None:
+                user.default_book_id = book_id
+                # db.session.add() is unnecessary if self is already a tracked/persistent object
+        except Exception as e:
+            db.session.rollback()
+            raise type(e)(
+                f"UserServices - assign_default_book_if_none_set  error:{e}") from e

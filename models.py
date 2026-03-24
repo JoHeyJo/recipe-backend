@@ -18,6 +18,20 @@ class BookRole(PyEnum):
     viewer = "viewer"
 
 
+class BookType(PyEnum):
+    standard = "standard"
+    shared_inbox = "shared_inbox"
+
+
+def book_to_dict(book_type):
+    """Convert instance of custom enum class to dict"""
+    book = {
+        BookType.standard: "standard",
+        BookType.shared_inbox: "shared_inbox"
+    }
+    return book[book_type]
+
+
 class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     """Users table"""
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
@@ -40,13 +54,17 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
             "default_book_id": self.default_book_id
         }
 
+
     # recipes = db.relationship('Recipe', secondary='user_recipes', backref='users')
     ### Instead Use type annotation for better type checking and readability ###
     # recipes: Mapped[List['Recipe']] = relationship(
     #     'Recipe', secondary='user_recipes', back_populates='users')
 
     books: Mapped[List['Book']] = relationship(
-        'Book', secondary='users_books', back_populates='users', order_by="Book.title")
+        'Book', secondary='users_books', back_populates='users', order_by="Book.title", viewonly=True)
+    
+    user_books: Mapped[List['UserBook']] = relationship(
+        'UserBook', back_populates='user')
 
 
 class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
@@ -54,10 +72,17 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     name: Mapped[str_255]
     notes: Mapped[str_255_nullable]
+    created_by_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    forked_from_id: Mapped[int | None] = mapped_column(
+        ForeignKey('recipes.id'), default=None)
+
+    def is_owned_by(self, user_id):
+        """Checks if User is owner of recipe"""
+        return self.created_by_id == int(user_id)
 
     def serialize(self):
         """Serialize Recipe table data into dict"""
-        return {"id": self.id, "name": self.name, "notes": self.notes}
+        return {"id": self.id, "name": self.name, "notes": self.notes, "created_by_id": self.created_by_id}
 
     # opens up access to data spread across multiple primary tables
     # (amounts, units, items) consolidated in Ingredient
@@ -87,13 +112,18 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
     id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     title: Mapped[str_255]
     description: Mapped[str_255]
+    book_type: Mapped[BookType] = mapped_column(
+        Enum(BookType, name="book_type"))
 
     def serialize(self):
         """Serialize Book table data into dict"""
-        return {"id": self.id, "title": self.title, "description": self.description}
+        return {"id": self.id, "book_type": book_to_dict(self.book_type), "title": self.title, "description": self.description}
 
     users: Mapped[List['User']] = relationship(
-        'User', secondary='users_books', back_populates='books')
+        'User', secondary='users_books', back_populates='books', viewonly=True)
+    
+    user_books: Mapped[List['UserBook']] = relationship(
+        'UserBook', back_populates='book')
 
     recipes: Mapped[List['Recipe']] = relationship(
         'Recipe', secondary='recipes_books', back_populates='books', order_by="Recipe.name")
@@ -225,9 +255,14 @@ class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model)
 class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for users and books. Partial unique index set with 
     book_id where role = 'owner'"""
-    book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"),primary_key=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"),primary_key=True)
+    book_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("books.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), primary_key=True)
     role: Mapped[BookRole] = mapped_column(Enum(BookRole, name="book_role"))
+
+    user = db.relationship('User', back_populates='user_books')
+    book = db.relationship('Book', back_populates='user_books')
     __table_args__ = (
         # exactly one owner per book (Postgres partial unique index)
         Index(

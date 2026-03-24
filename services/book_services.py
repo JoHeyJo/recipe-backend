@@ -1,8 +1,9 @@
 from repository import BookRepo, UserBookRepo
 from models import db, User
 from repository import UserRepo
-from models import UserBook, BookRole
+from models import UserBook, BookRole, BookType
 from utils.functions import highlight
+from services.user_services import UserServices
 
 
 class BookServices():
@@ -21,10 +22,8 @@ class BookServices():
                 UserBookRepo.create_entry(
                     user_id=user_id, book_id=new_book["id"])
             # add book id to default if necessary
-            user = User.query.get(user_id)
-            if user.default_book_id == None:
-                user.default_book_id = new_book["id"]
-                db.session.add(user)
+            UserServices.assign_default_book_if_none_set(
+                user_id=user_id, book_id=new_book["id"])
             db.session.commit()
             return new_book
         except Exception as e:
@@ -43,31 +42,32 @@ class BookServices():
     def process_shared_book(user_id, recipient, book_id):
         """Calls services for book processing"""
         try:
-            stmt = db.select(User).where(User.user_name == recipient)
-            recipient = db.session.execute(stmt).scalar_one_or_none()
-            if recipient:
-                if (recipient.id == user_id):
-                    return {"message": "Don't you already have this book???",
-                            "error": "Unprocessable Content", "code": 422
-                            }
+            recipient = UserRepo.query_user_name(user_name=recipient)
 
-                relation_exists = db.session.get(
-                    UserBook, (book_id, recipient.id))
-
-                if relation_exists:
-                    return {"message": "User already has access to this book!",
-                            "error": "Unprocessable Content", "code": 409
-                            }
-                else:
-                    UserBookRepo.create_entry(
-                        user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
-                    db.session.commit()
-                    return {"recipient_id": recipient.id,
-                            "message": f"Book shared with {recipient.user_name}!",
-                            "error": "Unprocessable Content", "code": 200
-                            }
-            else:
+            if not recipient:
                 return {"message": "User not found", "error": "Not Found", "code": 404}
+             
+            if (recipient.id == user_id):
+                return {"message": "Don't you already have this book???",
+                        "error": "Unprocessable Content", "code": 422
+                        }
+            
+            relation_exists = db.session.get(UserBook, (book_id, recipient.id))
+
+            if relation_exists:
+                return {"message": "User already has access to this book!",
+                        "error": "Unprocessable Content", "code": 409
+                        }
+            else:
+                UserBookRepo.create_entry(
+                    user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
+                UserServices.assign_default_book_if_none_set(user_id=recipient.id, book_id=book_id)
+                db.session.commit()
+                return {"recipient_id": recipient.id,
+                        "message": f"Book shared with {recipient.user_name}!",
+                        "code": 200
+                        }
+                
         except Exception as e:
             db.session.rollback()
             raise
