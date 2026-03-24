@@ -309,6 +309,18 @@ class BookRepo():
             ]
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
+        
+    @staticmethod
+    def build_book(user_id, book_id):
+        """Build book object to include 'book_role'"""
+        try:
+            stmt = db.select(UserBook).where(UserBook.book_id==book_id,UserBook.user_id==user_id)
+            user_book = db.session.execute(stmt).scalar_one_or_none()
+            serialized = Book.serialize(user_book.book)
+            serialized["book_role"] = user_book.role.value
+            return serialized
+        except Exception as e:
+            raise type(e)(f"BookRepo - build_book error: {e}") from e
 
 
 class InstructionRepo():
