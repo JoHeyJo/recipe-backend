@@ -3,6 +3,7 @@ from utils.functions import highlight
 from datetime import timedelta
 from flask_jwt_extended import create_access_token, get_jwt_identity
 from exceptions import ForbiddenError
+from models import UserBook
 
 
 class UserServices():
@@ -48,6 +49,9 @@ class UserServices():
 
             if default_book_id:
                 default_book = Book.serialize(Book.query.get(default_book_id))
+                stmt = db.select(UserBook).where(UserBook.book_id==1,UserBook.user_id==1)
+                user_book = db.session.execute(stmt).scalar_one_or_none()
+                highlight(user_book.book,"!")
                 user_data["default_book"] = default_book
             return user_data
         except Exception:
