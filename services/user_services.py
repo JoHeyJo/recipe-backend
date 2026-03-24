@@ -1,4 +1,4 @@
-from repository import db, UserRepo, Book, User
+from repository import db, UserRepo, Book, User, BookRole
 from utils.functions import highlight
 from datetime import timedelta
 from flask_jwt_extended import create_access_token, get_jwt_identity
@@ -48,11 +48,14 @@ class UserServices():
             default_book_id = user_data.get("default_book_id")
 
             if default_book_id:
-                default_book = Book.serialize(Book.query.get(default_book_id))
-                stmt = db.select(UserBook).where(UserBook.book_id==1,UserBook.user_id==1)
+                # default_book = Book.serialize(Book.query.get(default_book_id))
+                stmt = db.select(UserBook).where(UserBook.book_id==default_book_id,UserBook.user_id==user_id)
                 user_book = db.session.execute(stmt).scalar_one_or_none()
-                highlight(user_book.book,"!")
-                user_data["default_book"] = default_book
+                serialized = Book.serialize(user_book.book)
+                serialized["book_role"] = user_book.role.value
+                default_book = user_book.book
+                # default_book["book_role"] = user_book.role
+                user_data["default_book"] = serialized
             return user_data
         except Exception:
             raise
