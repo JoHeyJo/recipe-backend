@@ -69,7 +69,6 @@ class UserRepo():
             return db.session.execute(stmt).scalar_one_or_none()
         except Exception as e:
             raise type(e)(f"UserRepo -> query_user_name error:{e}") from e
-        
 
     @staticmethod
     def hash_password(string):
@@ -105,25 +104,42 @@ class RecipeRepo():
         recipes will populate in recipient's "Shared Recipes" book. If book does
         not exist one will be created automatically"""
         shared_link = UserBookRepo.query_shared_link(recipient_id=recipient.id)
-
+        book = None
+        has_default_book = recipient.default_book_id
+        highlight(book, "!")
         if not shared_link:
             book = BookRepo.create_book(title="Shared Recipes",
                                         description="Inbox: Recipes shared by others", book_type=BookType.shared_inbox)
-            
-            recipient.default_book_id = book["id"]
+            highlight(book,"!")
 
             shared_link = UserBookRepo.create_entry(
                 user_id=recipient.id, book_id=book["id"])
         try:
             is_shared = RecipeBook.query.filter_by(
                 book_id=shared_link.book_id, recipe_id=shared_id).first()
+
             if is_shared:
                 return {"message": "Recipe already shared with user.",
                         "error": "Conflict", "code": 409}
-            if not is_shared:
+
+            if not is_shared and has_default_book:
                 RecipeBookRepo.create_entry(
                     book_id=shared_link.book_id, recipe_id=shared_id)
-                return {"message": "Recipe successfully shared!","code":200}
+                return {"message": "Recipe successfully shared!", "code": 200}
+
+            if not is_shared and not has_default_book:
+                RecipeBookRepo.create_entry(
+                    book_id=shared_link.book_id, recipe_id=shared_id)
+                highlight(has_default_book,"1")
+                highlight(book,"2")
+                recipient.default_book_id = book["id"]
+
+                book_with_role = BookRepo.build_book(
+                    user_id=recipient.id, book_id=book["id"])
+                highlight(book_with_role, "3")
+
+                return {"message": "process payload", "code": 200, "payload": book_with_role}
+
         except Exception as e:
             raise type(e)(f"RecipeRepo -> create_recipe_link error:{e}") from e
 
@@ -312,12 +328,13 @@ class BookRepo():
             ]
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
-        
+
     @staticmethod
     def build_book(user_id, book_id):
         """Build book object to include 'book_role'"""
         try:
-            stmt = db.select(UserBook).where(UserBook.book_id==book_id,UserBook.user_id==user_id)
+            stmt = db.select(UserBook).where(
+                UserBook.book_id == book_id, UserBook.user_id == user_id)
             user_book = db.session.execute(stmt).scalar_one_or_none()
             serialized = Book.serialize(user_book.book)
             serialized["book_role"] = user_book.role.value
@@ -406,19 +423,21 @@ class RecipeBookRepo():
             db.session.add(entry)
         except Exception as e:
             raise type(e)(f"RecipeBookRep - create_entry error:{e}") from e
-        
+
     @staticmethod
     def remove_book_association(book_id, recipe_id):
         """Delete association sharing recipe to recipient"""
         try:
-            stmt = db.select(RecipeBook).filter_by(book_id=book_id,recipe_id=recipe_id)
+            stmt = db.select(RecipeBook).filter_by(
+                book_id=book_id, recipe_id=recipe_id)
             recipe = db.session.execute(stmt).scalar_one_or_none()
-            highlight(recipe,"$")
+            highlight(recipe, "$")
             db.session.delete(recipe)
-            return {"message":"Recipe is no longer shared"}
+            return {"message": "Recipe is no longer shared"}
         except Exception as e:
-            raise type(e)(f"RecipeBookRep - remove_book_association error:{e}") from e
-        
+            raise type(e)(
+                f"RecipeBookRep - remove_book_association error:{e}") from e
+
 
 class UserBookRepo():
     """Facilitates association of users & books"""
@@ -438,11 +457,12 @@ class UserBookRepo():
     def query_user_book(book_id, user_id):
         """Query UserBook by user id and book id. Return user_book or none"""
         try:
-            stmt = db.select(UserBook).filter_by(book_id=book_id,user_id=user_id)
+            stmt = db.select(UserBook).filter_by(
+                book_id=book_id, user_id=user_id)
             return db.session.execute(stmt).scalar_one_or_none()
         except Exception as e:
             raise type(e)(f"RecipeBookRep - query_user_book error:{e}") from e
-        
+
     @staticmethod
     def query_shared_link(recipient_id):
         """Query for User's "shared recipes" book"""
