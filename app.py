@@ -25,11 +25,6 @@ import logging
 import sys
 
 
-# Execute if app doesn't auto update code
-# flask --app app.py --debug run
-# Execute to allow mobile connection
-# flask run --host=0.0.0.0
-
 app = Flask(__name__)
 set_environment_config(app)
 configure_cors(app)
@@ -168,16 +163,6 @@ def delete_shared_recipe(authed_user_id, book_id, recipe_id):
     return jsonify(response), 200 
 
 
-# @app.post("/share_recipes/<recipe_id>")
-# @verify_jwt_identity
-# @route_error_handler
-# def post_share_recipe(recipe_id):
-#     """Facilitate user and recipe data to share recipe with recipient"""
-#     auth_id = get_jwt_identity()
-    # message = RecipeServices.share_recipe(
-    #     auth_id=auth_id, recipient=request.json["recipient"], recipe_id=recipe_id)
-#     return jsonify(message), 200
-
 
 ########### BOOKS ###########
 
@@ -231,14 +216,6 @@ def add_option_association(authed_user_id, book_id, component, option_id, user_i
     return jsonify(response)
 
 
-# @app.get("/ingredients/<ingredient>")
-# @jwt_required()
-# @route_error_handler
-# def get_ingredients(ingredient):
-#     """Facilitates retrieval of ALL options of ingredient components"""
-#     ingredients = IngredientServices.fetch_components_options(ingredient)
-#     return jsonify(ingredients)
-
 
 @app.get("/users/<user_id>/ingredients/components")
 @verify_jwt_identity
@@ -256,17 +233,6 @@ def get_book_ingredient_components(authed_user_id, book_id, user_id):
     return IngredientServices.fetch_book_components_options(book_id=book_id)
 
 
-@app.post("/ingredients/<ingredient>")
-# should identity be checked here?
-# def add_ingredient(ingredient):
-#     """Facilitates creation of ingredient"""
-#     value = request.json
-#     try:
-#         ingredient = IngredientServices.add_ingredient(
-#             option=ingredient, value=value)
-#         return jsonify(ingredient)
-#     except IntegrityError as e:
-#         return jsonify({"error": f"add_ingredient error{e}"}), 400
 ########### INSTRUCTIONS ###########
 @app.post("/users/<user_id>/books/<book_id>/instructions")
 @verify_jwt_identity
