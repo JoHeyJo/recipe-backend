@@ -100,17 +100,20 @@ class RecipeRepo():
             raise type(e)(f"RecipeRepo -> create_recipe error:{e}") from e
 
     @staticmethod
-    def create_recipe_link(recipient_id, shared_id):
+    def create_recipe_link(recipient, shared_id):
         """Creates recipe association between User's and Recipient. All shared
         recipes will populate in recipient's "Shared Recipes" book. If book does
         not exist one will be created automatically"""
-        shared_link = UserBookRepo.query_shared_link(recipient_id=recipient_id)
+        shared_link = UserBookRepo.query_shared_link(recipient_id=recipient.id)
 
         if not shared_link:
             book = BookRepo.create_book(title="Shared Recipes",
                                         description="Inbox: Recipes shared by others", book_type=BookType.shared_inbox)
+            
+            recipient.default_book_id = book["id"]
+
             shared_link = UserBookRepo.create_entry(
-                user_id=recipient_id, book_id=book["id"])
+                user_id=recipient.id, book_id=book["id"])
         try:
             is_shared = RecipeBook.query.filter_by(
                 book_id=shared_link.book_id, recipe_id=shared_id).first()

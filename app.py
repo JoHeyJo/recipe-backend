@@ -154,14 +154,15 @@ def delete_recipe(authed_user_id, user_id, book_id, recipe_id):
         auth_id=authed_user_id, recipe_id=recipe_id, data=request.json)
     return jsonify(response), 200
 
+
 @app.delete("/books/<book_id>/share_recipes/<recipe_id>")
 @verify_jwt_identity
 @route_error_handler
 def delete_shared_recipe(authed_user_id, book_id, recipe_id):
     """Facilitates deletion of association record linking shared recipe to recipient"""
-    response = RecipeServices.remove_shared_recipe(authed_id=authed_user_id, recipe_id=recipe_id, book_id=book_id)
-    return jsonify(response), 200 
-
+    response = RecipeServices.remove_shared_recipe(
+        authed_id=authed_user_id, recipe_id=recipe_id, book_id=book_id)
+    return jsonify(response), 200
 
 
 ########### BOOKS ###########
@@ -171,7 +172,8 @@ def delete_shared_recipe(authed_user_id, book_id, recipe_id):
 @route_error_handler
 def add_book(authed_user_id, user_id):
     """Facilitates creation of book"""
-    book_data = BookServices.process_new_book(request=request, user_id=authed_user_id)
+    book_data = BookServices.process_new_book(
+        request=request, user_id=authed_user_id)
     return jsonify(book_data), 200
 
 
@@ -214,7 +216,6 @@ def add_option_association(authed_user_id, book_id, component, option_id, user_i
     response = IngredientServices.create_option_association(
         component=component, book_id=book_id, option_id=option_id)
     return jsonify(response)
-
 
 
 @app.get("/users/<user_id>/ingredients/components")
@@ -317,7 +318,7 @@ def handle_connect(auth):
 def share_book(data):
     """Facilitates book sharing request and response"""
     user_id = check_auth_users(user_id=authorized_user.get(request.sid))
-    
+
     if not user_id:
         emit('error_sharing_book', {'data': 'Unauthorized'})
         return
@@ -330,15 +331,15 @@ def share_book(data):
     if not all([recipient, book_id, title]):
         emit('error sharing book', {'data': 'Invalid request missing data'})
         return
-    
+
     try:
         response = BookServices.process_shared_book(
             user_id=int(user_id), recipient=recipient, book_id=book_id)
-        
+
         if response["code"] in (422, 409, 404):
             emit('error_sharing_book', {'data': response["message"]})
             return
-        
+
         if response["code"] == 200:
             # SENDER
             sender_id = connected_users.get("user_id")
@@ -355,12 +356,13 @@ def share_book(data):
                      "message": message, "books": books}, room=recipient_id)
                 return
             # else:
-                # Future logic to que up message for offline recipient       
+                # Future logic to que up message for offline recipient
     except Exception as e:
+        db.session.rollback()
         emit('error_sharing_book', {'data': 'Something went wrong'})
         app.logger.error(f"socketio - share_book: {e}")
         return
-    
+
 
 @socketio.on('share_recipe')
 def share_recipe(data):
@@ -375,12 +377,12 @@ def share_recipe(data):
     recipient = data.get("recipient")
 
     if not all([recipe_id, sender, recipe, recipient]):
-            emit('error_sharing_recipe', {'data':'Invalid request missing data'})
-            return
+        emit('error_sharing_recipe', {'data': 'Invalid request missing data'})
+        return
     try:
         response = RecipeServices.share_recipe(
             auth_id=user_id, recipient=recipient, recipe_id=recipe_id)
-        
+
         if response["code"] in (400, 403, 404, 409):
             emit('error_sharing_recipe', {'data': response["message"]})
             return
@@ -389,16 +391,18 @@ def share_recipe(data):
             sender_id = connected_users.get("user_id")
             emit('recipe_shared', {
                  "message": response["message"]}, room=sender_id)
-        #Check if recipient is connected
+        # Check if recipient is connected
         recipient_id = connected_users.get(response["recipient_id"])
-        
+
         if recipient_id:
             message = f"{sender} has shared '{recipe}'recipe with you!"
-            emit('user_shared_recipe', {"message": message, "recipe": response["recipe"]}, room=recipient_id)
+            emit('user_shared_recipe', {
+                 "message": message, "recipe": response["recipe"]}, room=recipient_id)
             return
         # else:
             # Future logic to que up message for offline recipient
     except Exception as e:
+        db.session.rollback()
         emit('error_sharing_recipe', {'data': 'Something went wrong'})
         app.logger.error(f"socketio - share_recipe: {e}")
         return

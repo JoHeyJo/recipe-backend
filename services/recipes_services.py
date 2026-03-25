@@ -59,7 +59,7 @@ class RecipeServices():
 
     @staticmethod
     def process_ingredients(ingredients, recipe_id, book_id):
-        """Processes ingredient components effectively creating an ingredient and associates each ingredient to recipe"""
+        """Processes ingredient components creating an ingredient and associates each ingredient to recipe"""
         try:
             ingredients_data = IngredientServices.process_ingredient_components(
                 book_id=book_id, ingredients=ingredients)
@@ -271,7 +271,7 @@ class RecipeServices():
                     "error": "Forbidden", "code": 403}
         try:
             message = RecipeRepo.create_recipe_link(
-                recipient_id=recipient.id, shared_id=recipe_id)
+                recipient=recipient, shared_id=recipe_id)
             db.session.commit()
             message["recipient_id"] = recipient.id
             return {**message, "recipe": recipe_build}
