@@ -396,7 +396,7 @@ def share_recipe(data):
 
         if recipient_id:
             message = f"{sender} has shared '{recipe}'recipe with you!"
-            emit('user_shared_recipe', {
+            emit('user_shared_recipe', {"payload":response.get("payload"),
                  "message": message, "recipe": response["recipe"]}, room=recipient_id)
             return
         # else:

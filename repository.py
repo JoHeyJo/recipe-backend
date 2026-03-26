@@ -106,11 +106,9 @@ class RecipeRepo():
         shared_link = UserBookRepo.query_shared_link(recipient_id=recipient.id)
         book = None
         has_default_book = recipient.default_book_id
-        highlight(book, "!")
         if not shared_link:
             book = BookRepo.create_book(title="Shared Recipes",
                                         description="Inbox: Recipes shared by others", book_type=BookType.shared_inbox)
-            highlight(book,"!")
 
             shared_link = UserBookRepo.create_entry(
                 user_id=recipient.id, book_id=book["id"])
@@ -130,15 +128,12 @@ class RecipeRepo():
             if not is_shared and not has_default_book:
                 RecipeBookRepo.create_entry(
                     book_id=shared_link.book_id, recipe_id=shared_id)
-                highlight(has_default_book,"1")
-                highlight(book,"2")
                 recipient.default_book_id = book["id"]
 
                 book_with_role = BookRepo.build_book(
                     user_id=recipient.id, book_id=book["id"])
-                highlight(book_with_role, "3")
 
-                return {"message": "process payload", "code": 200, "payload": book_with_role}
+                return {"message": "Recipe successfully shared!", "code": 200, "payload": book_with_role}
 
         except Exception as e:
             raise type(e)(f"RecipeRepo -> create_recipe_link error:{e}") from e
