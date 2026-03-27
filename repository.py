@@ -104,6 +104,7 @@ class RecipeRepo():
         recipes will populate in recipient's "Shared Recipes" book. If book does
         not exist one will be created automatically"""
         shared_link = UserBookRepo.query_shared_link(recipient_id=recipient.id)
+        highlight(shared_id,"@")
         book = None
         has_default_book = recipient.default_book_id
         if not shared_link:
@@ -135,15 +136,24 @@ class RecipeRepo():
 ### This looks good
 
 # look at payload when User shares recipe with Recipient - No default book
+###THIS LOOKS GOOD
+
 # look at payload when User shares recipe with Recipient - Default book is standard 
+### recipient's dropdown list is replaced with the one shared book and recipe is render
+### if another book is shared an error is thrown
+### If recipient has standard default book then:
+### message should be shown
+### dropdown should be populated
+### Shared book is not retrieved if recipient already has a shared book
+
+
 # look at payload when User shares recipe with Recipient - Default book is Shared Book
 
             highlight(("is_shared:",is_shared, "has_default_book:",has_default_book),"!")
-
             if not is_shared and has_default_book:
                 msg = RecipeBookRepo.create_entry(
                     book_id=shared_link.book_id, recipe_id=shared_id)
-                
+                highlight(book, "!")
                 book_with_role = BookRepo.build_book(
                     user_id=recipient.id, book_id=book["id"])
                 highlight((msg,book_with_role),"!")
@@ -151,6 +161,7 @@ class RecipeRepo():
             
             highlight(("is_shared:",is_shared, "has_default_book:",has_default_book),"!")
 
+            highlight(book,"!")
             if not is_shared and not has_default_book:
                 RecipeBookRepo.create_entry(
                     book_id=shared_link.book_id, recipe_id=shared_id)
