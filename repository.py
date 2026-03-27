@@ -132,6 +132,7 @@ class RecipeRepo():
 
 
 # look at payload when User shares with Book with Recipient  - Assigned default book (tester)
+### This looks good
 
 # look at payload when User shares recipe with Recipient - No default book
 # look at payload when User shares recipe with Recipient - Default book is standard 

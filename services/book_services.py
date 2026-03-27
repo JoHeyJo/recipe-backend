@@ -68,11 +68,16 @@ class BookServices():
                     book_with_role = BookRepo.build_book(
                         user_id=recipient.id, book_id=book.book_id)
                     
+                    db.session.commit()
+                    return {"recipient_id": recipient.id,
+                            "message": f"Book shared with {recipient.user_name}!",
+                            "code": 200,
+                            "payload":book_with_role
+                            }
                 db.session.commit()
                 return {"recipient_id": recipient.id,
                         "message": f"Book shared with {recipient.user_name}!",
-                        "code": 200,
-                        "payload":book_with_role
+                        "code": 200
                         }
                 
         except Exception as e:
