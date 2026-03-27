@@ -353,7 +353,7 @@ def share_book(data):
                 books = BookServices.fetch_user_books(
                     user_id=response["recipient_id"])
                 emit('user_shared_book', {
-                     "message": message, "books": books}, room=recipient_id)
+                     "message": message, "books": books, "payload": response.get("payload")}, room=recipient_id)
                 return
             # else:
                 # Future logic to que up message for offline recipient
@@ -429,14 +429,3 @@ def setup_app_context():
 if __name__ == '__main__':
     socketio.run(app, debug=True)
 
-
-{'message': 'Recipe successfully shared!', 'code': 200, 
- 'payload': {'id': 6, 'book_type': 'shared_inbox',
-  'title': 'Shared Recipes', 'description': 'Inbox: Recipes shared by others', 'book_role': 'owner'}, 
-  'recipient_id': 6}
-
-
-{'message': 'Recipe successfully shared!', 'code': 200, 
- 'payload': {'id': 15, 'book_type': 'shared_inbox',
-'title': 'Shared Recipes', 'description': 'Inbox: Recipes shared by others', 'book_role': 'owner'}, 
-'recipient_id': 7}

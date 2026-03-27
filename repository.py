@@ -126,7 +126,12 @@ class RecipeRepo():
 # look at payload when User shares with Book with Recipient  - No default book (tester)
 ###Current Book is undefined after default book is created - default book is a complete object
 ###On refresh sharing book works
-### Recipients Book dropdown does not dynamically update
+### Client needed to have context updated with relevant data
+### Now book needs to populate for recipient``
+### This look good!
+
+
+# look at payload when User shares with Book with Recipient  - Assigned default book (tester)
 
 # look at payload when User shares recipe with Recipient - No default book
 # look at payload when User shares recipe with Recipient - Default book is standard 
