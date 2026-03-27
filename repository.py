@@ -124,7 +124,7 @@ class RecipeRepo():
                 RecipeBookRepo.create_entry(
                     book_id=shared_link.book_id, recipe_id=shared_id)
                 return {"message": "Recipe successfully shared!", "code": 200}
-
+            highlight(("is_shared:",is_shared, "has_default_book:",has_default_book),"#")
             if not is_shared and not has_default_book:
                 RecipeBookRepo.create_entry(
                     book_id=shared_link.book_id, recipe_id=shared_id)

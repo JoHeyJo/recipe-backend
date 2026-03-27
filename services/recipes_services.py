@@ -274,6 +274,7 @@ class RecipeServices():
                 recipient=recipient, shared_id=recipe_id)
             db.session.commit()
             message["recipient_id"] = recipient.id
+            highlight(message,"!")
             return {**message, "recipe": recipe_build}
         except Exception as e:
             db.session.rollback()
