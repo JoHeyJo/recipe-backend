@@ -119,12 +119,32 @@ class RecipeRepo():
             if is_shared:
                 return {"message": "Recipe already shared with user.",
                         "error": "Conflict", "code": 409}
+# this is not returning book_with_role
+# create logic for when recipient's default book is shared recipes
+# look at payload when not is_shared and has_default_book and has be previously shared
+
+# look at payload when User shares with Book with Recipient  - No default book (tester)
+###Current Book is undefined after default book is created - default book is a complete object
+###On refresh sharing book works
+### Recipients Book dropdown does not dynamically update
+
+# look at payload when User shares recipe with Recipient - No default book
+# look at payload when User shares recipe with Recipient - Default book is standard 
+# look at payload when User shares recipe with Recipient - Default book is Shared Book
+
+            highlight(("is_shared:",is_shared, "has_default_book:",has_default_book),"!")
 
             if not is_shared and has_default_book:
-                RecipeBookRepo.create_entry(
+                msg = RecipeBookRepo.create_entry(
                     book_id=shared_link.book_id, recipe_id=shared_id)
-                return {"message": "Recipe successfully shared!", "code": 200}
-            highlight(("is_shared:",is_shared, "has_default_book:",has_default_book),"#")
+                
+                book_with_role = BookRepo.build_book(
+                    user_id=recipient.id, book_id=book["id"])
+                highlight((msg,book_with_role),"!")
+                return {"message": "Recipe successfully shared!", "code": 200, "payload": book_with_role}
+            
+            highlight(("is_shared:",is_shared, "has_default_book:",has_default_book),"!")
+
             if not is_shared and not has_default_book:
                 RecipeBookRepo.create_entry(
                     book_id=shared_link.book_id, recipe_id=shared_id)
