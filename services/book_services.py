@@ -83,3 +83,11 @@ class BookServices():
         except Exception as e:
             db.session.rollback()
             raise
+
+    @staticmethod
+    def share_book_no_default_book():
+        """User shares Book with Recipient that has no default book assigned"""
+
+    @staticmethod
+    def share_book_has_default_book():
+        """User shares with Recipient that has assigned default book"""

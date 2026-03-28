@@ -103,7 +103,8 @@ class RecipeRepo():
         """Creates recipe association between User's and Recipient. All shared
         recipes will populate in recipient's "Shared Recipes" book. If book does
         not exist one will be created automatically"""
-        shared_link = UserBookRepo.query_shared_link(recipient_id=recipient.id)
+        highlight(recipient,"!")
+        shared_link = UserBookRepo.query_shared_book(recipient_id=recipient.id)
         highlight(shared_id,"@")
         book = None
         has_default_book = recipient.default_book_id
@@ -345,6 +346,16 @@ class BookRepo():
             return Book.serialize(book)
         except Exception as e:
             raise type(e)(f"create_book error: {e}") from e
+        
+    @staticmethod
+    def query_user_book_by_pk(book_pk):
+        """Query book by pk. Return none if not found"""
+        try:
+            stmt = db.select(Book).where(Book.id == book_pk)
+            db.session.execute(stmt).scalar_one_or_none()
+        except Exception as e:
+            raise type(e)(
+                f"BookRepo - query_user_book_by_pk error: {e}") from e
 
     @staticmethod
     def query_user_books(user_id):
@@ -496,14 +507,14 @@ class UserBookRepo():
             raise type(e)(f"RecipeBookRep - query_user_book error:{e}") from e
 
     @staticmethod
-    def query_shared_link(recipient_id):
+    def query_shared_book(recipient_id):
         """Query for User's "shared recipes" book"""
         try:
             user_book = UserBook.query.join(Book).filter(
                 UserBook.user_id == recipient_id, Book.book_type == BookType.shared_inbox).first()
             return user_book
         except Exception as e:
-            raise type(e)(f"UserBookRepo - query_shared_link error:{e}") from e
+            raise type(e)(f"UserBookRepo - query_shared_book error:{e}") from e
 
 
 class BookInstructionRepo():

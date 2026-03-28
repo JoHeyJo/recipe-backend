@@ -270,6 +270,8 @@ class RecipeServices():
             return {"message": "This is not yours to share...",
                     "error": "Forbidden", "code": 403}
         try:
+            RecipeServices.facilitate_recipe_link_creation()
+            return
             message = RecipeRepo.create_recipe_link(
                 recipient=recipient, shared_id=recipe_id)
             db.session.commit()
@@ -281,14 +283,25 @@ class RecipeServices():
             raise type(e)(
                 f"Failed to share_recipe error: {e}") from e
         
-    
     @staticmethod
-    def share_book_no_default_book():
-        """User shares Book with Recipient that has no default book assigned"""
+    def facilitate_recipe_link_creation(recipient, shared_id):
+        """"Distributes recipe data to corresponding function"""
+        book = None
 
-    @staticmethod
-    def share_book_has_default_book():
-        """User shares with Recipient that has assigned default book"""
+        default_book = recipient.default_book_id
+
+        book_type = BookRepo.query_user_book_by_pk()
+
+        # shared_book = UserBookRepo.query_shared_book(recipient_id=recipient.id)
+
+        # Choose corresponding function
+        if not default_book:
+            RecipeServices.share_recipe_no_default_book()
+
+        # if recipient has STANDARD book - check query book -> book.book_type
+
+
+
 
     @staticmethod
     def share_recipe_no_default_book():
