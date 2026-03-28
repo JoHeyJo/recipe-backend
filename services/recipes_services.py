@@ -280,6 +280,27 @@ class RecipeServices():
             db.session.rollback()
             raise type(e)(
                 f"Failed to share_recipe error: {e}") from e
+        
+    
+    @staticmethod
+    def share_book_no_default_book():
+        """User shares Book with Recipient that has no default book assigned"""
+
+    @staticmethod
+    def share_book_has_default_book():
+        """User shares with Recipient that has assigned default book"""
+
+    @staticmethod
+    def share_recipe_no_default_book():
+        """User shares recipe with Recipient that has no default book assigned"""
+
+    @staticmethod
+    def share_recipe_standard_default_book():
+        """User shares recipe with Recipient that has STANDARD default book"""
+
+    @staticmethod
+    def share_recipe_shared_default_book():
+        """User shares recipe with Recipient that has SHARED default book"""
 
     @staticmethod
     def remove_recipe(auth_id, recipe_id, data):
