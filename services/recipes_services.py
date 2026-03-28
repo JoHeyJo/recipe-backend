@@ -59,7 +59,7 @@ class RecipeServices():
 
     @staticmethod
     def process_ingredients(ingredients, recipe_id, book_id):
-        """Processes ingredient components effectively creating an ingredient and associates each ingredient to recipe"""
+        """Processes ingredient components creating an ingredient and associates each ingredient to recipe"""
         try:
             ingredients_data = IngredientServices.process_ingredient_components(
                 book_id=book_id, ingredients=ingredients)
@@ -270,15 +270,50 @@ class RecipeServices():
             return {"message": "This is not yours to share...",
                     "error": "Forbidden", "code": 403}
         try:
+            RecipeServices.facilitate_recipe_link_creation()
+            return
             message = RecipeRepo.create_recipe_link(
-                recipient_id=recipient.id, shared_id=recipe_id)
+                recipient=recipient, shared_id=recipe_id)
             db.session.commit()
             message["recipient_id"] = recipient.id
+            highlight(message,"!")
             return {**message, "recipe": recipe_build}
         except Exception as e:
             db.session.rollback()
             raise type(e)(
                 f"Failed to share_recipe error: {e}") from e
+        
+    @staticmethod
+    def facilitate_recipe_link_creation(recipient, shared_id):
+        """"Distributes recipe data to corresponding function"""
+        book = None
+
+        default_book = recipient.default_book_id
+
+        book_type = BookRepo.query_user_book_by_pk()
+
+        # shared_book = UserBookRepo.query_shared_book(recipient_id=recipient.id)
+
+        # Choose corresponding function
+        if not default_book:
+            RecipeServices.share_recipe_no_default_book()
+
+        # if recipient has STANDARD book - check query book -> book.book_type
+
+
+
+
+    @staticmethod
+    def share_recipe_no_default_book():
+        """User shares recipe with Recipient that has no default book assigned"""
+
+    @staticmethod
+    def share_recipe_standard_default_book():
+        """User shares recipe with Recipient that has STANDARD default book"""
+
+    @staticmethod
+    def share_recipe_shared_default_book():
+        """User shares recipe with Recipient that has SHARED default book"""
 
     @staticmethod
     def remove_recipe(auth_id, recipe_id, data):

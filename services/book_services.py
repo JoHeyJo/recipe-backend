@@ -58,10 +58,22 @@ class BookServices():
                 return {"message": "User already has access to this book!",
                         "error": "Unprocessable Content", "code": 409
                         }
-            else:
-                UserBookRepo.create_entry(
+            if not relation_exists:
+                book = UserBookRepo.create_entry(
                     user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
-                UserServices.assign_default_book_if_none_set(user_id=recipient.id, book_id=book_id)
+                
+                is_default_assigned = UserServices.assign_default_book_if_none_set(user_id=recipient.id, book_id=book_id)
+                highlight(book,"!")
+                if is_default_assigned:
+                    book_with_role = BookRepo.build_book(
+                        user_id=recipient.id, book_id=book.book_id)
+                    
+                    db.session.commit()
+                    return {"recipient_id": recipient.id,
+                            "message": f"Book shared with {recipient.user_name}!",
+                            "code": 200,
+                            "payload":book_with_role
+                            }
                 db.session.commit()
                 return {"recipient_id": recipient.id,
                         "message": f"Book shared with {recipient.user_name}!",
@@ -71,3 +83,11 @@ class BookServices():
         except Exception as e:
             db.session.rollback()
             raise
+
+    @staticmethod
+    def share_book_no_default_book():
+        """User shares Book with Recipient that has no default book assigned"""
+
+    @staticmethod
+    def share_book_has_default_book():
+        """User shares with Recipient that has assigned default book"""

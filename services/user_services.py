@@ -85,6 +85,7 @@ class UserServices():
             user = User.query.get(user_id)
             if user.default_book_id is None:
                 user.default_book_id = book_id
+                return True
                 # db.session.add() is unnecessary if self is already a tracked/persistent object
         except Exception as e:
             db.session.rollback()
