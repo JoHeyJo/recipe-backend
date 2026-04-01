@@ -479,17 +479,17 @@ class RecipeBookRepo():
                 f"RecipeBookRep - remove_book_association error:{e}") from e
         
     @staticmethod
-    def does_recipe_exist_in_shared_inbox(shared_link_id, shared_book_id):
+    def does_recipe_exist_in_shared_inbox(shared_link_id, shared_recipe_id):
         """Query recipe in shared_inbox, return message if it already or None"""
         try:
             stmt = db.select(RecipeBook).where(
-                book_id=shared_link_id, recipe_id=shared_book_id)
+                book_id=shared_link_id, recipe_id=shared_recipe_id)
             is_shared = db.session.execute(stmt).scalar_one_or_none()
 
             if is_shared:
                 return {"message": "Recipe already shared with user.",
                         "error": "Conflict", "code": 409}
-            return None
+            return is_shared
         except Exception as e:
             raise type(e)(
                 f"RecipeBookRep - has_recipe_been_shared error:{e}") from e
