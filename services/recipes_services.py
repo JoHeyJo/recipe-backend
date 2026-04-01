@@ -261,16 +261,16 @@ class RecipeServices():
         recipient = UserRepo.query_user_name(user_name=recipient)
         recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
         recipe_build = RecipeServices.build_recipe(recipe_id=recipe_id)
-        if not recipient:
-            return {"message": "User not found", "error": "Not Found", "code": 404}
-        if auth_id == recipient.id:
-            return {"message": "Why are you sharing this with yourself???", 
-                    "error": "BadRequest", "code": 400}
-        if not recipe.is_owned_by(auth_id):
-            return {"message": "This is not yours to share...",
-                    "error": "Forbidden", "code": 403}
+        # if not recipient:
+        #     return {"message": "User not found", "error": "Not Found", "code": 404}
+        # if auth_id == recipient.id:
+        #     return {"message": "Why are you sharing this with yourself???", 
+        #             "error": "BadRequest", "code": 400}
+        # if not recipe.is_owned_by(auth_id):
+        #     return {"message": "This is not yours to share...",
+        #             "error": "Forbidden", "code": 403}
         try:
-            RecipeServices.facilitate_recipe_link_creation()
+            RecipeServices.facilitate_recipe_link_creation(recipient=recipient,shared_id=recipe_id)
             return
             message = RecipeRepo.create_recipe_link(
                 recipient=recipient, shared_id=recipe_id)
@@ -288,19 +288,19 @@ class RecipeServices():
         """"Distributes recipe data to corresponding function"""
         book = None
 
-        default_book = recipient.default_book_id
+        default_book_id = recipient.default_book_id
+        book_type = BookRepo.query_user_book_by_pk(default_book_id)
 
-        book_type = BookRepo.query_user_book_by_pk()
-
-        # shared_book = UserBookRepo.query_shared_book(recipient_id=recipient.id)
-
-        # Choose corresponding function
-        if not default_book:
+        if not default_book_id:
             RecipeServices.share_recipe_no_default_book()
 
-        # if recipient has STANDARD book - check query book -> book.book_type
+        if book_type == "standard":
+            RecipeServices.share_recipe_standard_default_book()
 
+        if book_type == "shared_inbox":
+            RecipeServices.share_recipe_shared_default_book()
 
+    
 
 
     @staticmethod

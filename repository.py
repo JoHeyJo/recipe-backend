@@ -352,7 +352,7 @@ class BookRepo():
         """Query book by pk. Return none if not found"""
         try:
             stmt = db.select(Book).where(Book.id == book_pk)
-            db.session.execute(stmt).scalar_one_or_none()
+            return db.session.execute(stmt).scalar_one_or_none()
         except Exception as e:
             raise type(e)(
                 f"BookRepo - query_user_book_by_pk error: {e}") from e
