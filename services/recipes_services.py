@@ -130,26 +130,28 @@ class RecipeServices():
             return complete_recipes
         except Exception as e:
             raise type(e)(f"RecipeServices - build_recipes error: {e}") from e
-    
-    @staticmethod 
+
+    @staticmethod
     def build_recipe(recipe_id):
         """Builds individual recipes"""
         try:
             recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
-            instructions = InstructionServices.build_instructions(instances=recipe.instructions, recipe_id=recipe_id)
-            ingredients = IngredientServices.build_ingredients(instance=recipe.ingredients)
+            instructions = InstructionServices.build_instructions(
+                instances=recipe.instructions, recipe_id=recipe_id)
+            ingredients = IngredientServices.build_ingredients(
+                instance=recipe.ingredients)
             return {
-                    "is_owned_by": recipe.created_by_id,
-                    "id":recipe.id, 
-                    "created_by_id":recipe.created_by_id, 
-                    "name": recipe.name,
-                    "ingredients": ingredients,
-                    "instructions": instructions,
-                    "notes": recipe.notes
-                    }
+                "is_owned_by": recipe.created_by_id,
+                "id": recipe.id,
+                "created_by_id": recipe.created_by_id,
+                "name": recipe.name,
+                "ingredients": ingredients,
+                "instructions": instructions,
+                "notes": recipe.notes
+            }
         except Exception as e:
             raise type(e)(f"RecipeServices - build_recipe error: {e}") from e
-        
+
     @staticmethod
     def process_edit(user_id, data, recipe_id):
         """Consolidates recipe edit process"""
@@ -264,32 +266,32 @@ class RecipeServices():
         # if not recipient:
         #     return {"message": "User not found", "error": "Not Found", "code": 404}
         # if auth_id == recipient.id:
-        #     return {"message": "Why are you sharing this with yourself???", 
+        #     return {"message": "Why are you sharing this with yourself???",
         #             "error": "BadRequest", "code": 400}
         # if not recipe.is_owned_by(auth_id):
         #     return {"message": "This is not yours to share...",
         #             "error": "Forbidden", "code": 403}
         try:
-            RecipeServices.facilitate_recipe_link_creation(recipient=recipient,shared_id=recipe_id)
-            return
+            RecipeServices.facilitate_recipe_link_creation(
+                recipient=recipient, shared_id=recipe_id)
+
             message = RecipeRepo.create_recipe_link(
                 recipient=recipient, shared_id=recipe_id)
             db.session.commit()
             message["recipient_id"] = recipient.id
-            highlight(message,"!")
+            highlight(message, "!")
             return {**message, "recipe": recipe_build}
         except Exception as e:
             db.session.rollback()
             raise type(e)(
                 f"Failed to share_recipe error: {e}") from e
-        
+
     @staticmethod
     def facilitate_recipe_link_creation(recipient, shared_id):
         """"Distributes recipe data to corresponding function"""
-        book = None
 
         default_book_id = recipient.default_book_id
-        book_type = BookRepo.query_user_book_by_pk(default_book_id)
+        book_type = BookRepo.query_user_book_by_pk(default_book_id).book_type
 
         if not default_book_id:
             RecipeServices.share_recipe_no_default_book()
@@ -299,9 +301,6 @@ class RecipeServices():
 
         if book_type == "shared_inbox":
             RecipeServices.share_recipe_shared_default_book()
-
-    
-
 
     @staticmethod
     def share_recipe_no_default_book():
@@ -314,6 +313,31 @@ class RecipeServices():
     @staticmethod
     def share_recipe_shared_default_book():
         """User shares recipe with Recipient that has SHARED default book"""
+
+    @staticmethod
+    def fetch_shared_link(recipient_id, shared_id):
+        """Queries shared link. If none, shared link is created. Returns link"""
+        try:
+            shared_link = UserBookRepo.query_shared_book(
+                recipient_id=recipient_id)
+
+            if not shared_link:
+                shared_book = BookRepo.create_book(title="Shared Recipes",
+                                                   description="Inbox: Recipes shared by others",
+                                                   book_type=BookType.shared_inbox)
+                shared_link = UserBookRepo.create_entry(
+                    user_id=recipient_id, book_id=shared_book["id"])
+
+                response = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
+                    shared_link_id=shared_link.book_id, shared_book_id=shared_id)
+                
+                if response:
+                    return response
+
+            return shared_link
+        except Exception as e:
+            db.session.rollback()
+            raise
 
     @staticmethod
     def remove_recipe(auth_id, recipe_id, data):
@@ -332,16 +356,18 @@ class RecipeServices():
     @staticmethod
     def remove_shared_recipe(authed_id, recipe_id, book_id):
         """Verifies shared recipe belongs to user's shared book. Then deletes association"""
-        user_book = UserBookRepo.query_user_book(book_id=book_id, user_id=authed_id)
-        highlight(user_book,"!")
+        user_book = UserBookRepo.query_user_book(
+            book_id=book_id, user_id=authed_id)
+        highlight(user_book, "!")
         if not user_book:
-                raise NotFound("Not found")
-        is_book_type_shared = user_book.book.book_type 
-        if not is_book_type_shared: 
+            raise NotFound("Not found")
+        is_book_type_shared = user_book.book.book_type
+        if not is_book_type_shared:
             raise ForbiddenError("Forbidden request")
         try:
-            highlight((book_id,recipe_id),"!")
-            response = RecipeBookRepo.remove_book_association(book_id=book_id,recipe_id=recipe_id)
+            highlight((book_id, recipe_id), "!")
+            response = RecipeBookRepo.remove_book_association(
+                book_id=book_id, recipe_id=recipe_id)
             db.session.commit()
             return response
         except Exception as e:

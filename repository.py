@@ -103,9 +103,7 @@ class RecipeRepo():
         """Creates recipe association between User's and Recipient. All shared
         recipes will populate in recipient's "Shared Recipes" book. If book does
         not exist one will be created automatically"""
-        highlight(recipient,"!")
         shared_link = UserBookRepo.query_shared_book(recipient_id=recipient.id)
-        highlight(shared_id,"@")
         book = None
         has_default_book = recipient.default_book_id
         if not shared_link:
@@ -474,13 +472,27 @@ class RecipeBookRepo():
             stmt = db.select(RecipeBook).filter_by(
                 book_id=book_id, recipe_id=recipe_id)
             recipe = db.session.execute(stmt).scalar_one_or_none()
-            highlight(recipe, "$")
             db.session.delete(recipe)
             return {"message": "Recipe is no longer shared"}
         except Exception as e:
             raise type(e)(
                 f"RecipeBookRep - remove_book_association error:{e}") from e
+        
+    @staticmethod
+    def does_recipe_exist_in_shared_inbox(shared_link_id, shared_book_id):
+        """Query recipe in shared_inbox, check if already shared. Return boolean"""
+        try:
+            stmt = db.select(RecipeBook).where(
+                book_id=shared_link_id, recipe_id=shared_book_id)
+            is_shared = db.session.execute(stmt).scalar_one_or_none()
 
+            if is_shared:
+                return {"message": "Recipe already shared with user.",
+                        "error": "Conflict", "code": 409}
+            return None
+        except Exception as e:
+            raise type(e)(
+                f"RecipeBookRep - has_recipe_been_shared error:{e}") from e
 
 class UserBookRepo():
     """Facilitates association of users & books"""
