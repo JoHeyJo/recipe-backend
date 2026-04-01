@@ -160,16 +160,6 @@ class RecipeRepo():
             
             highlight(("is_shared:",is_shared, "has_default_book:",has_default_book),"!")
 
-            highlight(book,"!")
-            if not is_shared and not has_default_book:
-                RecipeBookRepo.create_entry(
-                    book_id=shared_link.book_id, recipe_id=shared_id)
-                recipient.default_book_id = book["id"]
-
-                book_with_role = BookRepo.build_book(
-                    user_id=recipient.id, book_id=book["id"])
-
-                return {"message": "Recipe successfully shared!", "code": 200, "payload": book_with_role}
 
         except Exception as e:
             raise type(e)(f"RecipeRepo -> create_recipe_link error:{e}") from e

@@ -328,12 +328,27 @@ class RecipeServices():
         return {"message": "Recipe successfully shared!", "code": 200, "payload": book_with_role}
 
     @staticmethod
-    def share_recipe_standard_default_book():
+    def share_recipe_standard_default_book(recipient, shared_recipe_id):
         """User shares recipe with Recipient that has STANDARD default book"""
+        # Nothing has to be done about setting the recipients default book
+        # retrieve shared_link(book)
+        # check if recipe has already been shared
+
+        # if not shared shared recipe with recipients shared_book
+        response = RecipeServices.fetch_shared_link(
+            recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
+        
+        if response ["error"]:
+            return response
+        
+        RecipeBookRepo.create_entry(
+            book_id=response.book_id, recipe_id=shared_recipe_id)
 
     @staticmethod
-    def share_recipe_shared_default_book():
+    def share_recipe_shared_default_book(recipient, shared_recipe_id):
         """User shares recipe with Recipient that has SHARED default book"""
+        response = RecipeServices.fetch_shared_link(
+            recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
 
     @staticmethod
     def fetch_shared_link(recipient_id, shared_recipe_id):
