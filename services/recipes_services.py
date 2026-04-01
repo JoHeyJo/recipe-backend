@@ -258,7 +258,7 @@ class RecipeServices():
             raise type(e)(f"Failed to process_edit_instructions: {e}") from e
 
     @staticmethod
-    def share_recipe(auth_id, recipient, recipe_id):
+    def process_recipe_share(auth_id, recipient, recipe_id):
         """Process sharing user recipe with recipient"""
         recipient = UserRepo.query_user_name(user_name=recipient)
         recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
@@ -284,7 +284,7 @@ class RecipeServices():
         except Exception as e:
             db.session.rollback()
             raise type(e)(
-                f"Failed to share_recipe error: {e}") from e
+                f"Failed to process_recipe_share error: {e}") from e
 
     @staticmethod
     def facilitate_recipe_link_creation(recipient, shared_id):
@@ -314,18 +314,13 @@ class RecipeServices():
         if response["error"]:
             return response
 
-        # share recipe with recipient's Shared Recipes book
-        RecipeBookRepo.create_entry(
-            book_id=response.book_id, recipe_id=shared_recipe_id)
+        message = RecipeServices.share_recipe(
+            book_id=response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
 
         # Assign Shared Recipe as default book
         recipient.default_book_id = response.book_id
 
-        # Build return object for client
-        book_with_role = BookRepo.build_book(
-            user_id=recipient.id, book_id=response.book_id)
-
-        return {"message": "Recipe successfully shared!", "code": 200, "payload": book_with_role}
+        return message
 
     @staticmethod
     def share_recipe_standard_default_book(recipient, shared_recipe_id):
@@ -334,13 +329,13 @@ class RecipeServices():
         # retrieve shared_link(book)
         # check if recipe has already been shared
 
-        # if not shared shared recipe with recipients shared_book
+        # if not shared share recipe with recipients shared_book
         response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
-        
-        if response ["error"]:
+
+        if response["error"]:
             return response
-        
+
         RecipeBookRepo.create_entry(
             book_id=response.book_id, recipe_id=shared_recipe_id)
 
@@ -386,14 +381,15 @@ class RecipeServices():
         """Verifies shared recipe belongs to user's shared book. Then deletes association"""
         user_book = UserBookRepo.query_user_book(
             book_id=book_id, user_id=authed_id)
-        highlight(user_book, "!")
+
         if not user_book:
             raise NotFound("Not found")
         is_book_type_shared = user_book.book.book_type
+
         if not is_book_type_shared:
             raise ForbiddenError("Forbidden request")
+
         try:
-            highlight((book_id, recipe_id), "!")
             response = RecipeBookRepo.remove_book_association(
                 book_id=book_id, recipe_id=recipe_id)
             db.session.commit()
@@ -401,3 +397,14 @@ class RecipeServices():
         except Exception as e:
             db.session.rollback()
             raise type(e)(f"Failed to remove_shared_recipe error: {e}") from e
+
+    @staticmethod
+    def share_recipe(share_inbox_id, recipe_id, recipient_id):
+        """Associate user's shared recipe to recipients 'Shared Recipes' book"""
+        # take a look at this return object
+        RecipeBookRepo.create_entry(book_id=share_inbox_id, recipe_id=recipe_id)
+
+        book_with_role = BookRepo.build_book(
+            user_id=recipient_id, book_id=share_inbox_id)
+
+        return {"message": "Recipe successfully shared!", "code": 200, "payload": book_with_role}

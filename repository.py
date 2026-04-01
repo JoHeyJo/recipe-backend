@@ -452,6 +452,7 @@ class RecipeBookRepo():
         try:
             entry = RecipeBook(book_id=book_id, recipe_id=recipe_id)
             db.session.add(entry)
+            return entry
         except Exception as e:
             raise type(e)(f"RecipeBookRep - create_entry error:{e}") from e
 
