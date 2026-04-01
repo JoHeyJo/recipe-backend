@@ -480,7 +480,7 @@ class RecipeBookRepo():
         
     @staticmethod
     def does_recipe_exist_in_shared_inbox(shared_link_id, shared_book_id):
-        """Query recipe in shared_inbox, check if already shared. Return boolean"""
+        """Query recipe in shared_inbox, return message if it already or None"""
         try:
             stmt = db.select(RecipeBook).where(
                 book_id=shared_link_id, recipe_id=shared_book_id)

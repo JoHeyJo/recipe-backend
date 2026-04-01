@@ -316,7 +316,7 @@ class RecipeServices():
 
     @staticmethod
     def fetch_shared_link(recipient_id, shared_id):
-        """Queries shared link. If none, shared link is created. Returns link"""
+        """Queries shared link. Create if necessary and return link if not already shared"""
         try:
             shared_link = UserBookRepo.query_shared_book(
                 recipient_id=recipient_id)
@@ -328,13 +328,11 @@ class RecipeServices():
                 shared_link = UserBookRepo.create_entry(
                     user_id=recipient_id, book_id=shared_book["id"])
 
-                response = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
-                    shared_link_id=shared_link.book_id, shared_book_id=shared_id)
-                
-                if response:
-                    return response
+            response = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
+                shared_link_id=shared_link.book_id, shared_book_id=shared_id)
 
-            return shared_link
+            return response if response else shared_link
+
         except Exception as e:
             db.session.rollback()
             raise
