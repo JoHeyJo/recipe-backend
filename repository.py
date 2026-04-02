@@ -473,9 +473,8 @@ class RecipeBookRepo():
     def does_recipe_exist_in_shared_inbox(shared_link_id, shared_recipe_id):
         """Query recipe in shared_inbox return value or none"""
         try:
-            stmt = db.select(RecipeBook).where(
-                RecipeBook.book_id == shared_link_id, 
-                RecipeBook.recipe_id == shared_recipe_id)
+            stmt = db.session.get(
+                RecipeBook, {"book_id": shared_link_id, "recipe_id": shared_recipe_id})
             
             return db.session.execute(stmt).scalar_one_or_none()
         except Exception as e:
