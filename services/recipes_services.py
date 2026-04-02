@@ -313,7 +313,7 @@ class RecipeServices():
         """User shares recipe with Recipient that has no default book assigned"""
         response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
-        highlight(("response:", response), "!")
+
         if not response:
             return
 
@@ -328,20 +328,16 @@ class RecipeServices():
     @staticmethod
     def share_recipe_standard_default_book(recipient, shared_recipe_id):
         """User shares recipe with Recipient that has STANDARD default book"""
-        # Nothing has to be done about setting the recipients default book
-        # retrieve shared_link(book)
-        # check if recipe has already been shared
-
-        # if not shared share recipe with recipients shared_book
         response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
 
         if not response:
-            return {"message": "Recipe already shared with user.",
-                    "error": "Conflict", "code": 409}
+            return 
 
-        RecipeBookRepo.create_entry(
-            book_id=response.book_id, recipe_id=shared_recipe_id)
+        message = RecipeServices.share_recipe(
+            share_inbox_id=response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
+        
+        return message
 
     @staticmethod
     def share_recipe_shared_default_book(recipient, shared_recipe_id):
