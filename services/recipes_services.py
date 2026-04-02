@@ -299,14 +299,17 @@ class RecipeServices():
         if not default_book_id:
             return RecipeServices.share_recipe_no_default_book(
                 recipient=recipient, shared_recipe_id=shared_id)
-
-        if book.book_type == "standard":
+        
+        if book.book_type.value == "standard":
             return RecipeServices.share_recipe_standard_default_book(
-                recipient=recipient, shared_book_id=shared_id)
+                recipient=recipient, shared_recipe_id=shared_id)
 
-        if book.book_type == "shared_inbox":
+        if book.book_type.value == "shared_inbox":
             return RecipeServices.share_recipe_shared_default_book(
                 recipient=recipient, shared_book_id=shared_id)
+
+        return {"message": "Nothing to process - try your request again.",
+                "error": "Unknown", "code": 500}
 
     @staticmethod
     def share_recipe_no_default_book(recipient, shared_recipe_id):
@@ -332,11 +335,11 @@ class RecipeServices():
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
 
         if not response:
-            return 
+            return
 
         message = RecipeServices.share_recipe(
             share_inbox_id=response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
-        
+
         return message
 
     @staticmethod
@@ -349,7 +352,6 @@ class RecipeServices():
     def fetch_shared_link(recipient_id, shared_recipe_id):
         """Queries shared link. Create if necessary and return link if not already shared"""
         shared_link = UserBookRepo.query_shared_book(recipient_id=recipient_id)
-
         if not shared_link:
             shared_book = BookRepo.create_book(title="Shared Recipes",
                                                description="Inbox: Recipes shared by others",
@@ -405,13 +407,13 @@ class RecipeServices():
     def share_recipe(share_inbox_id, recipe_id, recipient_id):
         """Associate user's shared recipe to recipients 'Shared Recipes' book"""
         # take a look at this return object
-        RecipeBookRepo.create_entry(
+        res = RecipeBookRepo.create_entry(
             book_id=share_inbox_id, recipe_id=recipe_id)
-
+        highlight(("RES:", res), "!")
         book_with_role = BookRepo.build_book(
             user_id=recipient_id, book_id=share_inbox_id)
 
-        return {"message": "Recipe successfully shared!", 
+        return {"message": "Recipe successfully shared!",
                 "recipient_id": recipe_id,
-                 "code": 200, "payload": book_with_role
-                 }
+                "code": 200, "payload": book_with_role
+                }
