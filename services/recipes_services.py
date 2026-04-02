@@ -263,23 +263,28 @@ class RecipeServices():
         recipient = UserRepo.query_user_name(user_name=recipient)
         recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
         recipe_build = RecipeServices.build_recipe(recipe_id=recipe_id)
-        # if not recipient:
-        #     return {"message": "User not found", "error": "Not Found", "code": 404}
-        # if auth_id == recipient.id:
-        #     return {"message": "Why are you sharing this with yourself???",
-        #             "error": "BadRequest", "code": 400}
-        # if not recipe.is_owned_by(auth_id):
-        #     return {"message": "This is not yours to share...",
-        #             "error": "Forbidden", "code": 403}
+
+        if not recipient:
+            return {"message": "User not found", "error": "Not Found", "code": 404}
+        if auth_id == recipient.id:
+            return {"message": "Why are you sharing this with yourself???",
+                    "error": "BadRequest", "code": 400}
+        if not recipe.is_owned_by(auth_id):
+            return {"message": "This is not yours to share...",
+                    "error": "Forbidden", "code": 403}
         try:
             message = RecipeServices.facilitate_recipe_link_creation(
                 recipient=recipient, shared_id=recipe_id)
+            
+            if not message:
+                return {"message": "Recipe already shared with user.",
+                    "error": "Conflict", "code": 409}
 
-            db.session.commit()
 
             message["recipient_id"] = recipient.id
 
             highlight(message, "!")
+            # db.session.commit()
             return {**message, "recipe": recipe_build}
         except Exception as e:
             db.session.rollback()
@@ -291,17 +296,17 @@ class RecipeServices():
         """"Distributes recipe data to corresponding function"""
 
         default_book_id = recipient.default_book_id
-        book_type = BookRepo.query_user_book_by_pk(default_book_id).book_type
+        book = BookRepo.query_user_book_by_pk(default_book_id)
 
         if not default_book_id:
             return RecipeServices.share_recipe_no_default_book(
-                recipient=recipient, shared_book_id=shared_id)
+                recipient=recipient, shared_recipe_id=shared_id)
 
-        if book_type == "standard":
+        if book.book_type == "standard":
             return RecipeServices.share_recipe_standard_default_book(
                 recipient=recipient, shared_book_id=shared_id)
 
-        if book_type == "shared_inbox":
+        if book.book_type == "shared_inbox":
             return RecipeServices.share_recipe_shared_default_book(
                 recipient=recipient, shared_book_id=shared_id)
 
@@ -311,8 +316,8 @@ class RecipeServices():
         response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
 
-        if response["error"]:
-            return response
+        if not response:
+            return 
 
         message = RecipeServices.share_recipe(
             book_id=response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
@@ -333,8 +338,9 @@ class RecipeServices():
         response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
 
-        if response["error"]:
-            return response
+        if not response:
+            return {"message": "Recipe already shared with user.",
+                    "error": "Conflict", "code": 409}
 
         RecipeBookRepo.create_entry(
             book_id=response.book_id, recipe_id=shared_recipe_id)
@@ -357,10 +363,13 @@ class RecipeServices():
             shared_link = UserBookRepo.create_entry(
                 user_id=recipient_id, book_id=shared_book["id"])
 
-        response = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
-            shared_link_id=shared_link.book_id, shared_book_id=shared_recipe_id)
+        is_recipe_shared = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
+            shared_link_id=shared_link.book_id, shared_recipe_id=shared_recipe_id)
+        
+        highlight(is_recipe_shared == None, "!")
+        highlight(shared_link, "!")
 
-        return response if response else shared_link
+        return is_recipe_shared if not is_recipe_shared else shared_link
 
     @staticmethod
     def remove_recipe(auth_id, recipe_id, data):

@@ -291,10 +291,10 @@ def test_function(authed_user_id):
     recipient = request.json["recipient"]
     recipe_id = request.json["recipe_id"]
 
-    RecipeServices.share_recipe(
+    res = RecipeServices.process_recipe_share(
         auth_id=authed_user_id, recipient=recipient, recipe_id=recipe_id)
 
-    return {"message":"success!"}
+    return jsonify(res)
 
 ################################################################################
 

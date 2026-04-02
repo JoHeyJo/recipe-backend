@@ -99,7 +99,7 @@ class RecipeRepo():
             raise type(e)(f"RecipeRepo -> create_recipe error:{e}") from e
 
     @staticmethod
-    def create_recipe_link(recipient, shared_id):
+    def create_recipe_lik(recipient, shared_id):
         """Creates recipe association between User's and Recipient. All shared
         recipes will populate in recipient's "Shared Recipes" book. If book does
         not exist one will be created automatically"""
@@ -124,42 +124,45 @@ class RecipeRepo():
 # look at payload when not is_shared and has_default_book and has be previously shared
 
 # look at payload when User shares with Book with Recipient  - No default book (tester)
-###Current Book is undefined after default book is created - default book is a complete object
-###On refresh sharing book works
-### Client needed to have context updated with relevant data
-### Now book needs to populate for recipient``
-### This look good!
+# Current Book is undefined after default book is created - default book is a complete object
+# On refresh sharing book works
+# Client needed to have context updated with relevant data
+# Now book needs to populate for recipient``
+# This look good!
 
 
 # look at payload when User shares with Book with Recipient  - Assigned default book (tester)
-### This looks good
+# This looks good
 
 # look at payload when User shares recipe with Recipient - No default book
-###THIS LOOKS GOOD
+# THIS LOOKS GOOD
 
-# look at payload when User shares recipe with Recipient - Default book is standard 
-### recipient's dropdown list is replaced with the one shared book and recipe is render
-### if another book is shared an error is thrown
-### If recipient has standard default book then:
-### message should be shown
-### dropdown should be populated
-### Shared book is not retrieved if recipient already has a shared book
+# look at payload when User shares recipe with Recipient - Default book is standard
+# recipient's dropdown list is replaced with the one shared book and recipe is render
+# if another book is shared an error is thrown
+# If recipient has standard default book then:
+# message should be shown
+# dropdown should be populated
+# Shared book is not retrieved if recipient already has a shared book
 
 
 # look at payload when User shares recipe with Recipient - Default book is Shared Book
 
-            highlight(("is_shared:",is_shared, "has_default_book:",has_default_book),"!")
+            highlight(("is_shared:", is_shared,
+                      "has_default_book:", has_default_book), "!")
             if not is_shared and has_default_book:
                 msg = RecipeBookRepo.create_entry(
                     book_id=shared_link.book_id, recipe_id=shared_id)
                 highlight(book, "!")
+
                 book_with_role = BookRepo.build_book(
                     user_id=recipient.id, book_id=book["id"])
-                highlight((msg,book_with_role),"!")
+                
+                highlight((msg, book_with_role), "!")
                 return {"message": "Recipe successfully shared!", "code": 200, "payload": book_with_role}
-            
-            highlight(("is_shared:",is_shared, "has_default_book:",has_default_book),"!")
 
+            highlight(("is_shared:", is_shared,
+                      "has_default_book:", has_default_book), "!")
 
         except Exception as e:
             raise type(e)(f"RecipeRepo -> create_recipe_link error:{e}") from e
@@ -334,7 +337,7 @@ class BookRepo():
             return Book.serialize(book)
         except Exception as e:
             raise type(e)(f"create_book error: {e}") from e
-        
+
     @staticmethod
     def query_user_book_by_pk(book_pk):
         """Query book by pk. Return none if not found"""
@@ -395,7 +398,6 @@ class InstructionRepo():
             instructions = Instruction.query.all()
             return [Instruction.serialize(instruction) for instruction in instructions]
         except Exception as e:
-            # db.session.rollback()
             raise type(e)(f"InstructionRepo - get_instruction error: {e}")
 
     @staticmethod
@@ -409,7 +411,6 @@ class InstructionRepo():
             ).filter(UserBook.user_id == user_id).all()
             return [Instruction.serialize(instruction) for instruction in instructions]
         except Exception as e:
-            # db.session.rollback()
             raise type(e)(
                 f"InstructionRepo - get_user_instructions error: {e}")
 
@@ -460,30 +461,27 @@ class RecipeBookRepo():
     def remove_book_association(book_id, recipe_id):
         """Delete association sharing recipe to recipient"""
         try:
-            stmt = db.select(RecipeBook).filter_by(
-                book_id=book_id, recipe_id=recipe_id)
-            recipe = db.session.execute(stmt).scalar_one_or_none()
-            db.session.delete(recipe)
+            recipe_book = db.session.get(
+                RecipeBook, {"book_id": book_id, "recipe_id": recipe_id})
+            db.session.delete(recipe_book)
             return {"message": "Recipe is no longer shared"}
         except Exception as e:
             raise type(e)(
                 f"RecipeBookRep - remove_book_association error:{e}") from e
-        
+
     @staticmethod
     def does_recipe_exist_in_shared_inbox(shared_link_id, shared_recipe_id):
-        """Query recipe in shared_inbox, return message if it already or None"""
+        """Query recipe in shared_inbox return value or none"""
         try:
             stmt = db.select(RecipeBook).where(
-                book_id=shared_link_id, recipe_id=shared_recipe_id)
-            is_shared = db.session.execute(stmt).scalar_one_or_none()
-
-            if is_shared:
-                return {"message": "Recipe already shared with user.",
-                        "error": "Conflict", "code": 409}
-            return is_shared
+                RecipeBook.book_id == shared_link_id, 
+                RecipeBook.recipe_id == shared_recipe_id)
+            
+            return db.session.execute(stmt).scalar_one_or_none()
         except Exception as e:
             raise type(e)(
-                f"RecipeBookRep - has_recipe_been_shared error:{e}") from e
+                f"RecipeBookRep - does_recipe_exist_in_shared_inbox error:{e}") from e
+
 
 class UserBookRepo():
     """Facilitates association of users & books"""
