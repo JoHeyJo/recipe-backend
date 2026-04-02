@@ -393,7 +393,7 @@ def share_recipe(data):
         emit('error_sharing_recipe', {'data': 'Invalid request missing data'})
         return
     try:
-        response = RecipeServices.share_recipe(
+        response = RecipeServices.process_recipe_share(
             auth_id=user_id, recipient=recipient, recipe_id=recipe_id)
 
         if response["code"] in (400, 403, 404, 409):
@@ -416,7 +416,6 @@ def share_recipe(data):
         # else:
             # Future logic to que up message for offline recipient
     except Exception as e:
-        db.session.rollback()
         emit('error_sharing_recipe', {'data': 'Something went wrong'})
         app.logger.error(f"socketio - share_recipe: {e}")
         return

@@ -275,16 +275,14 @@ class RecipeServices():
         try:
             message = RecipeServices.facilitate_recipe_link_creation(
                 recipient=recipient, shared_id=recipe_id)
-            
+
             if not message:
+                db.session.rollback()
                 return {"message": "Recipe already shared with user.",
-                    "error": "Conflict", "code": 409}
-
-
-            message["recipient_id"] = recipient.id
+                        "error": "Conflict", "code": 409}
 
             highlight(message, "!")
-            # db.session.commit()
+            db.session.commit()
             return {**message, "recipe": recipe_build}
         except Exception as e:
             db.session.rollback()
@@ -315,12 +313,12 @@ class RecipeServices():
         """User shares recipe with Recipient that has no default book assigned"""
         response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
-
+        highlight(("response:", response), "!")
         if not response:
-            return 
+            return
 
         message = RecipeServices.share_recipe(
-            book_id=response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
+            share_inbox_id=response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
 
         # Assign Shared Recipe as default book
         recipient.default_book_id = response.book_id
@@ -365,11 +363,11 @@ class RecipeServices():
 
         is_recipe_shared = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
             shared_link_id=shared_link.book_id, shared_recipe_id=shared_recipe_id)
-        
-        highlight(is_recipe_shared == None, "!")
-        highlight(shared_link, "!")
 
-        return is_recipe_shared if not is_recipe_shared else shared_link
+        highlight(("is_recipe_shared:", is_recipe_shared), "!")
+        highlight(("shared_link:", shared_link), "!")
+
+        return is_recipe_shared or shared_link
 
     @staticmethod
     def remove_recipe(auth_id, recipe_id, data):
@@ -411,9 +409,13 @@ class RecipeServices():
     def share_recipe(share_inbox_id, recipe_id, recipient_id):
         """Associate user's shared recipe to recipients 'Shared Recipes' book"""
         # take a look at this return object
-        RecipeBookRepo.create_entry(book_id=share_inbox_id, recipe_id=recipe_id)
+        RecipeBookRepo.create_entry(
+            book_id=share_inbox_id, recipe_id=recipe_id)
 
         book_with_role = BookRepo.build_book(
             user_id=recipient_id, book_id=share_inbox_id)
 
-        return {"message": "Recipe successfully shared!", "code": 200, "payload": book_with_role}
+        return {"message": "Recipe successfully shared!", 
+                "recipient_id": recipe_id,
+                 "code": 200, "payload": book_with_role
+                 }
