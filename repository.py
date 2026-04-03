@@ -74,6 +74,25 @@ class UserRepo():
     def hash_password(string):
         """Hashes string sequence"""
         return bcrypt.generate_password_hash(string).decode('UTF-8')
+    
+    @staticmethod
+    def _query_by_user(model, association_model, model_fk):
+        """Query any resource associated to a user through UserBook.
+        
+        Args:
+            model: The resource model to query (Item, QuantityUnit, QuantityAmount)
+            association_model: The association table (ItemBook, UnitBook, AmountBook)
+            model_fk: The FK column on the association table pointing to the model
+        """
+        def query(user_id: int):
+            stmt = (
+                db.select(model)
+                .join(association_model, model.id == model_fk)
+                .join(UserBook, association_model.book_id == UserBook.book_id)
+                .where(UserBook.user_id == user_id)
+            )
+            return db.session.execute(stmt).scalars().all()
+        return query
 
 
 class RecipeRepo():
@@ -257,15 +276,18 @@ class QuantityUnitRepo():
     def query_user_units(user_id):
         """Return user's units"""
         try:
-            units = db.session.query(QuantityUnit).join(
-                UnitBook, QuantityUnit.id == UnitBook.unit_id
-            ).join(
-                UserBook, UnitBook.book_id == UserBook.book_id
-            ).filter(UserBook.user_id == user_id).all()
+            stmt = (
+                db.select(QuantityUnit)
+                .join(UnitBook, QuantityUnit.id == UnitBook.unit_id)
+                .join(UserBook, UnitBook.book_id == UserBook.book_id)
+                .where(UserBook.user_id == user_id)
+            )
+
+            units = db.session.execute(stmt).scalars().all()
             return [QuantityUnit.serialize(unit) for unit in units]
         except Exception as e:
             raise type(e)(
-                f"QuantityUnitRepo - get_all_units error: {e}") from e
+                f"QuantityUnitRepo - query_user_units error: {e}") from e
 
     @staticmethod
     def query_book_units(book_id):
@@ -313,11 +335,14 @@ class ItemRepo():
     def query_user_items(user_id):
         """Return user's items"""
         try:
-            items = db.session.query(Item).join(
-                ItemBook, Item.id == ItemBook.item_id
-            ).join(
-                UserBook, ItemBook.book_id == UserBook.book_id
-            ).filter(UserBook.user_id == user_id).all()
+            stmt = (
+                db.select(Item)
+                .join(ItemBook, Item.id == ItemBook.item_id)
+                .join(UserBook, ItemBook.book_id == UserBook.book_id)
+                .where(UserBook.user_id == user_id)
+            )
+
+            items = db.session.execute(stmt).scalars().all()
             return [Item.serialize(item) for item in items]
         except Exception as e:
             raise type(e)(f"query_user_items error: {e}") from e
@@ -372,9 +397,13 @@ class BookRepo():
         try:
             stmt = db.select(UserBook).where(
                 UserBook.book_id == book_id, UserBook.user_id == user_id)
+            
             user_book = db.session.execute(stmt).scalar_one_or_none()
+
             serialized = Book.serialize(user_book.book)
+
             serialized["book_role"] = user_book.role.value
+
             return serialized
         except Exception as e:
             raise type(e)(f"BookRepo - build_book error: {e}") from e
