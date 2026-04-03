@@ -78,7 +78,7 @@ class UserRepo():
     @staticmethod
     def _query_by_user(model, association_model, model_fk):
         """Query any resource associated to a user through UserBook.
-        
+
         Args:
             model: The resource model to query (Item, QuantityUnit, QuantityAmount)
             association_model: The association table (ItemBook, UnitBook, AmountBook)
@@ -246,14 +246,9 @@ class QuantityAmountRepo():
     def query_user_amounts(user_id):
         """Return user amounts"""
         try:
-            stmt = (
-                db.select(QuantityAmount)
-                .join(AmountBook, QuantityAmount.id == AmountBook.amount_id)
-                .join(UserBook, AmountBook.book_id == UserBook.book_id)
-                .where(UserBook.user_id == user_id)
-            )
-
-            amounts = db.session.execute(stmt).scalars().all()
+            amounts = UserRepo._query_by_user(
+                QuantityAmount, AmountBook, AmountBook.amount_id)(user_id)
+            
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
             raise type(e)(
@@ -276,14 +271,9 @@ class QuantityUnitRepo():
     def query_user_units(user_id):
         """Return user's units"""
         try:
-            stmt = (
-                db.select(QuantityUnit)
-                .join(UnitBook, QuantityUnit.id == UnitBook.unit_id)
-                .join(UserBook, UnitBook.book_id == UserBook.book_id)
-                .where(UserBook.user_id == user_id)
-            )
-
-            units = db.session.execute(stmt).scalars().all()
+            units = UserRepo._query_by_user(
+                QuantityUnit, UnitBook, UnitBook.unit_id)(user_id)
+            
             return [QuantityUnit.serialize(unit) for unit in units]
         except Exception as e:
             raise type(e)(
@@ -335,14 +325,8 @@ class ItemRepo():
     def query_user_items(user_id):
         """Return user's items"""
         try:
-            stmt = (
-                db.select(Item)
-                .join(ItemBook, Item.id == ItemBook.item_id)
-                .join(UserBook, ItemBook.book_id == UserBook.book_id)
-                .where(UserBook.user_id == user_id)
-            )
-
-            items = db.session.execute(stmt).scalars().all()
+            items = UserRepo._query_by_user(
+                Item, ItemBook, ItemBook.item_id)(user_id)
             return [Item.serialize(item) for item in items]
         except Exception as e:
             raise type(e)(f"query_user_items error: {e}") from e
