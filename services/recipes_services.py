@@ -36,7 +36,7 @@ class RecipeServices():
                 recipe_data["instructions"] = []
 
             db.session.commit()
-
+            highlight(("recipe_data:",recipe_data),"!")
             return recipe_data
         except Exception as e:
             db.session.rollback()
@@ -95,8 +95,9 @@ class RecipeServices():
             for instruction in instructions_data:
                 id = RecipeInstructionRepo.create_entry(
                     recipe_id=recipe_id, instruction_id=instruction["id"])
-                
+                highlight(("instruction:",instruction, "id:",id),"!")
                 instruction["instruction_id"] = id
+                highlight(("instruction:",instruction, "id:",id),"!")
 
             return instructions_data
         except Exception as e:
@@ -156,6 +157,7 @@ class RecipeServices():
     @staticmethod
     def process_edit(user_id, data, recipe_id):
         """Consolidates recipe edit process"""
+        highlight(("edit data:",data),"!")
         if user_id is not data.get("created_by_id"):
             raise Forbidden("Not authorized to make edits")
         try:
@@ -242,6 +244,7 @@ class RecipeServices():
     @staticmethod
     def process_edit_instructions(instructions, recipe_id):
         """Edits recipe's instructions by modifying RecipeInstruction association"""
+        highlight(("instructions:", instructions), "!")
         try:
             for instruction in instructions:
                 if instruction["associationId"]:

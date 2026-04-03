@@ -365,13 +365,15 @@ class BookRepo():
         """Returns all books associated to user"""
         try:
             user = UserRepo.query_user(user_pk=user_id)
-            return [
+            books =  [
                 {
                     **Book.serialize(user_book.book),
                     "book_role": user_book.role.value
                 }
                 for user_book in user.user_books
             ]
+            highlight(("books:",books),"!")
+            return books
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
 
