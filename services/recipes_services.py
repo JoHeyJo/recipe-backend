@@ -95,6 +95,7 @@ class RecipeServices():
             for instruction in instructions_data:
                 id = RecipeInstructionRepo.create_entry(
                     recipe_id=recipe_id, instruction_id=instruction["id"])
+                
                 instruction["instruction_id"] = id
 
             return instructions_data

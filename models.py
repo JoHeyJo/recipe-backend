@@ -285,10 +285,11 @@ class BookInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.M
 
 class RecipeInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for recipes and instructions"""
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     recipe_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("recipes.id", ondelete="CASCADE"), primary_key=True)
+        Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
     instruction_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("instructions.id"), primary_key=True)
+        Integer, ForeignKey("instructions.id"))
 
 
 class AmountBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
