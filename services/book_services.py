@@ -52,7 +52,7 @@ class BookServices():
                         "error": "Unprocessable Content", "code": 422
                         }
             
-            relation_exists = db.session.get(UserBook, (book_id, recipient.id))
+            relation_exists = UserBookRepo.query_shared_book(book_id=book_id, user_id=recipient.id)
 
             if relation_exists:
                 return {"message": "User already has access to this book!",

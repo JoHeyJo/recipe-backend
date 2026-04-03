@@ -74,7 +74,7 @@ class UserRepo():
     def hash_password(string):
         """Hashes string sequence"""
         return bcrypt.generate_password_hash(string).decode('UTF-8')
-    
+
     @staticmethod
     def _query_by_user(model, association_model, model_fk):
         """Query any resource associated to a user through UserBook.
@@ -248,7 +248,7 @@ class QuantityAmountRepo():
         try:
             amounts = UserRepo._query_by_user(
                 QuantityAmount, AmountBook, AmountBook.amount_id)(user_id)
-            
+
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
             raise type(e)(
@@ -273,7 +273,7 @@ class QuantityUnitRepo():
         try:
             units = UserRepo._query_by_user(
                 QuantityUnit, UnitBook, UnitBook.unit_id)(user_id)
-            
+
             return [QuantityUnit.serialize(unit) for unit in units]
         except Exception as e:
             raise type(e)(
@@ -364,7 +364,7 @@ class BookRepo():
     def query_user_books(user_id):
         """Returns all books associated to user"""
         try:
-            user = db.session.query(User).filter_by(id=user_id).first()
+            user = UserRepo.query_user(user_pk=user_id)
             return [
                 {
                     **Book.serialize(user_book.book),
@@ -377,12 +377,11 @@ class BookRepo():
 
     @staticmethod
     def build_book(user_id, book_id):
-        """Build book object to include 'book_role'"""
+        """Build book object to include 'book_role - !!should be moved to service layer!!'"""
         try:
-            stmt = db.select(UserBook).where(
-                UserBook.book_id == book_id, UserBook.user_id == user_id)
-            
-            user_book = db.session.execute(stmt).scalar_one_or_none()
+
+            user_book = UserBookRepo.query_user_book(
+                book_id=book_id, user_id=user_id)
 
             serialized = Book.serialize(user_book.book)
 
@@ -420,11 +419,8 @@ class InstructionRepo():
     def query_user_instructions(user_id):
         """Query all instructions associated with a user - relying on table join"""
         try:
-            instructions = db.session.query(Instruction).join(
-                BookInstruction, Instruction.id == BookInstruction.instruction_id
-            ).join(
-                UserBook, BookInstruction.book_id == UserBook.book_id
-            ).filter(UserBook.user_id == user_id).all()
+            instructions = UserRepo._query_by_user(
+                Instruction, BookInstruction, BookInstruction.instruction_id)(user_id)
             return [Instruction.serialize(instruction) for instruction in instructions]
         except Exception as e:
             raise type(e)(
@@ -486,7 +482,8 @@ class RecipeBookRepo():
     def remove_book_association(book_id, recipe_id):
         """Delete association sharing recipe to recipient"""
         try:
-            recipe_book = RecipeBookRepo.query_recipe_book(book_id=book_id, recipe_id=recipe_id)
+            recipe_book = RecipeBookRepo.query_recipe_book(
+                book_id=book_id, recipe_id=recipe_id)
             db.session.delete(recipe_book)
             return {"message": "Recipe is no longer shared"}
         except Exception as e:
@@ -520,11 +517,9 @@ class UserBookRepo():
 
     @staticmethod
     def query_user_book(book_id, user_id):
-        """Query UserBook by user id and book id. Return user_book or none"""
+        """Query UserBook by composite  user id and book id. Return user_book or none"""
         try:
-            stmt = db.select(UserBook).filter_by(
-                book_id=book_id, user_id=user_id)
-            return db.session.execute(stmt).scalar_one_or_none()
+            return db.session.get(UserBook, {"book_id": book_id, "user_id": user_id})
         except Exception as e:
             raise type(e)(f"RecipeBookRep - query_user_book error:{e}") from e
 
@@ -532,11 +527,30 @@ class UserBookRepo():
     def query_shared_book(recipient_id):
         """Query for User's "shared recipes" book"""
         try:
-            user_book = UserBook.query.join(Book).filter(
-                UserBook.user_id == recipient_id, Book.book_type == BookType.shared_inbox).first()
+            stmt = (
+                db.select(UserBook)
+                .join(Book, UserBook.book_id == Book.id)
+                .where(
+                    UserBook.user_id == recipient_id,
+                    Book.book_type == BookType.shared_inbox
+                )
+            )
+
+            user_book = db.session.execute(stmt).scalar_one_or_none()
             return user_book
         except Exception as e:
             raise type(e)(f"UserBookRepo - query_shared_book error:{e}") from e
+
+    @staticmethod
+    def query_user_book_ids(user_id, book_id):
+        """Query a list of books ids associated to user"""
+        try:
+            stmt = db.select(UserBook.book_id).where(
+                UserBook.user_id == user_id)
+            return db.session.execute(stmt).scalars().all()
+        except Exception as e:
+            raise type(e)(
+                f"UserBookRepo - query_user_book_ids error:{e}") from e
 
 
 class BookInstructionRepo():

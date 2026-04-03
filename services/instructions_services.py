@@ -1,7 +1,7 @@
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from repository import InstructionRepo
 from models import db, Instruction, RecipeInstruction
-from repository import UserBook, BookInstructionRepo
+from repository import UserBookRepo, BookInstructionRepo
 from sqlalchemy.exc import ProgrammingError
 
 class InstructionServices():
@@ -35,8 +35,7 @@ class InstructionServices():
     def check_book_access(user_id, book_id):
         """Authorizes user access to book"""
         try:
-            book_ids = [book_id[0] for book_id in db.session.query(
-                UserBook.book_id).filter(UserBook.user_id == user_id).all()]
+            book_ids = UserBookRepo.query_user_book_ids(user_id=user_id, book_id=book_id)
             if int(book_id) in book_ids:
                 return True
             else:
