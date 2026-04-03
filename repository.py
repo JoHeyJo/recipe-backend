@@ -227,11 +227,14 @@ class QuantityAmountRepo():
     def query_user_amounts(user_id):
         """Return user amounts"""
         try:
-            amounts = db.session.query(QuantityAmount).join(
-                AmountBook, QuantityAmount.id == AmountBook.amount_id
-            ).join(
-                UserBook, AmountBook.book_id == UserBook.book_id
-            ).filter(UserBook.user_id == user_id).all()
+            stmt = (
+                db.select(QuantityAmount)
+                .join(AmountBook, QuantityAmount.id == AmountBook.amount_id)
+                .join(UserBook, AmountBook.book_id == UserBook.book_id)
+                .where(UserBook.user_id == user_id)
+            )
+
+            amounts = db.session.execute(stmt).scalars().all()
             return [QuantityAmount.serialize(amount) for amount in amounts]
         except Exception as e:
             raise type(e)(
