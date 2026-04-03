@@ -113,8 +113,8 @@ class RecipeRepo():
             shared_link = UserBookRepo.create_entry(
                 user_id=recipient.id, book_id=book["id"])
         try:
-            is_shared = RecipeBook.query.filter_by(
-                book_id=shared_link.book_id, recipe_id=shared_id).first()
+            is_shared = RecipeBookRepo.query_recipe_book(
+                book_id=shared_link.book_id, recipe_id=shared_id)
 
             if is_shared:
                 return {"message": "Recipe already shared with user.",
@@ -157,7 +157,7 @@ class RecipeRepo():
 
                 book_with_role = BookRepo.build_book(
                     user_id=recipient.id, book_id=book["id"])
-                
+
                 highlight((msg, book_with_role), "!")
                 return {"message": "Recipe successfully shared!", "code": 200, "payload": book_with_role}
 
@@ -448,6 +448,15 @@ class RecipeIngredientRepo():
 class RecipeBookRepo():
     """Facilitates association of recipes & books"""
     @staticmethod
+    def query_recipe_book(book_id, recipe_id):
+        """Return recipe book instance by composite key"""
+        try:
+            return RecipeBookRepo.query_recipe_book(book_id=book_id, recipe_id=recipe_id)
+        except Exception as e:
+            raise type(e)(
+                f"RecipeBookRep - query_recipe_book error:{e}") from e
+
+    @staticmethod
     def create_entry(book_id, recipe_id):
         """Create recipe and book association -> add to database"""
         try:
@@ -461,8 +470,7 @@ class RecipeBookRepo():
     def remove_book_association(book_id, recipe_id):
         """Delete association sharing recipe to recipient"""
         try:
-            recipe_book = db.session.get(
-                RecipeBook, {"book_id": book_id, "recipe_id": recipe_id})
+            recipe_book = RecipeBookRepo.query_recipe_book(book_id=book_id, recipe_id=recipe_id)
             db.session.delete(recipe_book)
             return {"message": "Recipe is no longer shared"}
         except Exception as e:
@@ -473,10 +481,8 @@ class RecipeBookRepo():
     def does_recipe_exist_in_shared_inbox(shared_link_id, shared_recipe_id):
         """Query recipe in shared_inbox return value or none"""
         try:
-            stmt = db.session.get(
-                RecipeBook, {"book_id": shared_link_id, "recipe_id": shared_recipe_id})
-            
-            return db.session.execute(stmt).scalar_one_or_none()
+            return RecipeBookRepo.query_recipe_book(
+                book_id=shared_link_id, recipe_id=shared_recipe_id)
         except Exception as e:
             raise type(e)(
                 f"RecipeBookRep - does_recipe_exist_in_shared_inbox error:{e}") from e
