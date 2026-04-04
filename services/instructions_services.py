@@ -96,28 +96,12 @@ class InstructionServices():
         return processed_instructions
 
     @staticmethod
-    def build_instructions(instances, recipe_id):
-        """Return all associated instructions from recipe instance and updated with 
-        recipe_instruction identifier"""
-        instructions = []
+    def build_instructions(instances):
+        """Return serialized instructions instructions instance"""
         if not instances:
             return []
         try:
-            for instruction_instance in instances:
-                instruction = Instruction.serialize(instruction_instance)
-                # inject PK from recipes_instructions association table
-                association_id = RecipeInstruction.query.filter_by(
-                    recipe_id=recipe_id,
-                    instruction_id=instruction["id"]).scalar().id
-
-                if not association_id:
-                    raise ValueError(
-                        f"Association not found for instruction ID {instruction['id']} in recipe {recipe_id}")
-
-                instruction["association_id"] = association_id
-                instructions.append(instruction)
-
-            return instructions
+            return [Instruction.serialize(instruction_instance) for instruction_instance in instances]
         except Exception as e:
             raise type(e)(
                 f"InstructionServices - build_instructions error: {e}") from e

@@ -365,14 +365,14 @@ class BookRepo():
         """Returns all books associated to user"""
         try:
             user = UserRepo.query_user(user_pk=user_id)
-            books =  [
+            books = [
                 {
                     **Book.serialize(user_book.book),
                     "book_role": user_book.role.value
                 }
                 for user_book in user.user_books
             ]
-            highlight(("books:",books),"!")
+            highlight(("books:", books), "!")
             return books
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
@@ -579,11 +579,20 @@ class RecipeInstructionRepo():
                 recipe_id=recipe_id, instruction_id=instruction_id)
             db.session.add(entry)
             db.session.flush()
-            return entry.id
+            return entry
         except Exception as e:
             raise type(e)(
                 f"RecipeInstructionRepo - create_entry error :{e}") from e
 
+    @staticmethod
+    def query_recipe_instruction(recipe_id, instruction_id):
+        """Query recipe_instruction record. Return recipe_instruction or None"""
+        try:
+            return db.session.get(
+                {"recipe_id": recipe_id, "instruction_id": instruction_id})
+        except Exception as e:
+            raise type(e)(
+                f"RecipeInstructionRepo - query_recipe_instruction error :{e}") from e
 
 class AmountBookRepo():
     """Facilitates association of amounts & books"""

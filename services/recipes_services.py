@@ -36,7 +36,7 @@ class RecipeServices():
                 recipe_data["instructions"] = []
 
             db.session.commit()
-            highlight(("recipe_data:",recipe_data),"!")
+            highlight(("recipe_data:", recipe_data), "!")
             return recipe_data
         except Exception as e:
             db.session.rollback()
@@ -92,13 +92,6 @@ class RecipeServices():
                 raise ValueError(
                     f"No instructions data returned for book id: {book_id}")
 
-            for instruction in instructions_data:
-                id = RecipeInstructionRepo.create_entry(
-                    recipe_id=recipe_id, instruction_id=instruction["id"])
-                highlight(("instruction:",instruction, "id:",id),"!")
-                instruction["instruction_id"] = id
-                highlight(("instruction:",instruction, "id:",id),"!")
-
             return instructions_data
         except Exception as e:
             raise type(e)(
@@ -121,7 +114,7 @@ class RecipeServices():
                 recipe_build.update(recipe)
 
                 instructions = InstructionServices.build_instructions(
-                    instances=recipe_instance.instructions, recipe_id=recipe["id"])
+                    instances=recipe_instance.instructions)
                 recipe_build["instructions"] = instructions
 
                 ingredients = IngredientServices.build_ingredients(
@@ -139,7 +132,7 @@ class RecipeServices():
         try:
             recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
             instructions = InstructionServices.build_instructions(
-                instances=recipe.instructions, recipe_id=recipe_id)
+                instances=recipe.instructions)
             ingredients = IngredientServices.build_ingredients(
                 instance=recipe.ingredients)
             return {
@@ -157,7 +150,7 @@ class RecipeServices():
     @staticmethod
     def process_edit(user_id, data, recipe_id):
         """Consolidates recipe edit process"""
-        highlight(("edit data:",data),"!")
+        highlight(("edit data:", data), "!")
         if user_id is not data.get("created_by_id"):
             raise Forbidden("Not authorized to make edits")
         try:
@@ -243,17 +236,18 @@ class RecipeServices():
 
     @staticmethod
     def process_edit_instructions(instructions, recipe_id):
-        """Edits recipe's instructions by modifying RecipeInstruction association"""
+        """Edits recipe's instructions by - either modifying existing 
+        instruction or creating a new one"""
         highlight(("instructions:", instructions), "!")
         try:
             for instruction in instructions:
-                if instruction["associationId"]:
-                    recipe_instruction = RecipeInstruction.query.get(
-                        instruction["associationId"])
+                if instruction["oldId"]:
+                    recipe_instruction = RecipeInstructionRepo.query_recipe_instruction(
+                        recipe_id=recipe_id, instruction_id=instruction["newId"])
+
                     if not recipe_instruction:
                         raise NotFound(
-                            f"No recipe_instruction associated to id # {instruction['associationId']}")
-                    recipe_instruction.instruction_id = instruction["newId"]
+                            "No recipe instruction associated not found")
                 else:
                     RecipeInstructionRepo.create_entry(
                         recipe_id=recipe_id,
@@ -303,7 +297,7 @@ class RecipeServices():
         if not default_book_id:
             return RecipeServices.share_recipe_no_default_book(
                 recipient=recipient, shared_recipe_id=shared_id)
-        
+
         if book.book_type.value == "standard":
             return RecipeServices.share_recipe_standard_default_book(
                 recipient=recipient, shared_recipe_id=shared_id)
