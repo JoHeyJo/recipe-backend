@@ -575,6 +575,16 @@ class BookInstructionRepo():
             raise type(e)(
                 f"BookInstructionRepo - create_entry error :{e}") from e
 
+    @staticmethod
+    def query_book_instruction(book_id, instruction_id):
+        """Query books_instructions by composite key. Return instance or None"""
+        try:
+            return db.session.get(BookInstruction, {'book_id': book_id,
+                                                    "instruction_id": instruction_id})
+        except Exception as e:
+            raise type(e)(
+                f"BookInstructionRepo - query_book_instruction error :{e}") from e
+
 
 class RecipeInstructionRepo():
     """Facilitates association of recipes & instructions"""

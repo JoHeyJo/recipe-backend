@@ -1,8 +1,9 @@
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError, ProgrammingError
 from repository import InstructionRepo
 from models import db, Instruction, RecipeInstruction
 from repository import UserBookRepo, BookInstructionRepo
-from sqlalchemy.exc import ProgrammingError
+from werkzeug.exceptions import Conflict
+from utils.functions import highlight
 
 class InstructionServices():
     """Handles instructions view business logic"""
@@ -35,7 +36,8 @@ class InstructionServices():
     def check_book_access(user_id, book_id):
         """Authorizes user access to book"""
         try:
-            book_ids = UserBookRepo.query_user_book_ids(user_id=user_id, book_id=book_id)
+            book_ids = UserBookRepo.query_user_book_ids(
+                user_id=user_id, book_id=book_id)
             if int(book_id) in book_ids:
                 return True
             else:
@@ -63,7 +65,15 @@ class InstructionServices():
     @staticmethod
     def create_instruction_association(book_id, instruction_id):
         """Associate user instruction to book"""
+        highlight("IN HERE","!")
+        # return {"message":
+        #         f"Successful association of instruction {instruction_id} to book {book_id}!"}
         try:
+            exists = BookInstructionRepo.query_book_instruction(
+                book_id=book_id, instruction_id=instruction_id)
+            if exists:
+                return
+            
             BookInstructionRepo.create_entry(
                 book_id=book_id, instruction_id=instruction_id)
             db.session.commit()

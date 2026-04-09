@@ -250,6 +250,7 @@ def add_instruction(authed_user_id, book_id, user_id):
 @route_error_handler
 def add_instruction_association(authed_user_id, book_id, instruction_id, user_id):
     """Facilitates association of user instruction to book"""
+    highlight((">>>>",book_id,instruction_id),"!")
     message = InstructionServices.create_instruction_association(
         book_id=book_id, instruction_id=instruction_id)
     return jsonify(message)
