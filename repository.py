@@ -3,7 +3,7 @@ from flask_bcrypt import Bcrypt
 from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, Ingredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction, AmountBook, UnitBook, ItemBook, BookRole, BookType
 from exceptions import *
 from utils.functions import insert_first, highlight
-from werkzeug.exceptions import Conflict, IntegrityError
+from sqlalchemy.exc import IntegrityError
 import logging
 
 logger = logging.getLogger(__name__)
