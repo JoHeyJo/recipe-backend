@@ -65,10 +65,8 @@ class InstructionServices():
     @staticmethod
     def create_instruction_association(book_id, instruction_id):
         """Associate user instruction to book"""
-        highlight("IN HERE","!")
-        # return {"message":
-        #         f"Successful association of instruction {instruction_id} to book {book_id}!"}
         try:
+            # prevents User from creating duplicate association to book
             exists = BookInstructionRepo.query_book_instruction(
                 book_id=book_id, instruction_id=instruction_id)
             if exists:
