@@ -15,6 +15,7 @@ class UserServices():
         last_name = request.json["lastName"]
         password = request.json["password"]
         email = request.json["email"]
+        highlight(request.json,"!")
         try:
             token = UserRepo.signup(user_name, first_name,
                                     last_name, email, password)

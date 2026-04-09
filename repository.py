@@ -3,7 +3,10 @@ from flask_bcrypt import Bcrypt
 from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, Instruction, Ingredient, RecipeBook, UserBook, BookInstruction, RecipeInstruction, AmountBook, UnitBook, ItemBook, BookRole, BookType
 from exceptions import *
 from utils.functions import insert_first, highlight
-from werkzeug.exceptions import Conflict
+from werkzeug.exceptions import Conflict, IntegrityError
+import logging
+
+logger = logging.getLogger(__name__)
 
 bcrypt = Bcrypt()
 
@@ -26,8 +29,7 @@ class UserRepo():
             db.session.flush()
             token = create_access_token(identity=user.id)
             return token
-        except Exception as e:
-            # can be moved to handle_route_errors
+        except IntegrityError as e:
             if "users_user_name_key" in str(e.orig):
                 raise UsernameAlreadyTakenError(
                     "This username is already taken.") from e
@@ -35,7 +37,12 @@ class UserRepo():
                 raise EmailAlreadyRegisteredError(
                     "This email is already taken.") from e
             else:
+                logger.exception("Unexpected integrity error during signup")
                 raise SignUpError("An error occurred during signup.") from e
+        except Exception as e:
+            # catches everything else
+            logger.exception("Unexpected error during signup")
+            raise SignUpError("An error occurred during signup.") from e
 
     @staticmethod
     def login(user_name, password):
@@ -593,6 +600,7 @@ class RecipeInstructionRepo():
         except Exception as e:
             raise type(e)(
                 f"RecipeInstructionRepo - query_recipe_instruction error :{e}") from e
+
 
 class AmountBookRepo():
     """Facilitates association of amounts & books"""
