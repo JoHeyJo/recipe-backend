@@ -606,7 +606,7 @@ class RecipeInstructionRepo():
         """Query recipe_instruction record. Return recipe_instruction or None"""
         highlight(("query_recipe_instructions",recipe_id, instruction_id),"!")
         try:
-            return db.session.get(
+            return db.session.get(RecipeInstruction,
                 {"recipe_id": recipe_id, "instruction_id": instruction_id})
         except Exception as e:
             raise type(e)(

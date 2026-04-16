@@ -247,8 +247,7 @@ class RecipeServices():
                         recipe_id=recipe_id, instruction_id=instruction["newId"])
 
                     if not recipe_instruction:
-                        raise NotFound(
-                            "No recipe instruction associated not found")
+                        
                 else:
                     RecipeInstructionRepo.create_entry(
                         recipe_id=recipe_id,
