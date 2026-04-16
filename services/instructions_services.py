@@ -1,7 +1,7 @@
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError, ProgrammingError
 from repository import InstructionRepo
-from models import db, Instruction, RecipeInstruction
-from repository import UserBookRepo, BookInstructionRepo
+from models import db, Instruction
+from repository import UserBookRepo, BookInstructionRepo, RecipeInstructionRepo
 from werkzeug.exceptions import Conflict
 from utils.functions import highlight
 
@@ -83,28 +83,16 @@ class InstructionServices():
                 f"Error in InstructionServices -> create_instruction_association: {e}") from e
 
     @staticmethod
-    def process_instructions(instructions, book_id):
+    def process_instructions(instructions, recipe_id):
         """Adds new recipe instructions - Consolidates existing and new instruction objects - associates instruction to book """
-        processed_instructions = []
-        highlight(("process instructions",instructions),"!")
         for instruction in instructions:
-            is_stored = instruction.get("id")
-            if is_stored is None:
-                try:
-                    # is this neccessry, all recipe instructions should already be created
-                    instruction = InstructionRepo.create_instruction(
-                        instruction=instruction["instruction"])
-                    
-                    processed_instructions.append(instruction)
-
-                    BookInstructionRepo.create_entry(
-                        book_id=book_id, instruction_id=instruction.id)
-                except Exception as e:
-                    raise type(e)(
-                        f"Error in InstructionServices - process_instructions: {e}")
-            else:
-                processed_instructions.append(instruction)
-        return processed_instructions
+            try:
+                RecipeInstructionRepo.create_entry(recipe_id=recipe_id, instruction_id=instruction["id"])
+            except Exception as e:
+                db.session.rollback()
+                raise type(e)(
+                    f"Error in InstructionServices - process_instructions: {e}") from e
+        return instructions
 
     @staticmethod
     def build_instructions(instances):

@@ -407,12 +407,9 @@ class InstructionRepo():
     def create_instruction(instruction):
         """Create and add instruction to database"""
         try:
-            highlight(("in coming create instructions",instruction),"!")
             instruction = Instruction(instruction=instruction)
             db.session.add(instruction)
             db.session.flush()
-            highlight(("out going create instructions",
-                      Instruction.serialize(instruction)), "!")
             return Instruction.serialize(instruction)
         except Exception as e:
             raise type(e)(

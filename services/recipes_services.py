@@ -87,7 +87,7 @@ class RecipeServices():
         """Processes consolidated instructions and associates each instruction to Recipe"""
         try:
             instructions_data = InstructionServices.process_instructions(
-                instructions=instructions, book_id=book_id)
+                instructions=instructions, recipe_id=recipe_id)
 
             if not instructions_data:
                 raise ValueError(
