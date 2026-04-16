@@ -444,18 +444,21 @@ def setup_app_context():
 if __name__ == '__main__':
     socketio.run(app, debug=True)
 
+# replace existing instructions
+# !!!!!!!!!!
+# ('edit data:', {'created_by_id': 1, 'name': None, 'ingredients': None, 'instructions': [{'oldId': 3, 'newId': 4}], 'notes': None})
+# !!!!!!!!!!
+# !!!!!!!!!!
+# ('instructions:', [{'oldId': 3, 'newId': 4}])
+# !!!!!!!!!!
+# !!!!!!!!!!
+# ('query_recipe_instructions', 14, 4)
+# !!!!!!!!!!
 
+# add instruction 
 # !!!!!!!!!!
-# ('edit data:', {'created_by_id': 1, 'name': None, 'ingredients': None, 'instructions': [{'oldId': None, 'newId': 3}], 'notes': None})
-# !!!!!!!!!!
-# !!!!!!!!!!
-# ('instructions:', [{'oldId': None, 'newId': 3}])
-# !!!!!!!!!!
-
-
-# !!!!!!!!!!
-# ('edit data:', {'created_by_id': 1, 'name': None, 'ingredients': None, 'instructions': [{'oldId': None, 'newId': 1}, {'oldId': None, 'newId': 2}], 'notes': None})
+# ('edit data:', {'created_by_id': 1, 'name': None, 'ingredients': None,'instructions': [{'oldId': None, 'newId': 2}], 'notes': None})
 # !!!!!!!!!!
 # !!!!!!!!!!
-# ('instructions:', [{'oldId': None, 'newId': 1}, {'oldId': None, 'newId': 2}])
+# ('instructions:', [{'oldId': None, 'newId': 2}])
 # !!!!!!!!!!

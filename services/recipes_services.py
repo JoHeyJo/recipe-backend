@@ -240,14 +240,21 @@ class RecipeServices():
         """Edits recipe's instructions by - either modifying existing 
         instruction or creating a new one"""
         highlight(("instructions:", instructions), "!")
+        #check if instruction needs to be replaced or created
+        # replaced if there is an old id
+        # created if there is no old id
+        # replace instruction 
+            # I need the instruction association and replace instruction id
+        # create addition instruction
+            # simply create new association 
         try:
             for instruction in instructions:
                 if instruction["oldId"]:
-                    recipe_instruction = RecipeInstructionRepo.query_recipe_instruction(
+                    instance = RecipeInstructionRepo.query_recipe_instruction(
                         recipe_id=recipe_id, instruction_id=instruction["newId"])
+                    
+                    instance.instruction_id = instruction["newId"]
 
-                    if not recipe_instruction:
-                        
                 else:
                     RecipeInstructionRepo.create_entry(
                         recipe_id=recipe_id,
