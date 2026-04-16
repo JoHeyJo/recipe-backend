@@ -84,7 +84,7 @@ class InstructionServices():
 
     @staticmethod
     def process_instructions(instructions, recipe_id):
-        """Adds new recipe instructions - Consolidates existing and new instruction objects - associates instruction to book """
+        """Associates instructions to recipe """
         for instruction in instructions:
             try:
                 RecipeInstructionRepo.create_entry(recipe_id=recipe_id, instruction_id=instruction["id"])
