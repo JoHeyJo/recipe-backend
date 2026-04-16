@@ -407,9 +407,12 @@ class InstructionRepo():
     def create_instruction(instruction):
         """Create and add instruction to database"""
         try:
+            highlight(("in coming create instructions",instruction),"!")
             instruction = Instruction(instruction=instruction)
             db.session.add(instruction)
             db.session.flush()
+            highlight(("out going create instructions",
+                      Instruction.serialize(instruction)), "!")
             return Instruction.serialize(instruction)
         except Exception as e:
             raise type(e)(
@@ -604,6 +607,7 @@ class RecipeInstructionRepo():
     @staticmethod
     def query_recipe_instruction(recipe_id, instruction_id):
         """Query recipe_instruction record. Return recipe_instruction or None"""
+        highlight(("query_recipe_instructions",recipe_id, instruction_id),"!")
         try:
             return db.session.get(
                 {"recipe_id": recipe_id, "instruction_id": instruction_id})

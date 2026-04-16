@@ -284,6 +284,8 @@ def get_book_instructions(authed_user_id, book_id, user_id):
         book_id=book_id, user_id=authed_user_id)
     return jsonify(response)
 
+################################################################################
+
 
 @app.post("/test")
 @verify_jwt_identity
@@ -442,3 +444,18 @@ def setup_app_context():
 if __name__ == '__main__':
     socketio.run(app, debug=True)
 
+
+# !!!!!!!!!!
+# ('edit data:', {'created_by_id': 1, 'name': None, 'ingredients': None, 'instructions': [{'oldId': None, 'newId': 3}], 'notes': None})
+# !!!!!!!!!!
+# !!!!!!!!!!
+# ('instructions:', [{'oldId': None, 'newId': 3}])
+# !!!!!!!!!!
+
+
+# !!!!!!!!!!
+# ('edit data:', {'created_by_id': 1, 'name': None, 'ingredients': None, 'instructions': [{'oldId': None, 'newId': 1}, {'oldId': None, 'newId': 2}], 'notes': None})
+# !!!!!!!!!!
+# !!!!!!!!!!
+# ('instructions:', [{'oldId': None, 'newId': 1}, {'oldId': None, 'newId': 2}])
+# !!!!!!!!!!

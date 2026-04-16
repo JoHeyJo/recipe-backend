@@ -86,6 +86,7 @@ class InstructionServices():
     def process_instructions(instructions, book_id):
         """Adds new recipe instructions - Consolidates existing and new instruction objects - associates instruction to book """
         processed_instructions = []
+        highlight(("process instructions",instructions),"!")
         for instruction in instructions:
             is_stored = instruction.get("id")
             if is_stored is None:
@@ -93,7 +94,9 @@ class InstructionServices():
                     # is this neccessry, all recipe instructions should already be created
                     instruction = InstructionRepo.create_instruction(
                         instruction=instruction["instruction"])
+                    
                     processed_instructions.append(instruction)
+
                     BookInstructionRepo.create_entry(
                         book_id=book_id, instruction_id=instruction.id)
                 except Exception as e:
