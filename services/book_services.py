@@ -47,7 +47,7 @@ class BookServices():
         """Calls services for book processing"""
         try:
             recipient = UserRepo.query_user_name(user_name=recipient_name)
-            highlight((user_id, recipient, book_id), "!")
+            highlight(("proces_shared_book", user_id, recipient, book_id), "!")
 
             if not recipient:
                 return {"message": "User not found", "error": "Not Found", "code": 404}
@@ -68,67 +68,35 @@ class BookServices():
     @staticmethod
     def share_book(recipient, shared_book_id, recipient_has_default_book):
         """"Share book with recipient"""
+        # return book with role column from user_book
+        #
         try:
             if recipient_has_default_book:
-                recipient_has_shared_book = UserBookRepo.query_user_book(
-                    book_id=shared_book_id, user_id=recipient.id)
-
-                if recipient_has_shared_book:
-                    return {"message": "User already has access to this book!",
-                            "error": "Unprocessable Content", "code": 409
-                            }
-
+                # recipient_shared_book = UserBookRepo.query_user_book(
+                #     book_id=shared_book_id, user_id=recipient.id)
+                # highlight(("share_book", recipient_shared_book), "!")
+                # if recipient_shared_book:
+                #     return {"message": "User already has access to this book!",
+                #             "error": "Unprocessable Content", "code": 409
+                #             }
+                return
             user_book = UserBookRepo.create_entry(
                 user_id=recipient.id, book_id=shared_book_id, role=BookRole.collaborator)
             
-            book_with_role = BookRepo.build_book(
-                user_id=recipient.id, book_id=user_book.book_id)
+            highlight(("user_book:",user_book),"!")
+
+            book = BookRepo.build_book(user_book=user_book)
+            
+            highlight(("book:", book["id"],user_book.book_id), "!")
 
             if recipient_has_default_book is None:
-                recipient.default_book_id = user_book.id
+                recipient.default_book_id = book["id"]
 
             return {"recipient_id": recipient.id,
                     "message": f"Book shared with {recipient.user_name}!",
                     "code": 200,
-                    "payload": book_with_role
+                    "payload": book
                     }
         except Exception as e:
             raise type(e)(f"BookServices - share_book error :{e}") from e
 
-    @staticmethod
-    def share_book_no_default_book(recipient, book_id):
-        """User shares Book with Recipient that has no default book assigned. Assigns default book"""
-        try:
-            book = UserBookRepo.create_entry(
-                user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
-
-            book_with_role = BookRepo.build_book(
-                user_id=recipient.id, book_id=book.book_id)
-
-            return {"recipient_id": recipient.id,
-                    "message": f"Book shared with {recipient.user_name}!",
-                    "code": 200,
-                    "payload": book_with_role
-                    }
-        except Exception as e:
-            raise type(e)(
-                f"BookServices - share_book_no_default_book error :{e}") from e
-
-    @staticmethod
-    def share_book_has_default_book(recipient, book_id):
-        """User shares with Recipient that has assigned default book"""
-        try:
-            book = UserBookRepo.create_entry(
-                user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
-
-            book_with_role = BookRepo.build_book(
-                user_id=recipient.id, book_id=book.book_id)
-
-            return {"recipient_id": recipient.id,
-                    "message": f"Book shared with {recipient.user_name}!",
-                    "code": 200,
-                    "payload": book_with_role
-                    }
-        except Exception as e:
-            raise type(e)(
-                f"BookServices - share_book_has_default_book error :{e}") from e

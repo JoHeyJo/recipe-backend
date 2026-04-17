@@ -349,10 +349,10 @@ def share_book(data):
         response = BookServices.process_shared_book(
             user_id=int(user_id), recipient_name=recipient, book_id=book_id)
 
+        highlight(("response",response),"!")
         if response["code"] in (422, 409, 404):
             emit('error_sharing_book', {'data': response["message"]})
             return
-
         if response["code"] == 200:
             # SENDER
             sender_id = connected_users.get("user_id")

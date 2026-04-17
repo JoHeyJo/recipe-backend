@@ -377,18 +377,14 @@ class BookRepo():
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
 
     @staticmethod
-    def build_book(user_id, book_id):
+    def build_book(user_book):
         """Build book object to include 'book_role' column from association table. - !!should be moved to service layer!!'"""
         try:
+            book = Book.serialize(user_book.book)
 
-            user_book = UserBookRepo.query_user_book(
-                book_id=book_id, user_id=user_id)
+            book["book_role"] = user_book.role.value
 
-            serialized = Book.serialize(user_book.book)
-
-            serialized["book_role"] = user_book.role.value
-
-            return serialized
+            return book
         except Exception as e:
             raise type(e)(f"BookRepo - build_book error: {e}") from e
 
