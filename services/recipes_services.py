@@ -237,25 +237,17 @@ class RecipeServices():
 
     @staticmethod
     def process_edit_instructions(instructions, recipe_id):
-        """Edits recipe's instructions by - either modifying existing 
-        instruction or creating a new one"""
-        highlight(("instructions:", instructions), "!")
-        #check if instruction needs to be replaced or created
-        # replaced if there is an old id
-        # created if there is no old id
-        # replace instruction 
-            # I need the instruction association and replace instruction id
-        # create addition instruction
-            # simply create new association 
+        """Edits recipe's instructions - modifying existing instruction or 
+        creating a new one"""
         try:
             for instruction in instructions:
                 if instruction["oldId"]:
                     instance = RecipeInstructionRepo.query_recipe_instruction(
-                        recipe_id=recipe_id, instruction_id=instruction["newId"])
+                        recipe_id=recipe_id, instruction_id=instruction["oldId"])
                     
                     instance.instruction_id = instruction["newId"]
 
-                else:
+                if instruction["oldId"] is None:
                     RecipeInstructionRepo.create_entry(
                         recipe_id=recipe_id,
                         instruction_id=instruction["newId"])
