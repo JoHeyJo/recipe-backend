@@ -5,7 +5,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from annotations import str_255, str_unique_255, str_255_nullable, boolean
 from mixins import TableNameMixin, TimestampMixin, ReprMixin, AssociationTableNameMixin
 from typing import Optional, List
-from utils.functions import highlight
 from enum import Enum as PyEnum
 
 
@@ -93,7 +92,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     instructions: Mapped[List['Instruction']] = relationship(
         'Instruction', secondary='recipes_instructions', back_populates='recipes',
-        passive_deletes=True, order_by="RecipeInstruction.id")
+        passive_deletes=True, order_by="RecipeInstruction.created_at")
 
     units: Mapped[List['QuantityUnit']] = relationship(
         "QuantityUnit", secondary='ingredients', back_populates='recipes', viewonly=True)
@@ -244,10 +243,10 @@ class Ingredient(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
 class RecipeBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for books and recipes."""
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"))
+    book_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("books.id"), primary_key=True)
     recipe_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
+        Integer, ForeignKey("recipes.id", ondelete="CASCADE"), primary_key=True)
 
 
 class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
@@ -277,46 +276,42 @@ class UserBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
 
 class BookInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for books and instructions"""
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"))
+    book_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("books.id"), primary_key=True)
     instruction_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("instructions.id"))
+        Integer, ForeignKey("instructions.id"), primary_key=True)
 
 
 class RecipeInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for recipes and instructions"""
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     recipe_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("recipes.id", ondelete="CASCADE"))
+        Integer, ForeignKey("recipes.id", ondelete="CASCADE"), primary_key=True)
     instruction_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("instructions.id"))
+        Integer, ForeignKey("instructions.id"), primary_key=True)
 
 
 class AmountBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for amounts and books"""
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     amount_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("quantity_amounts.id", ondelete="CASCADE"))
+        Integer, ForeignKey("quantity_amounts.id", ondelete="CASCADE"), primary_key=True)
     book_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("books.id", ondelete="CASCADE"))
+        Integer, ForeignKey("books.id", ondelete="CASCADE"), primary_key=True)
 
 
 class UnitBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for unit and books"""
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     unit_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("quantity_units.id", ondelete="CASCADE"))
+        Integer, ForeignKey("quantity_units.id", ondelete="CASCADE"), primary_key=True)
     book_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("books.id", ondelete="CASCADE"))
+        Integer, ForeignKey("books.id", ondelete="CASCADE"), primary_key=True)
 
 
 class ItemBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
     """Association table for items and books"""
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
     item_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("items.id", ondelete="CASCADE"))
+        Integer, ForeignKey("items.id", ondelete="CASCADE"), primary_key=True)
     book_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("books.id", ondelete="CASCADE"))
+        Integer, ForeignKey("books.id", ondelete="CASCADE"), primary_key=True)
 
 
 def connect_db(app):

@@ -36,7 +36,6 @@ class RecipeServices():
                 recipe_data["instructions"] = []
 
             db.session.commit()
-
             return recipe_data
         except Exception as e:
             db.session.rollback()
@@ -59,7 +58,7 @@ class RecipeServices():
 
     @staticmethod
     def process_ingredients(ingredients, recipe_id, book_id):
-        """Processes ingredient components effectively creating an ingredient and associates each ingredient to recipe"""
+        """Processes ingredient components creating an ingredient and associates each ingredient to recipe"""
         try:
             ingredients_data = IngredientServices.process_ingredient_components(
                 book_id=book_id, ingredients=ingredients)
@@ -86,16 +85,11 @@ class RecipeServices():
         """Processes consolidated instructions and associates each instruction to Recipe"""
         try:
             instructions_data = InstructionServices.process_instructions(
-                instructions=instructions, book_id=book_id)
+                instructions=instructions, recipe_id=recipe_id)
 
             if not instructions_data:
                 raise ValueError(
                     f"No instructions data returned for book id: {book_id}")
-
-            for instruction in instructions_data:
-                id = RecipeInstructionRepo.create_entry(
-                    recipe_id=recipe_id, instruction_id=instruction["id"])
-                instruction["instruction_id"] = id
 
             return instructions_data
         except Exception as e:
@@ -119,7 +113,7 @@ class RecipeServices():
                 recipe_build.update(recipe)
 
                 instructions = InstructionServices.build_instructions(
-                    instances=recipe_instance.instructions, recipe_id=recipe["id"])
+                    instances=recipe_instance.instructions)
                 recipe_build["instructions"] = instructions
 
                 ingredients = IngredientServices.build_ingredients(
@@ -130,26 +124,28 @@ class RecipeServices():
             return complete_recipes
         except Exception as e:
             raise type(e)(f"RecipeServices - build_recipes error: {e}") from e
-    
-    @staticmethod 
+
+    @staticmethod
     def build_recipe(recipe_id):
         """Builds individual recipes"""
         try:
             recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
-            instructions = InstructionServices.build_instructions(instances=recipe.instructions, recipe_id=recipe_id)
-            ingredients = IngredientServices.build_ingredients(instance=recipe.ingredients)
+            instructions = InstructionServices.build_instructions(
+                instances=recipe.instructions)
+            ingredients = IngredientServices.build_ingredients(
+                instance=recipe.ingredients)
             return {
-                    "is_owned_by": recipe.created_by_id,
-                    "id":recipe.id, 
-                    "created_by_id":recipe.created_by_id, 
-                    "name": recipe.name,
-                    "ingredients": ingredients,
-                    "instructions": instructions,
-                    "notes": recipe.notes
-                    }
+                "is_owned_by": recipe.created_by_id,
+                "id": recipe.id,
+                "created_by_id": recipe.created_by_id,
+                "name": recipe.name,
+                "ingredients": ingredients,
+                "instructions": instructions,
+                "notes": recipe.notes
+            }
         except Exception as e:
             raise type(e)(f"RecipeServices - build_recipe error: {e}") from e
-        
+
     @staticmethod
     def process_edit(user_id, data, recipe_id):
         """Consolidates recipe edit process"""
@@ -238,17 +234,17 @@ class RecipeServices():
 
     @staticmethod
     def process_edit_instructions(instructions, recipe_id):
-        """Edits recipe's instructions by modifying RecipeInstruction association"""
+        """Edits recipe's instructions - modifying existing instruction or 
+        creating a new one"""
         try:
             for instruction in instructions:
-                if instruction["associationId"]:
-                    recipe_instruction = RecipeInstruction.query.get(
-                        instruction["associationId"])
-                    if not recipe_instruction:
-                        raise NotFound(
-                            f"No recipe_instruction associated to id # {instruction['associationId']}")
-                    recipe_instruction.instruction_id = instruction["newId"]
-                else:
+                if instruction["oldId"]:
+                    instance = RecipeInstructionRepo.query_recipe_instruction(
+                        recipe_id=recipe_id, instruction_id=instruction["oldId"])
+                    
+                    instance.instruction_id = instruction["newId"]
+
+                if instruction["oldId"] is None:
                     RecipeInstructionRepo.create_entry(
                         recipe_id=recipe_id,
                         instruction_id=instruction["newId"])
@@ -256,29 +252,110 @@ class RecipeServices():
             raise type(e)(f"Failed to process_edit_instructions: {e}") from e
 
     @staticmethod
-    def share_recipe(auth_id, recipient, recipe_id):
+    def process_recipe_share(auth_id, recipient, recipe_id):
         """Process sharing user recipe with recipient"""
         recipient = UserRepo.query_user_name(user_name=recipient)
         recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
         recipe_build = RecipeServices.build_recipe(recipe_id=recipe_id)
+
         if not recipient:
             return {"message": "User not found", "error": "Not Found", "code": 404}
         if auth_id == recipient.id:
-            return {"message": "Why are you sharing this with yourself???", 
+            return {"message": "Why are you sharing this with yourself???",
                     "error": "BadRequest", "code": 400}
         if not recipe.is_owned_by(auth_id):
             return {"message": "This is not yours to share...",
                     "error": "Forbidden", "code": 403}
         try:
-            message = RecipeRepo.create_recipe_link(
-                recipient_id=recipient.id, shared_id=recipe_id)
+            message = RecipeServices.facilitate_recipe_link_creation(
+                recipient=recipient, shared_id=recipe_id)
+
+            if not message:
+                db.session.rollback()
+                return {"message": "Recipe already shared with user.",
+                        "error": "Conflict", "code": 409}
+
             db.session.commit()
-            message["recipient_id"] = recipient.id
             return {**message, "recipe": recipe_build}
         except Exception as e:
             db.session.rollback()
             raise type(e)(
-                f"Failed to share_recipe error: {e}") from e
+                f"Failed to process_recipe_share error: {e}") from e
+
+    @staticmethod
+    def facilitate_recipe_link_creation(recipient, shared_id):
+        """"Distributes recipe data to corresponding function"""
+
+        default_book_id = recipient.default_book_id
+        book = BookRepo.query_user_book_by_pk(default_book_id)
+
+        if not default_book_id:
+            return RecipeServices.share_recipe_no_default_book(
+                recipient=recipient, shared_recipe_id=shared_id)
+
+        if book.book_type.value == "standard":
+            return RecipeServices.share_recipe_standard_default_book(
+                recipient=recipient, shared_recipe_id=shared_id)
+
+        if book.book_type.value == "shared_inbox":
+            return RecipeServices.share_recipe_shared_default_book(
+                recipient=recipient, shared_book_id=shared_id)
+
+        return {"message": "Nothing to process - try your request again.",
+                "error": "Unknown", "code": 500}
+
+    @staticmethod
+    def share_recipe_no_default_book(recipient, shared_recipe_id):
+        """User shares recipe with Recipient that has no default book assigned"""
+        response = RecipeServices.fetch_shared_link(
+            recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
+
+        if not response:
+            return
+
+        message = RecipeServices.share_recipe(
+            share_inbox_id=response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
+
+        # Assign Shared Recipe as default book
+        recipient.default_book_id = response.book_id
+
+        return message
+
+    @staticmethod
+    def share_recipe_standard_default_book(recipient, shared_recipe_id):
+        """User shares recipe with Recipient that has STANDARD default book"""
+        response = RecipeServices.fetch_shared_link(
+            recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
+
+        if not response:
+            return
+
+        message = RecipeServices.share_recipe(
+            share_inbox_id=response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
+
+        return message
+
+    @staticmethod
+    def share_recipe_shared_default_book(recipient, shared_recipe_id):
+        """User shares recipe with Recipient that has SHARED default book"""
+        response = RecipeServices.fetch_shared_link(
+            recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
+
+    @staticmethod
+    def fetch_shared_link(recipient_id, shared_recipe_id):
+        """Queries shared link. Create if necessary and return link if not already shared"""
+        shared_link = UserBookRepo.query_shared_book(recipient_id=recipient_id)
+        if not shared_link:
+            shared_book = BookRepo.create_book(title="Shared Recipes",
+                                               description="Inbox: Recipes shared by others",
+                                               book_type=BookType.shared_inbox)
+            shared_link = UserBookRepo.create_entry(
+                user_id=recipient_id, book_id=shared_book["id"])
+
+        is_recipe_shared = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
+            shared_link_id=shared_link.book_id, shared_recipe_id=shared_recipe_id)
+
+        return is_recipe_shared or shared_link
 
     @staticmethod
     def remove_recipe(auth_id, recipe_id, data):
@@ -297,18 +374,36 @@ class RecipeServices():
     @staticmethod
     def remove_shared_recipe(authed_id, recipe_id, book_id):
         """Verifies shared recipe belongs to user's shared book. Then deletes association"""
-        user_book = UserBookRepo.query_user_book(book_id=book_id, user_id=authed_id)
-        highlight(user_book,"!")
+        user_book = UserBookRepo.query_user_book(
+            book_id=book_id, user_id=authed_id)
+
         if not user_book:
-                raise NotFound("Not found")
-        is_book_type_shared = user_book.book.book_type 
-        if not is_book_type_shared: 
+            raise NotFound("Not found")
+        is_book_type_shared = user_book.book.book_type
+
+        if not is_book_type_shared:
             raise ForbiddenError("Forbidden request")
+
         try:
-            highlight((book_id,recipe_id),"!")
-            response = RecipeBookRepo.remove_book_association(book_id=book_id,recipe_id=recipe_id)
+            response = RecipeBookRepo.remove_book_association(
+                book_id=book_id, recipe_id=recipe_id)
             db.session.commit()
             return response
         except Exception as e:
             db.session.rollback()
             raise type(e)(f"Failed to remove_shared_recipe error: {e}") from e
+
+    @staticmethod
+    def share_recipe(share_inbox_id, recipe_id, recipient_id):
+        """Associate user's shared recipe to recipients 'Shared Recipes' book"""
+        # take a look at this return object
+        res = RecipeBookRepo.create_entry(
+            book_id=share_inbox_id, recipe_id=recipe_id)
+        highlight(("RES:", res), "!")
+        book_with_role = BookRepo.build_book(
+            user_id=recipient_id, book_id=share_inbox_id)
+
+        return {"message": "Recipe successfully shared!",
+                "recipient_id": recipe_id,
+                "code": 200, "payload": book_with_role
+                }

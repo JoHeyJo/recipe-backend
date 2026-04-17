@@ -1,8 +1,9 @@
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError, ProgrammingError
 from repository import InstructionRepo
-from models import db, Instruction, RecipeInstruction
-from repository import UserBook, BookInstructionRepo
-from sqlalchemy.exc import ProgrammingError
+from models import db, Instruction
+from repository import UserBookRepo, BookInstructionRepo, RecipeInstructionRepo
+from werkzeug.exceptions import Conflict
+from utils.functions import highlight
 
 class InstructionServices():
     """Handles instructions view business logic"""
@@ -35,8 +36,8 @@ class InstructionServices():
     def check_book_access(user_id, book_id):
         """Authorizes user access to book"""
         try:
-            book_ids = [book_id[0] for book_id in db.session.query(
-                UserBook.book_id).filter(UserBook.user_id == user_id).all()]
+            book_ids = UserBookRepo.query_user_book_ids(
+                user_id=user_id, book_id=book_id)
             if int(book_id) in book_ids:
                 return True
             else:
@@ -65,6 +66,12 @@ class InstructionServices():
     def create_instruction_association(book_id, instruction_id):
         """Associate user instruction to book"""
         try:
+            # prevents User from creating duplicate association to book
+            exists = BookInstructionRepo.query_book_instruction(
+                book_id=book_id, instruction_id=instruction_id)
+            if exists:
+                return
+            
             BookInstructionRepo.create_entry(
                 book_id=book_id, instruction_id=instruction_id)
             db.session.commit()
@@ -76,49 +83,24 @@ class InstructionServices():
                 f"Error in InstructionServices -> create_instruction_association: {e}") from e
 
     @staticmethod
-    def process_instructions(instructions, book_id):
-        """Adds new recipe instructions - Consolidates existing and new instruction objects - associates instruction to book """
-        processed_instructions = []
+    def process_instructions(instructions, recipe_id):
+        """Associates instructions to recipe """
         for instruction in instructions:
-            is_stored = instruction.get("id")
-            if is_stored is None:
-                try:
-                    # is this neccessry, all recipe instructions should already be created
-                    instruction = InstructionRepo.create_instruction(
-                        instruction=instruction["instruction"])
-                    processed_instructions.append(instruction)
-                    BookInstructionRepo.create_entry(
-                        book_id=book_id, instruction_id=instruction.id)
-                except Exception as e:
-                    raise type(e)(
-                        f"Error in InstructionServices - process_instructions: {e}")
-            else:
-                processed_instructions.append(instruction)
-        return processed_instructions
+            try:
+                RecipeInstructionRepo.create_entry(recipe_id=recipe_id, instruction_id=instruction["id"])
+            except Exception as e:
+                db.session.rollback()
+                raise type(e)(
+                    f"Error in InstructionServices - process_instructions: {e}") from e
+        return instructions
 
     @staticmethod
-    def build_instructions(instances, recipe_id):
-        """Return all associated instructions from recipe instance and updated with 
-        recipe_instruction identifier"""
-        instructions = []
+    def build_instructions(instances):
+        """Return serialized instructions instructions instance"""
         if not instances:
             return []
         try:
-            for instruction_instance in instances:
-                instruction = Instruction.serialize(instruction_instance)
-                # inject PK from recipes_instructions association table
-                association_id = RecipeInstruction.query.filter_by(
-                    recipe_id=recipe_id,
-                    instruction_id=instruction["id"]).scalar().id
-
-                if not association_id:
-                    raise ValueError(
-                        f"Association not found for instruction ID {instruction['id']} in recipe {recipe_id}")
-
-                instruction["association_id"] = association_id
-                instructions.append(instruction)
-
-            return instructions
+            return [Instruction.serialize(instruction_instance) for instruction_instance in instances]
         except Exception as e:
             raise type(e)(
                 f"InstructionServices - build_instructions error: {e}") from e
