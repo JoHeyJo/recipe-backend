@@ -57,20 +57,8 @@ class BookServices():
                         "error": "Unprocessable Content", "code": 422
                         }
 
-            if recipient.default_book_id is None:
-                BookServices.share_book_no_default_book(
-                    recipient=recipient, book_id=book_id)
-
-            if recipient.default_book_id:
-                recipient_has_book = UserBookRepo.query_user_book(book_id=book_id, user_id=recipient.id)
-
-                if recipient_has_book:
-                    return {"message": "User already has access to this book!",
-                            "error": "Unprocessable Content", "code": 409
-                            }
-                
-                if recipient_has_book is None:
-                    BookServices.share_book_has_default_book(recipient=recipient, book_id=book_id)
+            BookServices.share_book(recipient=recipient, shared_book_id=book_id,
+                                    recipient_has_default_book=recipient.default_book_id)
 
             # db.session.commit()
         except Exception as e:
@@ -78,17 +66,45 @@ class BookServices():
             raise
 
     @staticmethod
+    def share_book(recipient, shared_book_id, recipient_has_default_book):
+        """"Share book with recipient"""
+        try:
+            if recipient_has_default_book:
+                recipient_has_shared_book = UserBookRepo.query_user_book(
+                    book_id=shared_book_id, user_id=recipient.id)
+
+                if recipient_has_shared_book:
+                    return {"message": "User already has access to this book!",
+                            "error": "Unprocessable Content", "code": 409
+                            }
+
+            user_book = UserBookRepo.create_entry(
+                user_id=recipient.id, book_id=shared_book_id, role=BookRole.collaborator)
+            
+            book_with_role = BookRepo.build_book(
+                user_id=recipient.id, book_id=user_book.book_id)
+
+            if recipient_has_default_book is None:
+                recipient.default_book_id = user_book.id
+
+            return {"recipient_id": recipient.id,
+                    "message": f"Book shared with {recipient.user_name}!",
+                    "code": 200,
+                    "payload": book_with_role
+                    }
+        except Exception as e:
+            raise type(e)(f"BookServices - share_book error :{e}") from e
+
+    @staticmethod
     def share_book_no_default_book(recipient, book_id):
         """User shares Book with Recipient that has no default book assigned. Assigns default book"""
         try:
             book = UserBookRepo.create_entry(
                 user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
-            
-            recipient.default_book_id = book_id
 
-            book_with_role =  BookRepo.build_book(
+            book_with_role = BookRepo.build_book(
                 user_id=recipient.id, book_id=book.book_id)
-        
+
             return {"recipient_id": recipient.id,
                     "message": f"Book shared with {recipient.user_name}!",
                     "code": 200,
@@ -97,18 +113,17 @@ class BookServices():
         except Exception as e:
             raise type(e)(
                 f"BookServices - share_book_no_default_book error :{e}") from e
-        
+
     @staticmethod
     def share_book_has_default_book(recipient, book_id):
         """User shares with Recipient that has assigned default book"""
         try:
             book = UserBookRepo.create_entry(
-                        user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
+                user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
 
+            book_with_role = BookRepo.build_book(
+                user_id=recipient.id, book_id=book.book_id)
 
-            book_with_role =  BookRepo.build_book(
-                        user_id=recipient.id, book_id=book.book_id)
-            
             return {"recipient_id": recipient.id,
                     "message": f"Book shared with {recipient.user_name}!",
                     "code": 200,
