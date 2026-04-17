@@ -250,7 +250,6 @@ def add_instruction(authed_user_id, book_id, user_id):
 @route_error_handler
 def add_instruction_association(authed_user_id, book_id, instruction_id, user_id):
     """Facilitates association of user instruction to book"""
-    highlight((">>>>",book_id,instruction_id),"!")
     message = InstructionServices.create_instruction_association(
         book_id=book_id, instruction_id=instruction_id)
     return jsonify(message)
@@ -411,7 +410,6 @@ def share_recipe(data):
         recipient_id = connected_users.get(response["recipient_id"])
 
         if recipient_id:
-            highlight(response,"$")
             message = f"{sender} has shared '{recipe}'recipe with you!"
             emit('user_shared_recipe', {"payload":response.get("payload"),
                  "message": message, "recipe": response["recipe"]}, room=recipient_id)
@@ -443,22 +441,3 @@ def setup_app_context():
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
-
-# replace existing instructions
-# !!!!!!!!!!
-# ('edit data:', {'created_by_id': 1, 'name': None, 'ingredients': None, 'instructions': [{'oldId': 3, 'newId': 4}], 'notes': None})
-# !!!!!!!!!!
-# !!!!!!!!!!
-# ('instructions:', [{'oldId': 3, 'newId': 4}])
-# !!!!!!!!!!
-# !!!!!!!!!!
-# ('query_recipe_instructions', 14, 4)
-# !!!!!!!!!!
-
-# add instruction 
-# !!!!!!!!!!
-# ('edit data:', {'created_by_id': 1, 'name': None, 'ingredients': None,'instructions': [{'oldId': None, 'newId': 2}], 'notes': None})
-# !!!!!!!!!!
-# !!!!!!!!!!
-# ('instructions:', [{'oldId': None, 'newId': 2}])
-# !!!!!!!!!!

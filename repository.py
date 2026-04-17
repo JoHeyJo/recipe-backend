@@ -174,21 +174,14 @@ class RecipeRepo():
 
 # look at payload when User shares recipe with Recipient - Default book is Shared Book
 
-            highlight(("is_shared:", is_shared,
-                      "has_default_book:", has_default_book), "!")
             if not is_shared and has_default_book:
                 msg = RecipeBookRepo.create_entry(
                     book_id=shared_link.book_id, recipe_id=shared_id)
-                highlight(book, "!")
 
                 book_with_role = BookRepo.build_book(
                     user_id=recipient.id, book_id=book["id"])
 
-                highlight((msg, book_with_role), "!")
                 return {"message": "Recipe successfully shared!", "code": 200, "payload": book_with_role}
-
-            highlight(("is_shared:", is_shared,
-                      "has_default_book:", has_default_book), "!")
 
         except Exception as e:
             raise type(e)(f"RecipeRepo -> create_recipe_link error:{e}") from e
@@ -379,7 +372,6 @@ class BookRepo():
                 }
                 for user_book in user.user_books
             ]
-            highlight(("books:", books), "!")
             return books
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
@@ -604,7 +596,6 @@ class RecipeInstructionRepo():
     @staticmethod
     def query_recipe_instruction(recipe_id, instruction_id):
         """Query recipe_instruction record. Return recipe_instruction or None"""
-        highlight(("query_recipe_instructions",recipe_id, instruction_id),"!")
         try:
             return db.session.get(RecipeInstruction,
                 {"recipe_id": recipe_id, "instruction_id": instruction_id})

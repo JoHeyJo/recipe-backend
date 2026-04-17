@@ -67,7 +67,6 @@ class BookServices():
                     user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
                 
                 is_default_assigned = UserServices.assign_default_book_if_none_set(user_id=recipient.id, book_id=book_id)
-                highlight(book,"!")
                 if is_default_assigned:
                     book_with_role = BookRepo.build_book(
                         user_id=recipient.id, book_id=book.book_id)
