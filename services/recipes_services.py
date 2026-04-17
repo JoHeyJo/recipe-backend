@@ -400,7 +400,7 @@ class RecipeServices():
         res = RecipeBookRepo.create_entry(
             book_id=share_inbox_id, recipe_id=recipe_id)
         highlight(("RES:", res), "!")
-        book_with_role = BookRepo.build_book(
+        book_with_role = BookRepo.build_book_with_query(
             user_id=recipient_id, book_id=share_inbox_id)
 
         return {"message": "Recipe successfully shared!",

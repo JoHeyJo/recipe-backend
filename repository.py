@@ -178,7 +178,7 @@ class RecipeRepo():
                 msg = RecipeBookRepo.create_entry(
                     book_id=shared_link.book_id, recipe_id=shared_id)
 
-                book_with_role = BookRepo.build_book(
+                book_with_role = BookRepo.build_book_with_query(
                     user_id=recipient.id, book_id=book["id"])
 
                 return {"message": "Recipe successfully shared!", "code": 200, "payload": book_with_role}
@@ -375,18 +375,35 @@ class BookRepo():
             return books
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
+        
 
     @staticmethod
     def build_book(user_book):
-        """Build book object to include 'book_role' column from association table. - !!should be moved to service layer!!'"""
+        """Build book with user_book.book_type column"""
+        book = Book.serialize(user_book.book)
+        book["book_role"] = user_book.role.value
+        return book
+
+
+    @staticmethod
+    def build_book_with_query(user_id, book_id):
+        """Build book object to include 'book_role' column from association table. -
+        Need to review if where this function is called a user_book instance already exists
+        !!should be moved to service layer!!'"""
         try:
-            book = Book.serialize(user_book.book)
 
-            book["book_role"] = user_book.role.value
+            user_book = UserBookRepo.query_user_book(
+                book_id=book_id, user_id=user_id)
 
-            return book
+            serialized = Book.serialize(user_book.book)
+
+            serialized["book_role"] = user_book.role.value
+
+            return serialized
         except Exception as e:
             raise type(e)(f"BookRepo - build_book error: {e}") from e
+        
+    
 
 
 class InstructionRepo():

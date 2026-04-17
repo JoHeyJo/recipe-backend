@@ -47,7 +47,7 @@ class UserServices():
             default_book_id = user_data.get("default_book_id")
 
             if default_book_id:
-                default_book = BookRepo.build_book(user_id=user_id, book_id=default_book_id)
+                default_book = BookRepo.build_book_with_query(user_id=user_id, book_id=default_book_id)
                 user_data["default_book"] = default_book
             return user_data
         except Exception:
