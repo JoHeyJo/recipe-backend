@@ -15,7 +15,6 @@ class RecipeServices():
             notes = recipe.get("notes")
             instructions = recipe.get("instructions")
             ingredients = recipe.get("ingredients")
-            highlight(("recipe_data incoming",recipe, notes, instructions, ingredients),"!")
         except Exception as e:
             raise type(e)(
                 f"Failed to extract recipe data for book {book_id}: {e}") from e
@@ -37,7 +36,6 @@ class RecipeServices():
                 recipe_data["instructions"] = []
 
             db.session.commit()
-            highlight(("recipe_data:", recipe_data), "!")
             return recipe_data
         except Exception as e:
             db.session.rollback()
@@ -151,7 +149,6 @@ class RecipeServices():
     @staticmethod
     def process_edit(user_id, data, recipe_id):
         """Consolidates recipe edit process"""
-        highlight(("edit data:", data), "!")
         if user_id is not data.get("created_by_id"):
             raise Forbidden("Not authorized to make edits")
         try:
@@ -278,7 +275,6 @@ class RecipeServices():
                 return {"message": "Recipe already shared with user.",
                         "error": "Conflict", "code": 409}
 
-            highlight(message, "!")
             db.session.commit()
             return {**message, "recipe": recipe_build}
         except Exception as e:
@@ -358,9 +354,6 @@ class RecipeServices():
 
         is_recipe_shared = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
             shared_link_id=shared_link.book_id, shared_recipe_id=shared_recipe_id)
-
-        highlight(("is_recipe_shared:", is_recipe_shared), "!")
-        highlight(("shared_link:", shared_link), "!")
 
         return is_recipe_shared or shared_link
 
