@@ -43,10 +43,11 @@ class BookServices():
             raise
 
     @staticmethod
-    def process_shared_book(user_id, recipient, book_id):
+    def process_shared_book(user_id, recipient_name, book_id):
         """Calls services for book processing"""
         try:
-            recipient = UserRepo.query_user_name(user_name=recipient)
+            recipient = UserRepo.query_user_name(user_name=recipient_name)
+            highlight((user_id, recipient.id, book_id), "!")
 
             if not recipient:
                 return {"message": "User not found", "error": "Not Found", "code": 404}
@@ -57,16 +58,18 @@ class BookServices():
                         }
             
             relation_exists = UserBookRepo.query_shared_book(book_id=book_id, user_id=recipient.id)
-
+            highlight(("HIT", relation_exists), "!")
             if relation_exists:
                 return {"message": "User already has access to this book!",
                         "error": "Unprocessable Content", "code": 409
                         }
+            
             if not relation_exists:
                 book = UserBookRepo.create_entry(
                     user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
                 
                 is_default_assigned = UserServices.assign_default_book_if_none_set(user_id=recipient.id, book_id=book_id)
+
                 if is_default_assigned:
                     book_with_role = BookRepo.build_book(
                         user_id=recipient.id, book_id=book.book_id)

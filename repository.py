@@ -528,6 +528,8 @@ class UserBookRepo():
     def query_shared_book(recipient_id):
         """Query for User's "shared recipes" book"""
         try:
+            # query books.book_type with user id (recipient_id)
+            # I need to see if a user(recipient) has a book in books that has type shared_inbox
             stmt = (
                 db.select(UserBook)
                 .join(Book, UserBook.book_id == Book.id)
@@ -538,6 +540,7 @@ class UserBookRepo():
             )
 
             user_book = db.session.execute(stmt).scalar_one_or_none()
+            highlight("query_shared_book","!")
             return user_book
         except Exception as e:
             raise type(e)(f"UserBookRepo - query_shared_book error:{e}") from e

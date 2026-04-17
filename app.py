@@ -193,7 +193,7 @@ def add_shared_book(authed_user_id, book_id, user_id):
     """Shares book with User provided in query"""
     recipient = request.json["recipient"]
     response = BookServices.process_shared_book(
-        user_id=int(authed_user_id), recipient=recipient, book_id=book_id)
+        user_id=int(authed_user_id), recipient_name=recipient, book_id=book_id)
     return jsonify(response), 200
 
 ###########  COMPONENT OPTIONS = {amount, unit, item} = INGREDIENT ###########
@@ -293,8 +293,7 @@ def test_function(authed_user_id):
     recipient = request.json["recipient"]
     recipe_id = request.json["recipe_id"]
 
-    res = RecipeServices.process_recipe_share(
-        auth_id=authed_user_id, recipient=recipient, recipe_id=recipe_id)
+    res = None
 
     return jsonify(res)
 
@@ -346,10 +345,9 @@ def share_book(data):
     if not all([recipient, book_id, title]):
         emit('error sharing book', {'data': 'Invalid request missing data'})
         return
-
     try:
         response = BookServices.process_shared_book(
-            user_id=int(user_id), recipient=recipient, book_id=book_id)
+            user_id=int(user_id), recipient_name=recipient, book_id=book_id)
 
         if response["code"] in (422, 409, 404):
             emit('error_sharing_book', {'data': response["message"]})
