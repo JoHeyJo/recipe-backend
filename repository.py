@@ -525,21 +525,22 @@ class UserBookRepo():
             raise type(e)(f"RecipeBookRep - query_user_book error:{e}") from e
 
     @staticmethod
-    def query_shared_book(recipient_id):
+    def query_shared_book(user_id):
         """Query for User's "shared recipes" book"""
         try:
-            # query books.book_type with user id (recipient_id)
+            # query books.book_type with user id (user_id)
             # I need to see if a user(recipient) has a book in books that has type shared_inbox
+            
             stmt = (
                 db.select(UserBook)
                 .join(Book, UserBook.book_id == Book.id)
                 .where(
-                    UserBook.user_id == recipient_id,
+                    UserBook.user_id == user_id,
                     Book.book_type == BookType.shared_inbox
                 )
             )
 
-            user_book = db.session.execute(stmt).scalar_one_or_none()
+            user_book = db.session.execute(stmt)
             highlight("query_shared_book","!")
             return user_book
         except Exception as e:

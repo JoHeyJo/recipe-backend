@@ -45,6 +45,19 @@ class BookServices():
     @staticmethod
     def process_shared_book(user_id, recipient_name, book_id):
         """Calls services for book processing"""
+        # To share a book
+        # Check if recipient has a default book
+        # Check in user.default_book
+        # If user has default book
+            # Check if user already has shared book
+            # If user already has shared book
+                # return message - no share
+            # If user does not have shared book
+                # Create a user association
+                # Consider what kind of association this is - user privileges
+        # if user does not have default book - this mean user has no books
+            # Assign as default book for user
+            # Consider what kind of association this is - user privileges
         try:
             recipient = UserRepo.query_user_name(user_name=recipient_name)
             highlight((user_id, recipient.id, book_id), "!")
@@ -57,7 +70,7 @@ class BookServices():
                         "error": "Unprocessable Content", "code": 422
                         }
             
-            relation_exists = UserBookRepo.query_shared_book(book_id=book_id, user_id=recipient.id)
+            relation_exists = UserBookRepo.query_shared_book(user_id=recipient.id)
             highlight(("HIT", relation_exists), "!")
             if relation_exists:
                 return {"message": "User already has access to this book!",
@@ -74,13 +87,13 @@ class BookServices():
                     book_with_role = BookRepo.build_book(
                         user_id=recipient.id, book_id=book.book_id)
                     
-                    db.session.commit()
+                    # db.session.commit()
                     return {"recipient_id": recipient.id,
                             "message": f"Book shared with {recipient.user_name}!",
                             "code": 200,
                             "payload":book_with_role
                             }
-                db.session.commit()
+                # db.session.commit()
                 return {"recipient_id": recipient.id,
                         "message": f"Book shared with {recipient.user_name}!",
                         "code": 200
