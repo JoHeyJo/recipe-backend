@@ -81,6 +81,7 @@ class UserServices():
 
     @staticmethod
     def assign_default_book_if_none_set(user_id, book_id):
+        """Checks if user has a default book or not. Assigns if none is set"""
         try:
             user = User.query.get(user_id)
             if user.default_book_id is None:
