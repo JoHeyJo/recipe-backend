@@ -378,7 +378,7 @@ class BookRepo():
 
     @staticmethod
     def build_book(user_id, book_id):
-        """Build book object to include 'book_role - !!should be moved to service layer!!'"""
+        """Build book object to include 'book_role' column from association table. - !!should be moved to service layer!!'"""
         try:
 
             user_book = UserBookRepo.query_user_book(
@@ -518,7 +518,7 @@ class UserBookRepo():
 
     @staticmethod
     def query_user_book(book_id, user_id):
-        """Query UserBook by composite  user id and book id. Return user_book or none"""
+        """Query UserBook by composite user id and book id. Return user_book or none"""
         try:
             return db.session.get(UserBook, {"book_id": book_id, "user_id": user_id})
         except Exception as e:
@@ -537,7 +537,7 @@ class UserBookRepo():
                 )
             )
 
-            user_book = db.session.execute(stmt).scalar_one_or_none()
+            user_book = db.session.execute(stmt)
             return user_book
         except Exception as e:
             raise type(e)(f"UserBookRepo - query_shared_book error:{e}") from e
