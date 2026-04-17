@@ -57,10 +57,11 @@ class BookServices():
                         "error": "Unprocessable Content", "code": 422
                         }
 
-            BookServices.share_book(recipient=recipient, shared_book_id=book_id,
+            response = BookServices.share_book(recipient=recipient, shared_book_id=book_id,
                                     recipient_has_default_book=recipient.default_book_id)
 
             # db.session.commit()
+            return response
         except Exception as e:
             db.session.rollback()
             raise
