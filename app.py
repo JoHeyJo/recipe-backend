@@ -337,14 +337,21 @@ def share_book(data):
         emit('error_sharing_book', {'data': 'Unauthorized'})
         return
 
-    book_id = data.get("currentBookId")
+    book = data.get("currentBook")
+    book_id = book["id"]
+    title = book["title"]
     recipient = data.get("recipient")
     sender = data.get("user")
-    title = data.get("currentBook")
+
+    if book["book_role"] != "owner":
+        emit('error_sharing_book', {'data': 'Not authorized to share!'})
+        return
+
 
     if not all([recipient, book_id, title]):
-        emit('error sharing book', {'data': 'Invalid request missing data'})
+        emit('error_sharing_book', {'data': 'Invalid request missing data'})
         return
+    
     try:
         response = BookServices.process_shared_book(
             user_id=int(user_id), recipient_name=recipient, book_id=book_id)
@@ -382,7 +389,7 @@ def share_recipe(data):
     """Facilitates recipe sharing request and response"""
     user_id = check_auth_users(user_id=authorized_user.get(request.sid))
     if not user_id:
-        emit('error_sharing_book', {'data': 'Unauthorized'})
+        emit('error_sharing_recipe', {'data': 'Unauthorized'})
         return
     recipe_id = data.get("recipeId")
     sender = data.get("user")

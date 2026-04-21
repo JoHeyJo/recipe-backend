@@ -84,7 +84,7 @@ class BookServices():
             if recipient_has_default_book is None:
                 recipient.default_book_id = book["id"]
 
-            db.session.commit()
+            # db.session.commit()
             return {"recipient_id": recipient.id,
                     "message": f"Book shared with {recipient.user_name}!",
                     "code": 200,
