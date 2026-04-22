@@ -342,21 +342,21 @@ def share_book(data):
     title = book["title"]
     recipient = data.get("recipient")
     sender = data.get("user")
+    privileges = data.get("privileges")
 
     if book["book_role"] != "owner":
         emit('error_sharing_book', {'data': 'Not authorized to share!'})
         return
 
-
     if not all([recipient, book_id, title]):
         emit('error_sharing_book', {'data': 'Invalid request missing data'})
         return
-    
+
     try:
         response = BookServices.process_shared_book(
-            user_id=int(user_id), recipient_name=recipient, book_id=book_id)
+            user_id=int(user_id), recipient_name=recipient, book_id=book_id, privileges=privileges)
 
-        highlight(("response",response),"!")
+        highlight(("response", response), "!")
         if response["code"] in (422, 409, 404):
             emit('error_sharing_book', {'data': response["message"]})
             return
@@ -416,7 +416,7 @@ def share_recipe(data):
 
         if recipient_id:
             message = f"{sender} has shared '{recipe}'recipe with you!"
-            emit('user_shared_recipe', {"payload":response.get("payload"),
+            emit('user_shared_recipe', {"payload": response.get("payload"),
                  "message": message, "recipe": response["recipe"]}, room=recipient_id)
             return
         # else:

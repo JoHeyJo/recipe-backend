@@ -43,7 +43,7 @@ class BookServices():
             raise
 
     @staticmethod
-    def process_shared_book(user_id, recipient_name, book_id):
+    def process_shared_book(user_id, recipient_name, book_id, privileges):
         """Calls services for book processing"""
         try:
             recipient = UserRepo.query_user_name(user_name=recipient_name)
@@ -57,14 +57,14 @@ class BookServices():
                         }
 
             response = BookServices.share_book(recipient=recipient, shared_book_id=book_id,
-                                               recipient_has_default_book=recipient.default_book_id)
+                                               recipient_has_default_book=recipient.default_book_id, role=BookRole.privileges)
             return response
         except Exception as e:
             db.session.rollback()
             raise
 
     @staticmethod
-    def share_book(recipient, shared_book_id, recipient_has_default_book):
+    def share_book(recipient, shared_book_id, recipient_has_default_book, role=BookRole.viewer):
         """"Creates association with recipient. Sets book as default if recipient has none"""
         try:
             if recipient_has_default_book:
@@ -77,14 +77,14 @@ class BookServices():
                             }
 
             user_book = UserBookRepo.create_entry(
-                user_id=recipient.id, book_id=shared_book_id, role=BookRole.collaborator)
+                user_id=recipient.id, book_id=shared_book_id, role=role)
 
             book = BookRepo.build_book(user_book=user_book)
 
             if recipient_has_default_book is None:
                 recipient.default_book_id = book["id"]
 
-            # db.session.commit()
+            db.session.commit()
             return {"recipient_id": recipient.id,
                     "message": f"Book shared with {recipient.user_name}!",
                     "code": 200,
