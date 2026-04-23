@@ -1,8 +1,10 @@
-from repository import db, UserRepo, User, BookRepo
+from repository import db, UserRepo, User, BookRepo, UserBookRepo
 from utils.functions import highlight
 from datetime import timedelta
 from flask_jwt_extended import create_access_token, get_jwt_identity
 from exceptions import ForbiddenError
+from werkzeug.exceptions import Forbidden
+from models import BookRole
 
 
 class UserServices():
@@ -47,7 +49,7 @@ class UserServices():
             default_book_id = user_data.get("default_book_id")
 
             if default_book_id:
-                default_book = BookRepo.build_book(user_id=user_id, book_id=default_book_id)
+                default_book = BookRepo.build_book_with_query(user_id=user_id, book_id=default_book_id)
                 user_data["default_book"] = default_book
             return user_data
         except Exception:
@@ -81,6 +83,7 @@ class UserServices():
 
     @staticmethod
     def assign_default_book_if_none_set(user_id, book_id):
+        """Checks if user has a default book or not. Assigns if none is set"""
         try:
             user = User.query.get(user_id)
             if user.default_book_id is None:
@@ -91,3 +94,11 @@ class UserServices():
             db.session.rollback()
             raise type(e)(
                 f"UserServices - assign_default_book_if_none_set  error:{e}") from e
+
+    @staticmethod
+    def check_book_privileges(book_id, auth_id, user_id):
+        """Verifies or denies a user CRUD capabilities"""
+        user_book = UserBookRepo.query_users_books(
+            book_id=book_id, user_id=auth_id)
+        if user_book.role != BookRole.collaborator and auth_id != user_id:
+            raise Forbidden("Action not authorized!")

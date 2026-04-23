@@ -17,17 +17,17 @@ class BookServices():
         try:
             new_book = BookRepo.create_book(
                 title=book_data["title"], description=book_data["description"])
-            
+
             # associate book to user
             if new_book["id"]:
                 user_book = UserBookRepo.create_entry(
                     user_id=user_id, book_id=new_book["id"])
                 new_book["book_role"] = user_book.role.value
-            
+
             # add book id to default if necessary
             UserServices.assign_default_book_if_none_set(
                 user_id=user_id, book_id=new_book["id"])
-            
+
             db.session.commit()
             return new_book
         except Exception as e:
@@ -43,54 +43,55 @@ class BookServices():
             raise
 
     @staticmethod
-    def process_shared_book(user_id, recipient, book_id):
+    def process_shared_book(user_id, recipient_name, book_id, privileges):
         """Calls services for book processing"""
+
+        # role = BookRole[privileges]
         try:
-            recipient = UserRepo.query_user_name(user_name=recipient)
+            recipient = UserRepo.query_user_name(user_name=recipient_name)
 
             if not recipient:
                 return {"message": "User not found", "error": "Not Found", "code": 404}
-             
+
             if (recipient.id == user_id):
                 return {"message": "Don't you already have this book???",
                         "error": "Unprocessable Content", "code": 422
                         }
-            
-            relation_exists = UserBookRepo.query_shared_book(book_id=book_id, user_id=recipient.id)
 
-            if relation_exists:
-                return {"message": "User already has access to this book!",
-                        "error": "Unprocessable Content", "code": 409
-                        }
-            if not relation_exists:
-                book = UserBookRepo.create_entry(
-                    user_id=recipient.id, book_id=book_id, role=BookRole.collaborator)
-                
-                is_default_assigned = UserServices.assign_default_book_if_none_set(user_id=recipient.id, book_id=book_id)
-                if is_default_assigned:
-                    book_with_role = BookRepo.build_book(
-                        user_id=recipient.id, book_id=book.book_id)
-                    
-                    db.session.commit()
-                    return {"recipient_id": recipient.id,
-                            "message": f"Book shared with {recipient.user_name}!",
-                            "code": 200,
-                            "payload":book_with_role
-                            }
-                db.session.commit()
-                return {"recipient_id": recipient.id,
-                        "message": f"Book shared with {recipient.user_name}!",
-                        "code": 200
-                        }
-                
+            response = BookServices.share_book(recipient=recipient, shared_book_id=book_id,
+                                               recipient_has_default_book=recipient.default_book_id, role=BookRole[privileges])
+            return response
         except Exception as e:
             db.session.rollback()
             raise
 
     @staticmethod
-    def share_book_no_default_book():
-        """User shares Book with Recipient that has no default book assigned"""
+    def share_book(recipient, shared_book_id, recipient_has_default_book, role=BookRole.viewer):
+        """"Creates association with recipient. Sets book as default if recipient has none"""
+        highlight(role,"!")
+        try:
+            if recipient_has_default_book:
+                recipient_has_shared_book = UserBookRepo.query_users_books(
+                    book_id=shared_book_id, user_id=recipient.id)
 
-    @staticmethod
-    def share_book_has_default_book():
-        """User shares with Recipient that has assigned default book"""
+                if recipient_has_shared_book:
+                    return {"message": "User already has access to this book!",
+                            "error": "Unprocessable Content", "code": 409
+                            }
+
+            user_book = UserBookRepo.create_entry(
+                user_id=recipient.id, book_id=shared_book_id, role=role)
+
+            book = BookRepo.build_book(user_book=user_book)
+
+            if recipient_has_default_book is None:
+                recipient.default_book_id = book["id"]
+
+            db.session.commit()
+            return {"recipient_id": recipient.id,
+                    "message": f"Book shared with {recipient.user_name}!",
+                    "code": 200,
+                    "payload": book
+                    }
+        except Exception as e:
+            raise type(e)(f"BookServices - share_book error :{e}") from e

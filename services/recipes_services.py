@@ -2,6 +2,7 @@ from repository import *
 from sqlalchemy.orm import joinedload
 from services.ingredients_services import IngredientServices
 from services.instructions_services import InstructionServices
+from services.user_services import UserServices
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Conflict
 
 
@@ -147,10 +148,10 @@ class RecipeServices():
             raise type(e)(f"RecipeServices - build_recipe error: {e}") from e
 
     @staticmethod
-    def process_edit(user_id, data, recipe_id):
+    def process_edit(user_id, data, book_id, recipe_id):
         """Consolidates recipe edit process"""
-        if user_id is not data.get("created_by_id"):
-            raise Forbidden("Not authorized to make edits")
+        UserServices.check_book_privileges(
+            book_id=book_id, auth_id=user_id, user_id=data.get("created_by_id"))
         try:
             name = data.get("name")
             ingredients = data.get("ingredients")
@@ -210,13 +211,17 @@ class RecipeServices():
                 quantity_unit_id = unit["id"] if unit else None
                 item_id = item["id"] if item else None
 
+                if item_id is None:
+                    raise ValueError("Ingredient must have an item name.")
+
                 if ingredient["id"]:
-                    recipe_ingredient = Ingredient.query.get(
+                    recipe_ingredient = IngredientsRepo.query_ingredient(
                         ingredient["id"])
+                    
                     if not recipe_ingredient:
                         raise NotFound(
                             f"No ingredient matching id #: {ingredient['id']}")
-
+                    highlight("HERE", "!")
                     if amount:
                         recipe_ingredient.quantity_amount_id = quantity_amount_id
                     if unit:
@@ -241,7 +246,7 @@ class RecipeServices():
                 if instruction["oldId"]:
                     instance = RecipeInstructionRepo.query_recipe_instruction(
                         recipe_id=recipe_id, instruction_id=instruction["oldId"])
-                    
+
                     instance.instruction_id = instruction["newId"]
 
                 if instruction["oldId"] is None:
@@ -358,10 +363,10 @@ class RecipeServices():
         return is_recipe_shared or shared_link
 
     @staticmethod
-    def remove_recipe(auth_id, recipe_id, data):
+    def remove_recipe(auth_id, book_id, recipe_id, data):
         """Deletes book recipe"""
-        if auth_id is not int(data["createdById"]):
-            raise Forbidden("Not authorized to delete!")
+        UserServices.check_book_privileges(
+            book_id=book_id, auth_id=auth_id, user_id=int(data["createdById"]))
         try:
             RecipeRepo.delete_recipe(recipe_id=recipe_id)
             db.session.commit()
@@ -374,7 +379,7 @@ class RecipeServices():
     @staticmethod
     def remove_shared_recipe(authed_id, recipe_id, book_id):
         """Verifies shared recipe belongs to user's shared book. Then deletes association"""
-        user_book = UserBookRepo.query_user_book(
+        user_book = UserBookRepo.query_users_books(
             book_id=book_id, user_id=authed_id)
 
         if not user_book:
@@ -400,7 +405,7 @@ class RecipeServices():
         res = RecipeBookRepo.create_entry(
             book_id=share_inbox_id, recipe_id=recipe_id)
         highlight(("RES:", res), "!")
-        book_with_role = BookRepo.build_book(
+        book_with_role = BookRepo.build_book_with_query(
             user_id=recipient_id, book_id=share_inbox_id)
 
         return {"message": "Recipe successfully shared!",
