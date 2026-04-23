@@ -151,7 +151,7 @@ def patch_user_recipe(authed_user_id, recipe_id):
 def delete_recipe(authed_user_id, user_id, book_id, recipe_id):
     """Facilitate deletion of recipe record associated to user"""
     response = RecipeServices.remove_recipe(
-        auth_id=authed_user_id, recipe_id=recipe_id, data=request.json)
+        auth_id=authed_user_id, book_id=book_id, recipe_id=recipe_id, data=request.json)
     return jsonify(response), 200
 
 

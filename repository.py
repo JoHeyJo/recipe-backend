@@ -375,7 +375,6 @@ class BookRepo():
             return books
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
-        
 
     @staticmethod
     def build_book(user_book):
@@ -384,7 +383,6 @@ class BookRepo():
         book["book_role"] = user_book.role.value
         return book
 
-
     @staticmethod
     def build_book_with_query(user_id, book_id):
         """Build book object to include 'book_role' column from association table. -
@@ -392,7 +390,7 @@ class BookRepo():
         !!should be moved to service layer!!'"""
         try:
 
-            user_book = UserBookRepo.query_user_book(
+            user_book = UserBookRepo.query_users_books(
                 book_id=book_id, user_id=user_id)
 
             serialized = Book.serialize(user_book.book)
@@ -402,8 +400,6 @@ class BookRepo():
             return serialized
         except Exception as e:
             raise type(e)(f"BookRepo - build_book error: {e}") from e
-        
-    
 
 
 class InstructionRepo():
@@ -530,7 +526,7 @@ class UserBookRepo():
             raise type(e)(f"UserBookRepo - create_entry error:{e}") from e
 
     @staticmethod
-    def query_user_book(book_id, user_id):
+    def query_users_books(book_id, user_id):
         """Query UserBook by composite user id and book id. Return user_book or none"""
         try:
             return db.session.get(UserBook, {"book_id": book_id, "user_id": user_id})
@@ -611,7 +607,7 @@ class RecipeInstructionRepo():
         """Query recipe_instruction record. Return recipe_instruction or None"""
         try:
             return db.session.get(RecipeInstruction,
-                {"recipe_id": recipe_id, "instruction_id": instruction_id})
+                                  {"recipe_id": recipe_id, "instruction_id": instruction_id})
         except Exception as e:
             raise type(e)(
                 f"RecipeInstructionRepo - query_recipe_instruction error :{e}") from e

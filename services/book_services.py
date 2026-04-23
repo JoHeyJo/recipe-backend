@@ -71,7 +71,7 @@ class BookServices():
         highlight(role,"!")
         try:
             if recipient_has_default_book:
-                recipient_has_shared_book = UserBookRepo.query_user_book(
+                recipient_has_shared_book = UserBookRepo.query_users_books(
                     book_id=shared_book_id, user_id=recipient.id)
 
                 if recipient_has_shared_book:

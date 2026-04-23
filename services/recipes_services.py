@@ -358,13 +358,14 @@ class RecipeServices():
         return is_recipe_shared or shared_link
 
     @staticmethod
-    def remove_recipe(auth_id, recipe_id, data):
+    def remove_recipe(auth_id, book_id, recipe_id, data):
         """Deletes book recipe"""
-        if auth_id is not int(data["createdById"]):
+        user_book = UserBookRepo.query_users_books(book_id=book_id, user_id=auth_id)
+        if user_book.role != BookRole.collaborator and auth_id is not int(data["createdById"]):
             raise Forbidden("Not authorized to delete!")
         try:
             RecipeRepo.delete_recipe(recipe_id=recipe_id)
-            db.session.commit()
+            # db.session.commit()
             return {"message": "deletion successful"}
         except Exception as e:
             db.session.rollback()
@@ -374,7 +375,7 @@ class RecipeServices():
     @staticmethod
     def remove_shared_recipe(authed_id, recipe_id, book_id):
         """Verifies shared recipe belongs to user's shared book. Then deletes association"""
-        user_book = UserBookRepo.query_user_book(
+        user_book = UserBookRepo.query_users_books(
             book_id=book_id, user_id=authed_id)
 
         if not user_book:
