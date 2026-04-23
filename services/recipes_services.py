@@ -148,10 +148,10 @@ class RecipeServices():
             raise type(e)(f"RecipeServices - build_recipe error: {e}") from e
 
     @staticmethod
-    def process_edit(user_id, data, recipe_id):
+    def process_edit(user_id, data, book_id, recipe_id):
         """Consolidates recipe edit process"""
-        if user_id is not data.get("created_by_id"):
-            raise Forbidden("Not authorized to make edits")
+        UserServices.check_book_privileges(
+            book_id=book_id, auth_id=user_id, user_id=data.get("created_by_id"))
         try:
             name = data.get("name")
             ingredients = data.get("ingredients")
@@ -211,13 +211,17 @@ class RecipeServices():
                 quantity_unit_id = unit["id"] if unit else None
                 item_id = item["id"] if item else None
 
+                if item_id is None:
+                    raise ValueError("Ingredient must have an item name.")
+
                 if ingredient["id"]:
-                    recipe_ingredient = Ingredient.query.get(
+                    recipe_ingredient = IngredientsRepo.query_ingredient(
                         ingredient["id"])
+                    
                     if not recipe_ingredient:
                         raise NotFound(
                             f"No ingredient matching id #: {ingredient['id']}")
-
+                    highlight("HERE", "!")
                     if amount:
                         recipe_ingredient.quantity_amount_id = quantity_amount_id
                     if unit:

@@ -101,4 +101,4 @@ class UserServices():
         user_book = UserBookRepo.query_users_books(
             book_id=book_id, user_id=auth_id)
         if user_book.role != BookRole.collaborator and auth_id != user_id:
-            raise Forbidden("Not authorized to delete!")
+            raise Forbidden("Action not authorized!")

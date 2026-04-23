@@ -334,6 +334,14 @@ class ItemRepo():
 
 class IngredientsRepo():
     """Directs incoming data to corresponding repo methods"""
+    @staticmethod
+    def query_ingredient(primary_key):
+        """Query ingredient using PK. Return ingredient or None"""
+        try:
+            return db.session.get(Ingredient, primary_key)
+        except Exception as e:
+            raise type(e)(
+                f"Error in IngredientsRepo -> query_ingredient: {e}") from e
 
 
 class BookRepo():
