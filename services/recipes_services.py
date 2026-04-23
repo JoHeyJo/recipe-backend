@@ -2,6 +2,7 @@ from repository import *
 from sqlalchemy.orm import joinedload
 from services.ingredients_services import IngredientServices
 from services.instructions_services import InstructionServices
+from services.user_services import UserServices
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Conflict
 
 
@@ -241,7 +242,7 @@ class RecipeServices():
                 if instruction["oldId"]:
                     instance = RecipeInstructionRepo.query_recipe_instruction(
                         recipe_id=recipe_id, instruction_id=instruction["oldId"])
-                    
+
                     instance.instruction_id = instruction["newId"]
 
                 if instruction["oldId"] is None:
@@ -360,12 +361,11 @@ class RecipeServices():
     @staticmethod
     def remove_recipe(auth_id, book_id, recipe_id, data):
         """Deletes book recipe"""
-        user_book = UserBookRepo.query_users_books(book_id=book_id, user_id=auth_id)
-        if user_book.role != BookRole.collaborator and auth_id is not int(data["createdById"]):
-            raise Forbidden("Not authorized to delete!")
+        UserServices.check_book_privileges(
+            book_id=book_id, auth_id=auth_id, user_id=int(data["createdById"]))
         try:
             RecipeRepo.delete_recipe(recipe_id=recipe_id)
-            # db.session.commit()
+            db.session.commit()
             return {"message": "deletion successful"}
         except Exception as e:
             db.session.rollback()
