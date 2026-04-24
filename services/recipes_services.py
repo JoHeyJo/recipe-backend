@@ -210,9 +210,12 @@ class RecipeServices():
                 quantity_amount_id = amount["id"] if amount else None
                 quantity_unit_id = unit["id"] if unit else None
                 item_id = item["id"] if item else None
-
+                highlight(ingredients,"!")
                 if item_id is None:
                     raise ValueError("Ingredient must have an item name.")
+                
+                # editing is send item: None because no changes have been made to item
+                # however, the ingredient already has an item
 
                 if ingredient["id"]:
                     recipe_ingredient = IngredientsRepo.query_ingredient(
@@ -221,12 +224,14 @@ class RecipeServices():
                     if not recipe_ingredient:
                         raise NotFound(
                             f"No ingredient matching id #: {ingredient['id']}")
-                    highlight("HERE", "!")
+                    
+                    is_altered = recipe_ingredient.item_id != item_id
+
                     if amount:
                         recipe_ingredient.quantity_amount_id = quantity_amount_id
                     if unit:
                         recipe_ingredient.quantity_unit_id = quantity_unit_id
-                    if item:
+                    if item and is_altered:
                         recipe_ingredient.item_id = item_id
                 else:
                     RecipeIngredientRepo.create_ingredient(
