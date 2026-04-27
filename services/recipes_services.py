@@ -157,14 +157,17 @@ class RecipeServices():
             ingredients = data.get("ingredients")
             instructions = data.get("instructions")
             notes = data.get("notes")
+
         except Exception as e:
             raise type(e)(
                 f"Failed to extract recipe edit data for recipe {recipe_id}: {e}") from e
-
+        edited_recipe = None
         try:
             if name or notes:
-                RecipeServices.process_edit_recipe_info(
+                recipe_info = RecipeServices.process_edit_recipe_info(
                     name=name, notes=notes, recipe_id=recipe_id)
+                edited_recipe["name"] = recipe_info.name
+                edited_recipe["info"] = recipe_info.notes
 
             if ingredients:
                 RecipeServices.process_edit_ingredients(
@@ -175,6 +178,7 @@ class RecipeServices():
                     instructions=instructions, recipe_id=recipe_id)
 
             db.session.commit()
+
             return {"message": "edit successful"}
         except Exception as e:
             db.session.rollback()
@@ -184,13 +188,14 @@ class RecipeServices():
     def process_edit_recipe_info(name, notes, recipe_id):
         """Edits recipe name and notes"""
         try:
-            recipe = Recipe.query.get(recipe_id)
+            recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
             if not recipe:
                 raise ValueError(f"No recipe matching id #: {recipe_id}")
             if name:
                 recipe.name = name
             if notes:
                 recipe.notes = notes
+            return recipe
         except Exception as e:
             raise type(e)(f"Failed to process_edit_recipe_info: {e}") from e
 
@@ -210,12 +215,9 @@ class RecipeServices():
                 quantity_amount_id = amount["id"] if amount else None
                 quantity_unit_id = unit["id"] if unit else None
                 item_id = item["id"] if item else None
-                highlight(ingredients,"!")
+
                 if item_id is None:
                     raise ValueError("Ingredient must have an item name.")
-                
-                # editing is send item: None because no changes have been made to item
-                # however, the ingredient already has an item
 
                 if ingredient["id"]:
                     recipe_ingredient = IngredientsRepo.query_ingredient(
