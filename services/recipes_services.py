@@ -263,7 +263,6 @@ class RecipeServices():
                         instruction_id=instruction["newId"])
             instructions = RecipeInstructionRepo.query_recipe_instructions(
                 recipe_id=recipe_id)
-            highlight(instructions,"!")
         except Exception as e:
             raise type(e)(f"Failed to process_edit_instructions: {e}") from e
 

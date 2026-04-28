@@ -627,8 +627,7 @@ class RecipeInstructionRepo():
         try:
             stmt = select(RecipeInstruction).where(RecipeInstruction.recipe_id == recipe_id)
             instructions = db.session.scalars(stmt).all()
-            highlight(instructions,"!")
-            return [{"id": i.instruction_id, "instruction": i.instruction} for i in instructions]
+            return [{"id": i.instruction_id, "instruction": i.instruction.instruction} for i in instructions]
         except Exception as e:
             raise type(e)(
                 f"RecipeInstructionRepo - query_recipe_instructions error :{e}") from e
