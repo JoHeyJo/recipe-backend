@@ -149,7 +149,8 @@ class RecipeServices():
 
     @staticmethod
     def process_edit(user_id, data, book_id, recipe_id):
-        """Consolidates recipe edit process"""
+        """Consolidates recipe edit process. Currently request recipe return after editing is done
+        instead of building recipe from individual recipe parts. This requires two separate patterns to consider"""
         UserServices.check_book_privileges(
             book_id=book_id, auth_id=user_id, user_id=data.get("created_by_id"))
         try:
@@ -172,14 +173,13 @@ class RecipeServices():
             if ingredients:
                 edited_recipe["ingredients"] = RecipeServices.process_edit_ingredients(
                     ingredients=ingredients, recipe_id=recipe_id)
-
             if instructions:
-                RecipeServices.process_edit_instructions(
+                edited_recipe["instructions"] = RecipeServices.process_edit_instructions(
                     instructions=instructions, recipe_id=recipe_id)
 
             db.session.commit()
-
-            return {"message": "edit successful"}
+            edited_recipe = RecipeServices.build_recipe(recipe_id=recipe_id)
+            return edited_recipe
         except Exception as e:
             db.session.rollback()
             raise type(e)(f"Failed to process_edit: {e}") from e
@@ -261,7 +261,7 @@ class RecipeServices():
                     RecipeInstructionRepo.create_entry(
                         recipe_id=recipe_id,
                         instruction_id=instruction["newId"])
-            instructions = RecipeInstructionRepo.query_recipe_instructions(
+            return RecipeInstructionRepo.query_recipe_instructions(
                 recipe_id=recipe_id)
         except Exception as e:
             raise type(e)(f"Failed to process_edit_instructions: {e}") from e
