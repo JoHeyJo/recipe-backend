@@ -161,7 +161,7 @@ class RecipeServices():
         except Exception as e:
             raise type(e)(
                 f"Failed to extract recipe edit data for recipe {recipe_id}: {e}") from e
-        edited_recipe = None
+        edited_recipe = {}
         try:
             if name or notes:
                 recipe_info = RecipeServices.process_edit_recipe_info(
@@ -170,7 +170,7 @@ class RecipeServices():
                 edited_recipe["info"] = recipe_info.notes
 
             if ingredients:
-                RecipeServices.process_edit_ingredients(
+                edited_recipe["ingredients"] = RecipeServices.process_edit_ingredients(
                     ingredients=ingredients, recipe_id=recipe_id)
 
             if instructions:
@@ -203,6 +203,7 @@ class RecipeServices():
     def process_edit_ingredients(ingredients, recipe_id):
         """Edits recipe's ingredients by modifying Ingredient association 
         or creating a new association for new ingredient"""
+        highlight(("ingredients",ingredients),"!")
         try:
             for ingredient in ingredients:
                 item = ingredient.get("item")
@@ -241,6 +242,7 @@ class RecipeServices():
                         item_id=item_id,
                         quantity_unit_id=quantity_unit_id,
                         quantity_amount_id=quantity_amount_id)
+            return ingredients
         except Exception as e:
             raise type(e)(f"Failed to process_edit_ingredients: {e}") from e
 
@@ -248,6 +250,7 @@ class RecipeServices():
     def process_edit_instructions(instructions, recipe_id):
         """Edits recipe's instructions - modifying existing instruction or 
         creating a new one"""
+        RecipeInstructionRepo.query_recipe_instructions(recipe_id=recipe_id)
         try:
             for instruction in instructions:
                 if instruction["oldId"]:
@@ -255,11 +258,11 @@ class RecipeServices():
                         recipe_id=recipe_id, instruction_id=instruction["oldId"])
 
                     instance.instruction_id = instruction["newId"]
-
                 if instruction["oldId"] is None:
                     RecipeInstructionRepo.create_entry(
                         recipe_id=recipe_id,
                         instruction_id=instruction["newId"])
+            highlight(instructions,"!")
         except Exception as e:
             raise type(e)(f"Failed to process_edit_instructions: {e}") from e
 

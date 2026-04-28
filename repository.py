@@ -4,6 +4,7 @@ from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, I
 from exceptions import *
 from utils.functions import insert_first, highlight
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select
 import logging
 
 logger = logging.getLogger(__name__)
@@ -619,6 +620,17 @@ class RecipeInstructionRepo():
         except Exception as e:
             raise type(e)(
                 f"RecipeInstructionRepo - query_recipe_instruction error :{e}") from e
+        
+    @staticmethod
+    def query_recipe_instructions(recipe_id):
+        """Query instructions associated to recipe id"""
+        try:
+            stmt = select(RecipeInstruction).where(RecipeInstruction.recipe_id == recipe_id)
+            instructions = db.session.scalars(stmt).all()
+            highlight(instructions,"!")
+        except Exception as e:
+            raise type(e)(
+                f"RecipeInstructionRepo - query_recipe_instructions error :{e}") from e
 
 
 class AmountBookRepo():

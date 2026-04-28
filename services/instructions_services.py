@@ -96,7 +96,7 @@ class InstructionServices():
 
     @staticmethod
     def build_instructions(instances):
-        """Return serialized instructions instructions instance"""
+        """Return serialized instructions instance"""
         if not instances:
             return []
         try:
