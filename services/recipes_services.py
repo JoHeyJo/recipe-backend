@@ -250,7 +250,6 @@ class RecipeServices():
     def process_edit_instructions(instructions, recipe_id):
         """Edits recipe's instructions - modifying existing instruction or 
         creating a new one"""
-        RecipeInstructionRepo.query_recipe_instructions(recipe_id=recipe_id)
         try:
             for instruction in instructions:
                 if instruction["oldId"]:
@@ -262,6 +261,8 @@ class RecipeServices():
                     RecipeInstructionRepo.create_entry(
                         recipe_id=recipe_id,
                         instruction_id=instruction["newId"])
+            instructions = RecipeInstructionRepo.query_recipe_instructions(
+                recipe_id=recipe_id)
             highlight(instructions,"!")
         except Exception as e:
             raise type(e)(f"Failed to process_edit_instructions: {e}") from e
