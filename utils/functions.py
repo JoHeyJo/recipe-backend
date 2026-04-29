@@ -35,8 +35,9 @@ def insert_first(Model, data, column_name, db):
         raise type(e)(f"insert_first: Database error occurred: {e}") from e
 
 
-def highlight(value, divider):
+def highlight(description, value, divider="!"):
     print(divider * 10)
+    print(">>>>",description.upper(),":")
     print(value)
     # logger = current_app.logger if current_app else logging.getLogger(
     #     "flaskapp")

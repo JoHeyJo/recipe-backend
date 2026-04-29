@@ -118,7 +118,7 @@ class RecipeServices():
                 recipe_build["instructions"] = instructions
 
                 ingredients = IngredientServices.build_ingredients(
-                    instance=recipe_instance)
+                    instances=recipe_instance)
                 recipe_build["ingredients"] = ingredients
 
                 complete_recipes.append(recipe_build)
@@ -134,7 +134,7 @@ class RecipeServices():
             instructions = InstructionServices.build_instructions(
                 instances=recipe.instructions)
             ingredients = IngredientServices.build_ingredients(
-                instance=recipe.ingredients)
+                instances=recipe.ingredients)
             return {
                 "is_owned_by": recipe.created_by_id,
                 "id": recipe.id,
@@ -179,7 +179,8 @@ class RecipeServices():
 
             db.session.commit()
             edited_recipe = RecipeServices.build_recipe(recipe_id=recipe_id)
-            return edited_recipe
+            # return {"message":"foo"}
+            # return edited_recipe
         except Exception as e:
             db.session.rollback()
             raise type(e)(f"Failed to process_edit: {e}") from e
@@ -203,7 +204,6 @@ class RecipeServices():
     def process_edit_ingredients(ingredients, recipe_id):
         """Edits recipe's ingredients by modifying Ingredient association 
         or creating a new association for new ingredient"""
-        highlight(("ingredients",ingredients),"!")
         try:
             for ingredient in ingredients:
                 item = ingredient.get("item")
@@ -414,7 +414,7 @@ class RecipeServices():
         # take a look at this return object
         res = RecipeBookRepo.create_entry(
             book_id=share_inbox_id, recipe_id=recipe_id)
-        highlight(("RES:", res), "!")
+        # highlight(("RES:", res), "!")
         book_with_role = BookRepo.build_book_with_query(
             user_id=recipient_id, book_id=share_inbox_id)
 
