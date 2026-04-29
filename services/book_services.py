@@ -68,7 +68,6 @@ class BookServices():
     @staticmethod
     def share_book(recipient, shared_book_id, recipient_has_default_book, role=BookRole.viewer):
         """"Creates association with recipient. Sets book as default if recipient has none"""
-        highlight(role,"!")
         try:
             if recipient_has_default_book:
                 recipient_has_shared_book = UserBookRepo.query_users_books(

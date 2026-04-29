@@ -321,10 +321,10 @@ def handle_connect(auth):
                     authorized_user[sid] = identity
 
         except:
-            highlight("Invalid or missing JWT token. Disconnecting.", "#")
+            highlight("Invalid or missing JWT token. Disconnecting.", delimiter="#")
             disconnect()
     else:
-        highlight("No token provided. Disconnecting.", "#")
+        highlight("No token provided. Disconnecting.", delimiter="#")
         disconnect()
 
 
@@ -356,7 +356,6 @@ def share_book(data):
         response = BookServices.process_shared_book(
             user_id=int(user_id), recipient_name=recipient, book_id=book_id, privileges=privileges)
 
-        highlight(("response", response), "!")
         if response["code"] in (422, 409, 404):
             emit('error_sharing_book', {'data': response["message"]})
             return
@@ -435,7 +434,7 @@ def disconnected():
         (k for k, v in connected_users.items() if v == user_sid), None)
     if user_to_remove:
         del connected_users[user_to_remove]
-        highlight("user disconnected", "#")
+        highlight("user disconnected", delimiter="#")
 
 
 ################################################################################
