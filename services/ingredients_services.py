@@ -114,22 +114,22 @@ class IngredientServices():
 
     @staticmethod
     def build_ingredients(instances):
-        """Build ingredient from corresponding instances(Recipe)
+        """Build ingredient from corresponding instances[<Ingredient>]
 
         expects array instance(s) of ingredients e.g. instances.ingredients
 
         Called by [build_recipes => single instance, build_recipe =]
         """
-        # highlight("Build from request",instances)
+        highlight("Build from request",instances)
         # <Recipe(id=3, name='Gimlet', notes=None, created_by_id=1, created_at=datetime.datetime(2026, 4, 29, 10, 17, 58, 822576))>
 
         highlight("Build from edit",instances)
         # [ < Ingredient(id=8, recipe_id=3, quantity_amount_id=None, quantity_unit_id=None, item_id=1, created_at=datetime.datetime(2026, 4, 29, 10, 55, 45, 346455)) > ]
         ingredients = []
-        if not instances.ingredients:
+        if not instances:
             return []
         try:
-            for ingredient in instances.ingredients:
+            for ingredient in instances:
                 amount = QuantityAmount.serialize(ingredient.amount) if ingredient.amount else None
                 unit = QuantityUnit.serialize(ingredient.unit) if ingredient.unit else None
                 item = Item.serialize(ingredient.item) if ingredient.item else None

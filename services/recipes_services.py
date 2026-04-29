@@ -118,7 +118,7 @@ class RecipeServices():
                 recipe_build["instructions"] = instructions
 
                 ingredients = IngredientServices.build_ingredients(
-                    instances=recipe_instance)
+                    instances=recipe_instance.ingredients)
                 recipe_build["ingredients"] = ingredients
 
                 complete_recipes.append(recipe_build)
