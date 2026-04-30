@@ -25,7 +25,6 @@ class IngredientServices():
             amounts = QuantityAmountRepo.query_book_amounts(book_id=book_id)
             units = QuantityUnitRepo.query_book_units(book_id=book_id)
             items = ItemRepo.query_book_items(book_id=book_id)
-            highlight("options", (amounts, units, items))
             return {"amounts": amounts, "units": units, "items": items}
         except Exception as e:
             raise type(e)(
@@ -38,7 +37,6 @@ class IngredientServices():
             amounts = QuantityAmountRepo.query_user_amounts(user_id=user_id)
             units = QuantityUnitRepo.query_user_units(user_id=user_id)
             items = ItemRepo.query_user_items(user_id=user_id)
-            highlight("user options",(amounts,units,items))
             return {"amounts": amounts, "units": units, "items": items}
         except Exception as e:
             raise type(e)(
