@@ -179,8 +179,7 @@ class RecipeServices():
 
             db.session.commit()
             edited_recipe = RecipeServices.build_recipe(recipe_id=recipe_id)
-            # return {"message":"foo"}
-            # return edited_recipe
+            return edited_recipe
         except Exception as e:
             db.session.rollback()
             raise type(e)(f"Failed to process_edit: {e}") from e
