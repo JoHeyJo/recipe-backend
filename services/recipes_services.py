@@ -320,7 +320,8 @@ class RecipeServices():
 
     @staticmethod
     def share_recipe_no_default_book(recipient, shared_recipe_id):
-        """User shares recipe with Recipient that has no default book assigned"""
+        """User shares recipe with Recipient that has NO DEFAULT book 
+        TEST WITH PUKIE"""
         response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
 
@@ -337,7 +338,8 @@ class RecipeServices():
 
     @staticmethod
     def share_recipe_standard_default_book(recipient, shared_recipe_id):
-        """User shares recipe with Recipient that has STANDARD default book"""
+        """User shares recipe with Recipient that has STANDARD default book
+        TEST WITH CHALUPA"""
         response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
 
@@ -351,7 +353,8 @@ class RecipeServices():
 
     @staticmethod
     def share_recipe_shared_default_book(recipient, shared_recipe_id):
-        """User shares recipe with Recipient that has SHARED default book"""
+        """User shares recipe with Recipient that has SHARED default book
+        TEST WITH PINTO"""
         response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
 
