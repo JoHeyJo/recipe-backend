@@ -113,13 +113,13 @@ class IngredientServices():
         return ingredients_data
 
     @staticmethod
-    def build_ingredients(instance):
-        """Build ingredient from corresponding instances(Recipe)"""
+    def build_ingredients(instances):
+        """Build ingredient from corresponding instances[<Ingredient>]"""
         ingredients = []
-        if not instance:
+        if not instances:
             return []
         try:
-            for ingredient in instance.ingredients:
+            for ingredient in instances:
                 amount = QuantityAmount.serialize(ingredient.amount) if ingredient.amount else None
                 unit = QuantityUnit.serialize(ingredient.unit) if ingredient.unit else None
                 item = Item.serialize(ingredient.item) if ingredient.item else None

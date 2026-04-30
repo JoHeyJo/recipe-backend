@@ -2,6 +2,7 @@ from repository import *
 from sqlalchemy.orm import joinedload
 from services.ingredients_services import IngredientServices
 from services.instructions_services import InstructionServices
+from services.user_services import UserServices
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Conflict
 
 
@@ -117,7 +118,7 @@ class RecipeServices():
                 recipe_build["instructions"] = instructions
 
                 ingredients = IngredientServices.build_ingredients(
-                    instance=recipe_instance)
+                    instances=recipe_instance.ingredients)
                 recipe_build["ingredients"] = ingredients
 
                 complete_recipes.append(recipe_build)
@@ -133,7 +134,7 @@ class RecipeServices():
             instructions = InstructionServices.build_instructions(
                 instances=recipe.instructions)
             ingredients = IngredientServices.build_ingredients(
-                instance=recipe.ingredients)
+                instances=recipe.ingredients)
             return {
                 "is_owned_by": recipe.created_by_id,
                 "id": recipe.id,
@@ -147,34 +148,38 @@ class RecipeServices():
             raise type(e)(f"RecipeServices - build_recipe error: {e}") from e
 
     @staticmethod
-    def process_edit(user_id, data, recipe_id):
-        """Consolidates recipe edit process"""
-        if user_id is not data.get("created_by_id"):
-            raise Forbidden("Not authorized to make edits")
+    def process_edit(user_id, data, book_id, recipe_id):
+        """Consolidates recipe edit process. Currently request recipe return after editing is done
+        instead of building recipe from individual recipe parts. This requires two separate patterns to consider"""
+        UserServices.check_book_privileges(
+            book_id=book_id, auth_id=user_id, user_id=data.get("created_by_id"))
         try:
             name = data.get("name")
             ingredients = data.get("ingredients")
             instructions = data.get("instructions")
             notes = data.get("notes")
+
         except Exception as e:
             raise type(e)(
                 f"Failed to extract recipe edit data for recipe {recipe_id}: {e}") from e
-
+        edited_recipe = {}
         try:
             if name or notes:
-                RecipeServices.process_edit_recipe_info(
+                recipe_info = RecipeServices.process_edit_recipe_info(
                     name=name, notes=notes, recipe_id=recipe_id)
+                edited_recipe["name"] = recipe_info.name
+                edited_recipe["info"] = recipe_info.notes
 
             if ingredients:
-                RecipeServices.process_edit_ingredients(
+                edited_recipe["ingredients"] = RecipeServices.process_edit_ingredients(
                     ingredients=ingredients, recipe_id=recipe_id)
-
             if instructions:
-                RecipeServices.process_edit_instructions(
+                edited_recipe["instructions"] = RecipeServices.process_edit_instructions(
                     instructions=instructions, recipe_id=recipe_id)
 
             db.session.commit()
-            return {"message": "edit successful"}
+            edited_recipe = RecipeServices.build_recipe(recipe_id=recipe_id)
+            return edited_recipe
         except Exception as e:
             db.session.rollback()
             raise type(e)(f"Failed to process_edit: {e}") from e
@@ -183,13 +188,14 @@ class RecipeServices():
     def process_edit_recipe_info(name, notes, recipe_id):
         """Edits recipe name and notes"""
         try:
-            recipe = Recipe.query.get(recipe_id)
+            recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
             if not recipe:
                 raise ValueError(f"No recipe matching id #: {recipe_id}")
             if name:
                 recipe.name = name
             if notes:
                 recipe.notes = notes
+            return recipe
         except Exception as e:
             raise type(e)(f"Failed to process_edit_recipe_info: {e}") from e
 
@@ -210,18 +216,24 @@ class RecipeServices():
                 quantity_unit_id = unit["id"] if unit else None
                 item_id = item["id"] if item else None
 
+                if item_id is None:
+                    raise ValueError("Ingredient must have an item name.")
+
                 if ingredient["id"]:
-                    recipe_ingredient = Ingredient.query.get(
+                    recipe_ingredient = IngredientsRepo.query_ingredient(
                         ingredient["id"])
+                    
                     if not recipe_ingredient:
                         raise NotFound(
                             f"No ingredient matching id #: {ingredient['id']}")
+                    
+                    is_altered = recipe_ingredient.item_id != item_id
 
                     if amount:
                         recipe_ingredient.quantity_amount_id = quantity_amount_id
                     if unit:
                         recipe_ingredient.quantity_unit_id = quantity_unit_id
-                    if item:
+                    if item and is_altered:
                         recipe_ingredient.item_id = item_id
                 else:
                     RecipeIngredientRepo.create_ingredient(
@@ -229,6 +241,7 @@ class RecipeServices():
                         item_id=item_id,
                         quantity_unit_id=quantity_unit_id,
                         quantity_amount_id=quantity_amount_id)
+            return ingredients
         except Exception as e:
             raise type(e)(f"Failed to process_edit_ingredients: {e}") from e
 
@@ -241,13 +254,14 @@ class RecipeServices():
                 if instruction["oldId"]:
                     instance = RecipeInstructionRepo.query_recipe_instruction(
                         recipe_id=recipe_id, instruction_id=instruction["oldId"])
-                    
-                    instance.instruction_id = instruction["newId"]
 
+                    instance.instruction_id = instruction["newId"]
                 if instruction["oldId"] is None:
                     RecipeInstructionRepo.create_entry(
                         recipe_id=recipe_id,
                         instruction_id=instruction["newId"])
+            return RecipeInstructionRepo.query_recipe_instructions(
+                recipe_id=recipe_id)
         except Exception as e:
             raise type(e)(f"Failed to process_edit_instructions: {e}") from e
 
@@ -358,10 +372,10 @@ class RecipeServices():
         return is_recipe_shared or shared_link
 
     @staticmethod
-    def remove_recipe(auth_id, recipe_id, data):
+    def remove_recipe(auth_id, book_id, recipe_id, data):
         """Deletes book recipe"""
-        if auth_id is not int(data["createdById"]):
-            raise Forbidden("Not authorized to delete!")
+        UserServices.check_book_privileges(
+            book_id=book_id, auth_id=auth_id, user_id=int(data["createdById"]))
         try:
             RecipeRepo.delete_recipe(recipe_id=recipe_id)
             db.session.commit()
@@ -374,7 +388,7 @@ class RecipeServices():
     @staticmethod
     def remove_shared_recipe(authed_id, recipe_id, book_id):
         """Verifies shared recipe belongs to user's shared book. Then deletes association"""
-        user_book = UserBookRepo.query_user_book(
+        user_book = UserBookRepo.query_users_books(
             book_id=book_id, user_id=authed_id)
 
         if not user_book:
@@ -399,8 +413,8 @@ class RecipeServices():
         # take a look at this return object
         res = RecipeBookRepo.create_entry(
             book_id=share_inbox_id, recipe_id=recipe_id)
-        highlight(("RES:", res), "!")
-        book_with_role = BookRepo.build_book(
+        # highlight(("RES:", res), "!")
+        book_with_role = BookRepo.build_book_with_query(
             user_id=recipient_id, book_id=share_inbox_id)
 
         return {"message": "Recipe successfully shared!",

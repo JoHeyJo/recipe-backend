@@ -135,12 +135,12 @@ def get_book_recipes(authed_user_id, book_id, user_id):
     return jsonify(recipes), 200
 
 
-@app.patch("/recipes/<recipe_id>")
+@app.patch("/books/<book_id>/recipes/<recipe_id>")
 @verify_jwt_identity
 @route_error_handler
-def patch_user_recipe(authed_user_id, recipe_id):
+def patch_user_recipe(authed_user_id, book_id, recipe_id):
     """Facilitate editing of recipe and records associated to book"""
-    recipe = RecipeServices.process_edit(user_id=authed_user_id,
+    recipe = RecipeServices.process_edit(user_id=authed_user_id, book_id=book_id,
                                          data=request.json, recipe_id=int(recipe_id))
     return jsonify(recipe), 200
 
@@ -151,7 +151,7 @@ def patch_user_recipe(authed_user_id, recipe_id):
 def delete_recipe(authed_user_id, user_id, book_id, recipe_id):
     """Facilitate deletion of recipe record associated to user"""
     response = RecipeServices.remove_recipe(
-        auth_id=authed_user_id, recipe_id=recipe_id, data=request.json)
+        auth_id=authed_user_id, book_id=book_id, recipe_id=recipe_id, data=request.json)
     return jsonify(response), 200
 
 
@@ -193,7 +193,7 @@ def add_shared_book(authed_user_id, book_id, user_id):
     """Shares book with User provided in query"""
     recipient = request.json["recipient"]
     response = BookServices.process_shared_book(
-        user_id=int(authed_user_id), recipient=recipient, book_id=book_id)
+        user_id=int(authed_user_id), recipient_name=recipient, book_id=book_id)
     return jsonify(response), 200
 
 ###########  COMPONENT OPTIONS = {amount, unit, item} = INGREDIENT ###########
@@ -293,8 +293,7 @@ def test_function(authed_user_id):
     recipient = request.json["recipient"]
     recipe_id = request.json["recipe_id"]
 
-    res = RecipeServices.process_recipe_share(
-        auth_id=authed_user_id, recipient=recipient, recipe_id=recipe_id)
+    res = None
 
     return jsonify(res)
 
@@ -322,10 +321,10 @@ def handle_connect(auth):
                     authorized_user[sid] = identity
 
         except:
-            highlight("Invalid or missing JWT token. Disconnecting.", "#")
+            highlight("Invalid or missing JWT token. Disconnecting.", delimiter="#")
             disconnect()
     else:
-        highlight("No token provided. Disconnecting.", "#")
+        highlight("No token provided. Disconnecting.", delimiter="#")
         disconnect()
 
 
@@ -338,23 +337,28 @@ def share_book(data):
         emit('error_sharing_book', {'data': 'Unauthorized'})
         return
 
-    book_id = data.get("currentBookId")
+    book = data.get("currentBook")
+    book_id = book["id"]
+    title = book["title"]
     recipient = data.get("recipient")
     sender = data.get("user")
-    title = data.get("currentBook")
+    privileges = data.get("privileges")
+
+    if book["book_role"] != "owner":
+        emit('error_sharing_book', {'data': 'Not authorized to share!'})
+        return
 
     if not all([recipient, book_id, title]):
-        emit('error sharing book', {'data': 'Invalid request missing data'})
+        emit('error_sharing_book', {'data': 'Invalid request missing data'})
         return
 
     try:
         response = BookServices.process_shared_book(
-            user_id=int(user_id), recipient=recipient, book_id=book_id)
+            user_id=int(user_id), recipient_name=recipient, book_id=book_id, privileges=privileges)
 
         if response["code"] in (422, 409, 404):
             emit('error_sharing_book', {'data': response["message"]})
             return
-
         if response["code"] == 200:
             # SENDER
             sender_id = connected_users.get("user_id")
@@ -384,7 +388,7 @@ def share_recipe(data):
     """Facilitates recipe sharing request and response"""
     user_id = check_auth_users(user_id=authorized_user.get(request.sid))
     if not user_id:
-        emit('error_sharing_book', {'data': 'Unauthorized'})
+        emit('error_sharing_recipe', {'data': 'Unauthorized'})
         return
     recipe_id = data.get("recipeId")
     sender = data.get("user")
@@ -411,7 +415,7 @@ def share_recipe(data):
 
         if recipient_id:
             message = f"{sender} has shared '{recipe}'recipe with you!"
-            emit('user_shared_recipe', {"payload":response.get("payload"),
+            emit('user_shared_recipe', {"payload": response.get("payload"),
                  "message": message, "recipe": response["recipe"]}, room=recipient_id)
             return
         # else:
@@ -430,7 +434,7 @@ def disconnected():
         (k for k, v in connected_users.items() if v == user_sid), None)
     if user_to_remove:
         del connected_users[user_to_remove]
-        highlight("user disconnected", "#")
+        highlight("user disconnected", delimiter="#")
 
 
 ################################################################################

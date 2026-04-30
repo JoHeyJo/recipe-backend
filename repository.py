@@ -4,6 +4,7 @@ from models import User, db, Recipe, QuantityUnit, QuantityAmount, Item, Book, I
 from exceptions import *
 from utils.functions import insert_first, highlight
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select
 import logging
 
 logger = logging.getLogger(__name__)
@@ -90,13 +91,17 @@ class UserRepo():
             model: The resource model to query (Item, QuantityUnit, QuantityAmount)
             association_model: The association table (ItemBook, UnitBook, AmountBook)
             model_fk: The FK column on the association table pointing to the model
+
+            Should return all resources associated to a user
+            but when a book is associated to a recipient-user that recipient-user
+            can now receive the senders resources   
         """
         def query(user_id: int):
             stmt = (
                 db.select(model)
                 .join(association_model, model.id == model_fk)
                 .join(UserBook, association_model.book_id == UserBook.book_id)
-                .where(UserBook.user_id == user_id)
+                .where(UserBook.user_id == user_id, UserBook.role == BookRole.owner)
             )
             return db.session.execute(stmt).scalars().all()
         return query
@@ -178,7 +183,7 @@ class RecipeRepo():
                 msg = RecipeBookRepo.create_entry(
                     book_id=shared_link.book_id, recipe_id=shared_id)
 
-                book_with_role = BookRepo.build_book(
+                book_with_role = BookRepo.build_book_with_query(
                     user_id=recipient.id, book_id=book["id"])
 
                 return {"message": "Recipe successfully shared!", "code": 200, "payload": book_with_role}
@@ -334,6 +339,14 @@ class ItemRepo():
 
 class IngredientsRepo():
     """Directs incoming data to corresponding repo methods"""
+    @staticmethod
+    def query_ingredient(primary_key):
+        """Query ingredient using PK. Return ingredient or None"""
+        try:
+            return db.session.get(Ingredient, primary_key)
+        except Exception as e:
+            raise type(e)(
+                f"Error in IngredientsRepo -> query_ingredient: {e}") from e
 
 
 class BookRepo():
@@ -377,11 +390,20 @@ class BookRepo():
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
 
     @staticmethod
-    def build_book(user_id, book_id):
-        """Build book object to include 'book_role - !!should be moved to service layer!!'"""
+    def build_book(user_book):
+        """Build book with user_book.book_type column"""
+        book = Book.serialize(user_book.book)
+        book["book_role"] = user_book.role.value
+        return book
+
+    @staticmethod
+    def build_book_with_query(user_id, book_id):
+        """Build book object to include 'book_role' column from association table. -
+        Need to review if where this function is called a user_book instance already exists
+        !!should be moved to service layer!!'"""
         try:
 
-            user_book = UserBookRepo.query_user_book(
+            user_book = UserBookRepo.query_users_books(
                 book_id=book_id, user_id=user_id)
 
             serialized = Book.serialize(user_book.book)
@@ -517,8 +539,8 @@ class UserBookRepo():
             raise type(e)(f"UserBookRepo - create_entry error:{e}") from e
 
     @staticmethod
-    def query_user_book(book_id, user_id):
-        """Query UserBook by composite  user id and book id. Return user_book or none"""
+    def query_users_books(book_id, user_id):
+        """Query UserBook by composite user id and book id. Return user_book or none"""
         try:
             return db.session.get(UserBook, {"book_id": book_id, "user_id": user_id})
         except Exception as e:
@@ -537,7 +559,7 @@ class UserBookRepo():
                 )
             )
 
-            user_book = db.session.execute(stmt).scalar_one_or_none()
+            user_book = db.session.execute(stmt)
             return user_book
         except Exception as e:
             raise type(e)(f"UserBookRepo - query_shared_book error:{e}") from e
@@ -598,10 +620,22 @@ class RecipeInstructionRepo():
         """Query recipe_instruction record. Return recipe_instruction or None"""
         try:
             return db.session.get(RecipeInstruction,
-                {"recipe_id": recipe_id, "instruction_id": instruction_id})
+                                  {"recipe_id": recipe_id, "instruction_id": instruction_id})
         except Exception as e:
             raise type(e)(
                 f"RecipeInstructionRepo - query_recipe_instruction error :{e}") from e
+
+    @staticmethod
+    def query_recipe_instructions(recipe_id):
+        """Query instructions associated to recipe id"""
+        try:
+            stmt = select(RecipeInstruction).where(
+                RecipeInstruction.recipe_id == recipe_id)
+            instructions = db.session.scalars(stmt).all()
+            return [{"id": i.instruction_id, "instruction": i.instruction.instruction} for i in instructions]
+        except Exception as e:
+            raise type(e)(
+                f"RecipeInstructionRepo - query_recipe_instructions error :{e}") from e
 
 
 class AmountBookRepo():

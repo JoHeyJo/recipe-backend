@@ -35,13 +35,14 @@ def insert_first(Model, data, column_name, db):
         raise type(e)(f"insert_first: Database error occurred: {e}") from e
 
 
-def highlight(value, divider):
-    print(divider * 10)
+def highlight(description, value="", delimiter="!"):
+    print(delimiter * 10)
+    print(">>>>",description.upper(),":")
     print(value)
     # logger = current_app.logger if current_app else logging.getLogger(
     #     "flaskapp")
-    # logger.warning("🔆 %s %s", divider, value)
-    print(divider * 10)
+    # logger.warning("🔆 %s %s", delimiter, value)
+    print(delimiter * 10)
 
 # Future implementation - Template of helper functions for role modification of UserBook table
 
