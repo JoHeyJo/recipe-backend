@@ -410,8 +410,9 @@ def share_recipe(data):
 
         if response["code"] == 200:
             highlight("response in share_recipes",response)
+            sender_id = connected_users.get("user_id")
             emit('recipe_shared', {
-                 "message": response["message"]}, room=user_id)
+                 "message": response["message"]}, room=sender_id)
         # Check if recipient is connected
         recipient_id = connected_users.get(response["recipient_id"])
 

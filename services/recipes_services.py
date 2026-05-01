@@ -428,6 +428,6 @@ class RecipeServices():
             user_id=recipient_id, book_id=share_inbox_id)
 
         return {"message": "Recipe successfully shared!",
-                "recipient_id": recipe_id,
+                "recipient_id": recipient_id,
                 "code": 200, "payload": book_with_role
                 }
