@@ -299,14 +299,13 @@ class RecipeServices():
     @staticmethod
     def facilitate_recipe_link_creation(recipient, shared_id):
         """"Distributes recipe data to corresponding function"""
-
+        highlight("facilitate_recipe_link_creation",recipient)
         default_book_id = recipient.default_book_id
         book = BookRepo.query_user_book_by_pk(default_book_id)
 
         if not default_book_id:
             return RecipeServices.share_recipe_no_default_book(
                 recipient=recipient, shared_recipe_id=shared_id)
-
         if book.book_type.value == "standard":
             return RecipeServices.share_recipe_standard_default_book(
                 recipient=recipient, shared_recipe_id=shared_id)
@@ -324,7 +323,7 @@ class RecipeServices():
         TEST WITH PUKIE"""
         response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
-
+        highlight("share_recipe_no_default_book",response)
         if not response:
             return
 
@@ -362,15 +361,19 @@ class RecipeServices():
     def fetch_shared_link(recipient_id, shared_recipe_id):
         """Queries shared link. Create if necessary and return link if not already shared"""
         shared_link = UserBookRepo.query_shared_book(recipient_id=recipient_id)
-        if not shared_link:
+        highlight("shared_link",shared_link)
+        if shared_link is None:
+            highlight("in not shared")
             shared_book = BookRepo.create_book(title="Shared Recipes",
                                                description="Inbox: Recipes shared by others",
                                                book_type=BookType.shared_inbox)
             shared_link = UserBookRepo.create_entry(
                 user_id=recipient_id, book_id=shared_book["id"])
+        highlight("shared_link.book_id", shared_link.book_id)
 
         is_recipe_shared = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
             shared_link_id=shared_link.book_id, shared_recipe_id=shared_recipe_id)
+        highlight("hit")
 
         return is_recipe_shared or shared_link
 
@@ -416,7 +419,7 @@ class RecipeServices():
         # take a look at this return object
         res = RecipeBookRepo.create_entry(
             book_id=share_inbox_id, recipe_id=recipe_id)
-        # highlight(("RES:", res), "!")
+        highlight("share_recipe", res)
         book_with_role = BookRepo.build_book_with_query(
             user_id=recipient_id, book_id=share_inbox_id)
 

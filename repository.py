@@ -517,6 +517,7 @@ class RecipeBookRepo():
     def does_recipe_exist_in_shared_inbox(shared_link_id, shared_recipe_id):
         """Query recipe in shared_inbox return value or none"""
         try:
+            highlight("does_recipe_exist_in_shared_inbox")
             return RecipeBookRepo.query_recipe_book(
                 book_id=shared_link_id, recipe_id=shared_recipe_id)
         except Exception as e:
@@ -559,7 +560,8 @@ class UserBookRepo():
                 )
             )
 
-            user_book = db.session.execute(stmt)
+            user_book = db.session.execute(stmt).scalar_one_or_none()
+            highlight("user_book",user_book)
             return user_book
         except Exception as e:
             raise type(e)(f"UserBookRepo - query_shared_book error:{e}") from e
