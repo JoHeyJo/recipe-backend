@@ -359,32 +359,12 @@ class RecipeServices():
 
     @staticmethod
     def fetch_shared_link(recipient_id, shared_recipe_id):
-        """Queries shared link. Create if necessary and return link object if not already shared
-        or False indicating that it has not been shared
-
-        Check if recipe exists in shared inbox
-        Requires book_id and recipe_id
-        Need to acquire book_id
-        acquire shared book through user -> book
-        Check if recipe exists in shared inbox
-            if recipe exists in shared inbox return message already shard 
-            if recipe does not exists proceed to sharing recipe 
-            
-
-        check if user has a "shared recipes" book
-        if user does not have "shared recipes" book
-            create shared recipes book
-            create link of book to user
-        If user does have "shared recipes" book aka link
-            return shared book - aka link: record containing user_id and book_id
-
-        what does shared_link do? - user_book_link allows user to connect to book type
-        """
+        """Queries user book link. Create and associate to user if necessary.
+        Check if recipe is already shared. Return None or user book link"""
         user_book_link = UserBookRepo.query_user_book_link(
             recipient_id=recipient_id)
         
         if user_book_link is None:
-            highlight("in not shared")
             shared_book = BookRepo.create_book(title="Shared Recipes",
                                                description="Inbox: Recipes shared by others",
                                                book_type=BookType.shared_inbox)
@@ -397,7 +377,6 @@ class RecipeServices():
         
         if is_recipe_shared:
             return None
-        highlight("user_book_link",user_book_link)
 
         return user_book_link
 
