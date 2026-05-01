@@ -321,17 +321,17 @@ class RecipeServices():
     def share_recipe_no_default_book(recipient, shared_recipe_id):
         """User shares recipe with Recipient that has NO DEFAULT book 
         TEST WITH PUKIE"""
-        response = RecipeServices.fetch_shared_link(
+        shared_link_response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
-        highlight("share_recipe_no_default_book",response)
-        if response is None:
+        highlight("share_recipe_no_default_book",shared_link_response)
+        if shared_link_response is None:
             return None
 
         response = RecipeServices.share_recipe(
-            share_inbox_id=response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
+            share_inbox_id=shared_link_response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
         highlight("response from RecipeServices.share_recipe",response)
         # Assign Shared Recipe as default book
-        recipient.default_book_id = response.book_id
+        recipient.default_book_id = shared_link_response.book_id
 
         return response
 
@@ -421,9 +421,9 @@ class RecipeServices():
         """Associate user's shared recipe to recipients 'Shared Recipes' book.
         Build and return book object"""
         # take a look at this return object
-        res = RecipeBookRepo.create_entry(
+        RecipeBookRepo.create_entry(
             book_id=share_inbox_id, recipe_id=recipe_id)
-        highlight("share_recipe", res)
+
         book_with_role = BookRepo.build_book_with_query(
             user_id=recipient_id, book_id=share_inbox_id)
 
