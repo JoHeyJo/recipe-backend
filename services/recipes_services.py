@@ -281,16 +281,16 @@ class RecipeServices():
             return {"message": "This is not yours to share...",
                     "error": "Forbidden", "code": 403}
         try:
-            message = RecipeServices.facilitate_recipe_link_creation(
+            response = RecipeServices.facilitate_recipe_link_creation(
                 recipient=recipient, shared_id=recipe_id)
 
-            if not message:
+            if response is None:
                 db.session.rollback()
                 return {"message": "Recipe already shared with user.",
                         "error": "Conflict", "code": 409}
 
             # db.session.commit()
-            return {**message, "recipe": recipe_build}
+            return {**response, "recipe": recipe_build}
         except Exception as e:
             db.session.rollback()
             raise type(e)(
@@ -327,13 +327,13 @@ class RecipeServices():
         if response is None:
             return None
 
-        message = RecipeServices.share_recipe(
+        response = RecipeServices.share_recipe(
             share_inbox_id=response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
-        highlight("message from RecipeServices.share_recipe",message)
+        highlight("response from RecipeServices.share_recipe",response)
         # Assign Shared Recipe as default book
         recipient.default_book_id = response.book_id
 
-        return message
+        return response
 
     @staticmethod
     def share_recipe_standard_default_book(recipient, shared_recipe_id):
@@ -418,7 +418,8 @@ class RecipeServices():
 
     @staticmethod
     def share_recipe(share_inbox_id, recipe_id, recipient_id):
-        """Associate user's shared recipe to recipients 'Shared Recipes' book"""
+        """Associate user's shared recipe to recipients 'Shared Recipes' book.
+        Build and return book object"""
         # take a look at this return object
         res = RecipeBookRepo.create_entry(
             book_id=share_inbox_id, recipe_id=recipe_id)
