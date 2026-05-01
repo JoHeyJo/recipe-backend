@@ -371,6 +371,7 @@ class RecipeServices():
                 user_id=recipient_id, book_id=shared_book["id"])
         highlight("shared_link.book_id", shared_link.book_id)
 
+        # check if recipe exists in shared inbox
         is_recipe_shared = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
             shared_link_id=shared_link.book_id, shared_recipe_id=shared_recipe_id)
         highlight("hit")

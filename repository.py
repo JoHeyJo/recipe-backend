@@ -486,7 +486,7 @@ class RecipeBookRepo():
     def query_recipe_book(book_id, recipe_id):
         """Return recipe book instance by composite key"""
         try:
-            return RecipeBookRepo.query_recipe_book(book_id=book_id, recipe_id=recipe_id)
+            return db.session.get(RecipeBook, {"book_id": book_id, "recipe_id": recipe_id})
         except Exception as e:
             raise type(e)(
                 f"RecipeBookRep - query_recipe_book error:{e}") from e
@@ -517,7 +517,6 @@ class RecipeBookRepo():
     def does_recipe_exist_in_shared_inbox(shared_link_id, shared_recipe_id):
         """Query recipe in shared_inbox return value or none"""
         try:
-            highlight("does_recipe_exist_in_shared_inbox")
             return RecipeBookRepo.query_recipe_book(
                 book_id=shared_link_id, recipe_id=shared_recipe_id)
         except Exception as e:
