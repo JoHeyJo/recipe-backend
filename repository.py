@@ -514,11 +514,11 @@ class RecipeBookRepo():
                 f"RecipeBookRep - remove_book_association error:{e}") from e
 
     @staticmethod
-    def does_recipe_exist_in_shared_inbox(shared_link_id, shared_recipe_id):
+    def does_recipe_exist_in_shared_inbox(shared_book_id, shared_recipe_id):
         """Query recipe in shared_inbox return value or none"""
         try:
             return RecipeBookRepo.query_recipe_book(
-                book_id=shared_link_id, recipe_id=shared_recipe_id)
+                book_id=shared_book_id, recipe_id=shared_recipe_id)
         except Exception as e:
             raise type(e)(
                 f"RecipeBookRep - does_recipe_exist_in_shared_inbox error:{e}") from e
@@ -547,7 +547,7 @@ class UserBookRepo():
             raise type(e)(f"RecipeBookRep - query_user_book error:{e}") from e
 
     @staticmethod
-    def query_shared_book(recipient_id):
+    def query_user_book_link(recipient_id):
         """Query for User's "shared recipes" book"""
         try:
             stmt = (
@@ -560,7 +560,6 @@ class UserBookRepo():
             )
 
             user_book = db.session.execute(stmt).scalar_one_or_none()
-            highlight("user_book",user_book)
             return user_book
         except Exception as e:
             raise type(e)(f"UserBookRepo - query_shared_book error:{e}") from e

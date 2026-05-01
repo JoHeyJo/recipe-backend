@@ -280,7 +280,7 @@ def get_user_instructions(authed_user_id, user_id):
 def get_book_instructions(authed_user_id, book_id, user_id):
     """Facilitates retrieval of book instructions"""
     response = InstructionServices.fetch_book_instructions(
-        book_id=book_id, user_id=authed_user_id)
+        book_id=int(book_id), user_id=authed_user_id)
     return jsonify(response)
 
 ################################################################################
