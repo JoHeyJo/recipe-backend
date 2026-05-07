@@ -4,9 +4,9 @@ from flask import current_app
 
 def check_auth_users(user_id):
     """authorize incoming request after initial websocket handshake. If sid exists
-    it will be passed along to user_id parameter and returned or None.
+    it will be passed along to user_id parameter and returned or None. This check
+    is done in the argument.
     """
-    highlight("user id Key",user_id)
     return user_id
 
 

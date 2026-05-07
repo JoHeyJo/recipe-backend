@@ -386,8 +386,6 @@ def share_book(data):
 @socketio.on('share_recipe')
 def share_recipe(data):
     """Facilitates recipe sharing request and response"""
-    highlight("authed id",request.sid)
-    highlight("data",data)
     user_id = check_auth_users(user_id=authorized_user.get(request.sid))
     if not user_id:
         emit('error_sharing_recipe', {'data': 'Unauthorized'})
@@ -409,7 +407,6 @@ def share_recipe(data):
             return
 
         if response["code"] == 200:
-            highlight("response in share_recipes",response)
             sender_id = connected_users.get("user_id")
             emit('recipe_shared', {
                  "message": response["message"]}, room=sender_id)
@@ -417,7 +414,6 @@ def share_recipe(data):
         recipient_id = connected_users.get(response["recipient_id"])
 
         if recipient_id:
-            highlight("recipeint id", recipient_id)
             message = f"{sender} has shared '{recipe}'recipe with you!"
             emit('user_shared_recipe', {"payload": response.get("payload"),
                  "message": message, "recipe": response["recipe"]}, room=recipient_id)
