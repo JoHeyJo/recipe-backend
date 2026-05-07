@@ -4,6 +4,7 @@ from services.ingredients_services import IngredientServices
 from services.instructions_services import InstructionServices
 from services.user_services import UserServices
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Conflict
+from models import BookType
 
 
 class RecipeServices():
@@ -309,11 +310,11 @@ class RecipeServices():
 
         book = BookRepo.query_user_book_by_pk(default_book_id)
 
-        if book.book_type.value == "standard":
+        if book.book_type == BookType.standard:
             return RecipeServices.share_recipe_standard_default_book(
                 recipient=recipient, shared_recipe_id=shared_id)
 
-        if book.book_type.value == "shared_inbox":
+        if book.book_type == BookType.shared_inbox:
             return RecipeServices.share_recipe_shared_default_book(
                 recipient=recipient, shared_recipe_id=shared_id)
 
