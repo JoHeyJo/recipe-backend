@@ -292,6 +292,7 @@ class RecipeServices():
                         "error": "Conflict", "code": 409}
 
             db.session.commit()
+            highlight("process recipe share", response)
             return {**response, "recipe": recipe_build}
         except Exception as e:
             db.session.rollback()
@@ -343,16 +344,20 @@ class RecipeServices():
     def share_recipe_standard_default_book(recipient, shared_recipe_id):
         """User shares recipe with Recipient that has STANDARD default book
         TEST WITH CHALUPA"""
-        response = RecipeServices.fetch_shared_link(
+        shared_link_response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
 
-        if response is None:
+        if shared_link_response is None:
             return None
 
-        message = RecipeServices.share_recipe(
-            share_inbox_id=response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
+        response = RecipeServices.share_recipe(
+            share_inbox_id=shared_link_response["user_book"].book_id, 
+            recipe_id=shared_recipe_id, recipient_id=recipient.id)
+        
+        if shared_link_response["isInstantiation"] is False:
+            response["payload"] = None
 
-        return message
+        return response
 
     @staticmethod
     def share_recipe_shared_default_book(recipient, shared_recipe_id):
@@ -383,7 +388,7 @@ class RecipeServices():
 
         if is_recipe_shared:
             return None
-
+        
         return link
 
     @staticmethod
