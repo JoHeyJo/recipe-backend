@@ -103,8 +103,9 @@ class RecipeServices():
         complete_recipes = []
         try:
             book = Book.query.get(book_id)
-            if not book:
+            if book is None:
                 raise ValueError(f"No book found with ID {book_id}")
+            
             recipes_instances = book.recipes
             for recipe_instance in recipes_instances:
                 recipe_build = {}
@@ -289,7 +290,7 @@ class RecipeServices():
                 return {"message": "Recipe already shared with user.",
                         "error": "Conflict", "code": 409}
 
-            # db.session.commit()
+            db.session.commit()
             return {**response, "recipe": recipe_build}
         except Exception as e:
             db.session.rollback()
@@ -298,21 +299,23 @@ class RecipeServices():
 
     @staticmethod
     def facilitate_recipe_link_creation(recipient, shared_id):
-        """"Distributes recipe data to corresponding function"""
-        highlight("facilitate_recipe_link_creation",recipient)
+        """"Distributes recipe data to corresponding function based on if user has
+        no default book, standard default book, or a shared_inbox default book"""
         default_book_id = recipient.default_book_id
-        book = BookRepo.query_user_book_by_pk(default_book_id)
 
-        if not default_book_id:
+        if default_book_id is None:
             return RecipeServices.share_recipe_no_default_book(
                 recipient=recipient, shared_recipe_id=shared_id)
+
+        book = BookRepo.query_user_book_by_pk(default_book_id)
+
         if book.book_type.value == "standard":
             return RecipeServices.share_recipe_standard_default_book(
                 recipient=recipient, shared_recipe_id=shared_id)
 
         if book.book_type.value == "shared_inbox":
             return RecipeServices.share_recipe_shared_default_book(
-                recipient=recipient, shared_book_id=shared_id)
+                recipient=recipient, shared_recipe_id=shared_id)
 
         return {"message": "Nothing to process - try your request again.",
                 "error": "Unknown", "code": 500}
