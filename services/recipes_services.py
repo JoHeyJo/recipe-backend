@@ -106,7 +106,7 @@ class RecipeServices():
             book = Book.query.get(book_id)
             if book is None:
                 raise ValueError(f"No book found with ID {book_id}")
-            
+
             recipes_instances = book.recipes
             for recipe_instance in recipes_instances:
                 recipe_build = {}
@@ -224,11 +224,11 @@ class RecipeServices():
                 if ingredient["id"]:
                     recipe_ingredient = IngredientsRepo.query_ingredient(
                         ingredient["id"])
-                    
+
                     if not recipe_ingredient:
                         raise NotFound(
                             f"No ingredient matching id #: {ingredient['id']}")
-                    
+
                     is_altered = recipe_ingredient.item_id != item_id
 
                     if amount:
@@ -309,7 +309,7 @@ class RecipeServices():
                 recipient=recipient, shared_recipe_id=shared_id)
 
         book = BookRepo.query_user_book_by_pk(default_book_id)
-        highlight("Book",book)
+        highlight("Book", book)
         if book.book_type == BookType.standard:
             return RecipeServices.share_recipe_standard_default_book(
                 recipient=recipient, shared_recipe_id=shared_id)
@@ -327,13 +327,13 @@ class RecipeServices():
         TEST WITH PUKIE"""
         shared_link_response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
-        highlight("share_recipe_no_default_book",shared_link_response)
+        highlight("share_recipe_no_default_book", shared_link_response)
         if shared_link_response is None:
             return None
 
         response = RecipeServices.share_recipe(
             share_inbox_id=shared_link_response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
-        highlight("response from RecipeServices.share_recipe",response)
+        highlight("response from RecipeServices.share_recipe", response)
         # Assign Shared Recipe as default book
         recipient.default_book_id = shared_link_response.book_id
 
@@ -346,7 +346,7 @@ class RecipeServices():
         response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
 
-        if not response:
+        if response is None:
             return None
 
         message = RecipeServices.share_recipe(
@@ -364,25 +364,27 @@ class RecipeServices():
     @staticmethod
     def fetch_shared_link(recipient_id, shared_recipe_id):
         """Queries user book link. Create and associate to user if necessary.
-        Check if recipe is already shared. Return None or user book link"""
-        user_book_link = UserBookRepo.query_user_book_link(
+        Check if recipe is already shared. Return None or user book link IF it's created"""
+        link = {"user_book": None, "isInstantiation": False}
+        link["user_book"] = UserBookRepo.query_user_book_link(
             recipient_id=recipient_id)
-        
-        if user_book_link is None:
+
+        if link["user_book"] is None:
             shared_book = BookRepo.create_book(title="Shared Recipes",
                                                description="Inbox: Recipes shared by others",
                                                book_type=BookType.shared_inbox)
-            
-            user_book_link = UserBookRepo.create_entry(
+
+            link["user_book"] = UserBookRepo.create_entry(
                 user_id=recipient_id, book_id=shared_book["id"])
+            link["isInstantiation"] = True
 
         is_recipe_shared = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
-            shared_book_id=user_book_link.book_id, shared_recipe_id=shared_recipe_id)
-        
+            shared_book_id=link["user_book"].book_id, shared_recipe_id=shared_recipe_id)
+
         if is_recipe_shared:
             return None
 
-        return user_book_link
+        return link
 
     @staticmethod
     def remove_recipe(auth_id, book_id, recipe_id, data):
