@@ -333,10 +333,14 @@ class RecipeServices():
             return None
 
         response = RecipeServices.share_recipe(
-            share_inbox_id=shared_link_response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
+            share_inbox_id=shared_link_response["user_book"].book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
         highlight("response from RecipeServices.share_recipe", response)
+
         # Assign Shared Recipe as default book
-        recipient.default_book_id = shared_link_response.book_id
+        recipient.default_book_id = shared_link_response["user_book"].book_id
+
+        if shared_link_response["isInstantiation"] is False:
+            response["payload"] = None
 
         return response
 
