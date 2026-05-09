@@ -316,7 +316,8 @@ class RecipeServices():
                 recipient=recipient, shared_recipe_id=shared_id)
 
         if book.book_type == BookType.shared_inbox:
-            return RecipeServices.share_recipe_shared_default_book(
+            highlight("Book:",book)
+            return RecipeServices.share_recipe_shared_default_book(shared_book_id=book.id,
                 recipient=recipient, shared_recipe_id=shared_id)
 
         return {"message": "Nothing to process - try your request again.",
@@ -328,13 +329,12 @@ class RecipeServices():
         TEST WITH PUKIE"""
         shared_link_response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
-        highlight("share_recipe_no_default_book", shared_link_response)
+
         if shared_link_response is None:
             return None
 
         response = RecipeServices.share_recipe(
             share_inbox_id=shared_link_response["user_book"].book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
-        highlight("response from RecipeServices.share_recipe", response)
 
         # Assign Shared Recipe as default book
         recipient.default_book_id = shared_link_response["user_book"].book_id
@@ -355,27 +355,38 @@ class RecipeServices():
             return None
 
         response = RecipeServices.share_recipe(
-            share_inbox_id=shared_link_response["user_book"].book_id, 
+            share_inbox_id=shared_link_response["user_book"].book_id,
             recipe_id=shared_recipe_id, recipient_id=recipient.id)
-        
+
         if shared_link_response["isInstantiation"] is False:
             response["payload"] = None
 
         return response
 
     @staticmethod
-    def share_recipe_shared_default_book(recipient, shared_recipe_id):
-        """User shares recipe with Recipient that has SHARED default book
+    def share_recipe_shared_default_book(shared_book_id, recipient, shared_recipe_id):
+        """User shares recipe with Recipient that has SHARED default books
+
         TEST WITH PINTO"""
-        response = RecipeServices.fetch_shared_link(
-            recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
+        is_recipe_shared = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
+            shared_book_id=shared_book_id, shared_recipe_id=shared_recipe_id)
+        
+        if is_recipe_shared:
+            return None
+        
+        response = RecipeServices.share_recipe(share_inbox_id=shared_book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
+
+        response["payload"] = None
+
+        return response
+
 
     @staticmethod
     def fetch_shared_link(recipient_id, shared_recipe_id):
         """Queries user book link. Create and associate to user if necessary.
         Check if recipe is already shared. Return None or user book link IF it's created"""
         link = {"user_book": None, "isInstantiation": False}
-        link["user_book"] = UserBookRepo.query_user_book_link(
+        link["user_book"] = UserBookRepo.query_user_shared_inbox(
             recipient_id=recipient_id)
 
         if link["user_book"] is None:
@@ -392,7 +403,7 @@ class RecipeServices():
 
         if is_recipe_shared:
             return None
-        
+
         return link
 
     @staticmethod

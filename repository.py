@@ -547,7 +547,7 @@ class UserBookRepo():
             raise type(e)(f"RecipeBookRep - query_user_book error:{e}") from e
 
     @staticmethod
-    def query_user_book_link(recipient_id):
+    def query_user_shared_inbox(recipient_id):
         """Query for User's "shared recipes" book"""
         try:
             stmt = (
