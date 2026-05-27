@@ -322,11 +322,10 @@ class RecipeServices():
 
         return {"message": "Nothing to process - try your request again.",
                 "error": "Unknown", "code": 500}
-
+# #####################################################################
     @staticmethod
     def share_recipe_no_default_book(recipient, shared_recipe_id):
-        """User shares recipe with Recipient that has NO DEFAULT book 
-        TEST WITH PUKIE"""
+        """User shares recipe with Recipient that has NO DEFAULT book """
         shared_link_response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
 
@@ -346,8 +345,7 @@ class RecipeServices():
 
     @staticmethod
     def share_recipe_standard_default_book(recipient, shared_recipe_id):
-        """User shares recipe with Recipient that has STANDARD default book
-        TEST WITH CHALUPA"""
+        """User shares recipe with Recipient that has STANDARD default book"""
         shared_link_response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
 
@@ -365,9 +363,7 @@ class RecipeServices():
 
     @staticmethod
     def share_recipe_shared_default_book(shared_book_id, recipient, shared_recipe_id):
-        """User shares recipe with Recipient that has SHARED default books
-
-        TEST WITH PINTO"""
+        """User shares recipe with Recipient that has SHARED default books"""
         is_recipe_shared = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
             shared_book_id=shared_book_id, shared_recipe_id=shared_recipe_id)
         
@@ -380,7 +376,7 @@ class RecipeServices():
 
         return response
 
-
+# #####################################################################
     @staticmethod
     def fetch_shared_link(recipient_id, shared_recipe_id):
         """Queries user book link. Create and associate to user if necessary.
