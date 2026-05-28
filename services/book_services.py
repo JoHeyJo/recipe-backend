@@ -25,12 +25,12 @@ class BookServices():
                     user_id=user_id, book_id=new_book["id"])
                 new_book["book_role"] = user_book.role.value
 
-            # add book id to default if necessary
-            UserServices.assign_default_book_if_none_set(
-                user_id=user_id, book_id=new_book["id"])
+                # add book id to default if necessary
+                UserServices.assign_default_book_if_none_set(
+                    user_id=user_id, book_id=new_book["id"])
 
-            db.session.commit()
-            return new_book
+                db.session.commit()
+                return new_book
         except Exception as e:
             db.session.rollback()
             raise
