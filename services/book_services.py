@@ -14,6 +14,7 @@ class BookServices():
         title = request.json["title"]
         description = request.json["description"]
         book_data = {"title": title, "description": description}
+        highlight("Creating new book")
         try:
             new_book = BookRepo.create_book(
                 title=book_data["title"], description=book_data["description"])
