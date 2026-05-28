@@ -94,8 +94,11 @@ class UserServices():
             
             if user.default_book_id:
                 book = BookRepo.query_user_book_by_pk(book_pk=user.default_book_id)
-                if book.book_type == "shared_inbox":
+                highlight("Book:",book)
+                highlight("User1:",user)
+                if book.book_type.value == "shared_inbox":
                     user.default_book_id = book_id
+                    highlight("User2:",user)
                     return True
         # db.session.add() is unnecessary if self is already a tracked/persistent object
         except Exception as e:
