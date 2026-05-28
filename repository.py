@@ -63,7 +63,7 @@ class UserRepo():
 
     @staticmethod
     def query_user(user_pk):
-        """Query user by PK. Returns User or None if not found"""
+        """Query user by PK. Returns User instance or None if not found"""
         try:
             return db.session.get(User, user_pk)
         except Exception as e:
@@ -365,7 +365,7 @@ class BookRepo():
 
     @staticmethod
     def query_user_book_by_pk(book_pk):
-        """Query book by pk. Return none if not found"""
+        """Query book by pk. Return instance or none if not found"""
         try:
             stmt = db.select(Book).where(Book.id == book_pk)
             return db.session.execute(stmt).scalar_one_or_none()

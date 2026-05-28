@@ -10,7 +10,7 @@ class BookServices():
     """Handles book view business logic"""
     @staticmethod
     def process_new_book(request, user_id):
-        """Call repo to create book. Associate book to user - set default if none """
+        """Call repo to create standard book. Associate book to user - set default if none """
         title = request.json["title"]
         description = request.json["description"]
         book_data = {"title": title, "description": description}

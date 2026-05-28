@@ -83,13 +83,21 @@ class UserServices():
 
     @staticmethod
     def assign_default_book_if_none_set(user_id, book_id):
-        """Checks if user has a default book or not. Assigns if none is set"""
+        """Checks if user has no default book or shared_inbox and assign new default book PK"""
         try:
-            user = User.query.get(user_id)
+            # user = UserServices.fetch_user(user_id=user_id)
+            user = UserRepo.query_user(user_pk=user_id)
+
             if user.default_book_id is None:
                 user.default_book_id = book_id
                 return True
-                # db.session.add() is unnecessary if self is already a tracked/persistent object
+            
+            if user.default_book_id:
+                book = BookRepo.query_user_book_by_pk(book_pk=user.default_book_id)
+                if book.book_type == "shared_inbox":
+                    user.default_book_id = book_id
+                    return True
+        # db.session.add() is unnecessary if self is already a tracked/persistent object
         except Exception as e:
             db.session.rollback()
             raise type(e)(
