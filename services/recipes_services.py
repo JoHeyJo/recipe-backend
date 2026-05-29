@@ -292,7 +292,6 @@ class RecipeServices():
                         "error": "Conflict", "code": 409}
 
             db.session.commit()
-            highlight("process recipe share", response)
             return {**response, "recipe": recipe_build}
         except Exception as e:
             db.session.rollback()
@@ -310,13 +309,11 @@ class RecipeServices():
                 recipient=recipient, shared_recipe_id=shared_id)
 
         book = BookRepo.query_user_book_by_pk(default_book_id)
-        highlight("Book", book)
         if book.book_type == BookType.standard:
             return RecipeServices.share_recipe_standard_default_book(
                 recipient=recipient, shared_recipe_id=shared_id)
 
         if book.book_type == BookType.shared_inbox:
-            highlight("Book:", book)
             return RecipeServices.share_recipe_shared_default_book(shared_book_id=book.id,
                                                                    recipient=recipient, shared_recipe_id=shared_id)
 

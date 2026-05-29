@@ -129,7 +129,7 @@ def add_recipe(authed_user_id, book_id, user_id):
 @app.get("/users/<user_id>/books/<book_id>/recipes")
 @verify_jwt_identity
 @route_error_handler
-def get_book_recipes(authed_user_id, book_id, user_id):
+def get_book_recipes(authed_user_id, book_id  , user_id):
     """Return recipes associated to user's book"""
     recipes = RecipeServices.build_recipes(book_id=book_id)
     return jsonify(recipes), 200

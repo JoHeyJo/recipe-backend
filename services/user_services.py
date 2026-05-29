@@ -82,29 +82,26 @@ class UserServices():
             raise
 
     @staticmethod
-    def assign_default_book_if_none_set(user_id, book_id):
-        """Checks if user has no default book or shared_inbox and assign new default book PK"""
+    def assign_default_book(user_id, book_id):
+        """Checks if user has no default book or shared_inbox and assigns new default book PK to user"""
         try:
-            # user = UserServices.fetch_user(user_id=user_id)
             user = UserRepo.query_user(user_pk=user_id)
 
             if user.default_book_id is None:
                 user.default_book_id = book_id
-                return True
+                return {"is_default_replaced": False}
             
             if user.default_book_id:
                 book = BookRepo.query_user_book_by_pk(book_pk=user.default_book_id)
-                highlight("Book:",book)
-                highlight("User1:",user)
                 if book.book_type.value == "shared_inbox":
                     user.default_book_id = book_id
-                    highlight("User2:",user)
-                    return True
+                    return {"is_default_replaced": True}
+                return {"is_default_replaced": False}
         # db.session.add() is unnecessary if self is already a tracked/persistent object
         except Exception as e:
             db.session.rollback()
             raise type(e)(
-                f"UserServices - assign_default_book_if_none_set  error:{e}") from e
+                f"UserServices - assign_default_book  error:{e}") from e
 
     @staticmethod
     def check_book_privileges(book_id, auth_id, user_id):
