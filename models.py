@@ -53,7 +53,6 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
             "default_book_id": self.default_book_id
         }
 
-
     # recipes = db.relationship('Recipe', secondary='user_recipes', backref='users')
     ### Instead Use type annotation for better type checking and readability ###
     # recipes: Mapped[List['Recipe']] = relationship(
@@ -61,7 +60,7 @@ class User(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     books: Mapped[List['Book']] = relationship(
         'Book', secondary='users_books', back_populates='users', order_by="Book.title", viewonly=True)
-    
+
     user_books: Mapped[List['UserBook']] = relationship(
         'UserBook', back_populates='user')
 
@@ -92,7 +91,7 @@ class Recipe(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     instructions: Mapped[List['Instruction']] = relationship(
         'Instruction', secondary='recipes_instructions', back_populates='recipes',
-        passive_deletes=True, order_by="RecipeInstruction.created_at")
+        passive_deletes=True, order_by="RecipeInstruction.created_at", viewonly=True)
 
     units: Mapped[List['QuantityUnit']] = relationship(
         "QuantityUnit", secondary='ingredients', back_populates='recipes', viewonly=True)
@@ -118,7 +117,7 @@ class Book(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
 
     users: Mapped[List['User']] = relationship(
         'User', secondary='users_books', back_populates='books', viewonly=True)
-    
+
     user_books: Mapped[List['UserBook']] = relationship(
         'UserBook', back_populates='book')
 
@@ -206,8 +205,8 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         'Book', secondary="books_instructions", back_populates="instructions")
 
     recipes: Mapped[List['Recipe']] = relationship(
-        "Recipe", secondary="recipes_instructions", back_populates="instructions"
-    )
+        "Recipe", secondary="recipes_instructions", back_populates="instructions",
+        viewonly=True)
 
     recipe_instructions: Mapped[List['RecipeInstruction']] = relationship(
         "RecipeInstruction", back_populates='instruction')
@@ -283,12 +282,14 @@ class BookInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.M
 
 
 class RecipeInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
-    """Association table for recipes and instructions"""
+    """Association table for recipes and instructions
+    NOTE: is connected by simple M2M and associated object pattern. Recipe and Instruction models 
+    are viewonly to avoid conflict. Is this necessary can models be connected by only one pattern?"""
     recipe_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("recipes.id", ondelete="CASCADE"), primary_key=True)
     instruction_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("instructions.id"), primary_key=True)
-    
+
     instruction: Mapped['Instruction'] = relationship(
         "Instruction", back_populates="recipe_instructions")
 

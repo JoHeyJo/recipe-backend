@@ -4,6 +4,7 @@ from services.ingredients_services import IngredientServices
 from services.instructions_services import InstructionServices
 from services.user_services import UserServices
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Conflict
+from models import BookType
 
 
 class RecipeServices():
@@ -103,8 +104,9 @@ class RecipeServices():
         complete_recipes = []
         try:
             book = Book.query.get(book_id)
-            if not book:
+            if book is None:
                 raise ValueError(f"No book found with ID {book_id}")
+
             recipes_instances = book.recipes
             for recipe_instance in recipes_instances:
                 recipe_build = {}
@@ -222,11 +224,11 @@ class RecipeServices():
                 if ingredient["id"]:
                     recipe_ingredient = IngredientsRepo.query_ingredient(
                         ingredient["id"])
-                    
+
                     if not recipe_ingredient:
                         raise NotFound(
                             f"No ingredient matching id #: {ingredient['id']}")
-                    
+
                     is_altered = recipe_ingredient.item_id != item_id
 
                     if amount:
@@ -281,16 +283,16 @@ class RecipeServices():
             return {"message": "This is not yours to share...",
                     "error": "Forbidden", "code": 403}
         try:
-            message = RecipeServices.facilitate_recipe_link_creation(
+            response = RecipeServices.facilitate_recipe_link_creation(
                 recipient=recipient, shared_id=recipe_id)
 
-            if not message:
+            if response is None:
                 db.session.rollback()
                 return {"message": "Recipe already shared with user.",
                         "error": "Conflict", "code": 409}
 
             db.session.commit()
-            return {**message, "recipe": recipe_build}
+            return {**response, "recipe": recipe_build}
         except Exception as e:
             db.session.rollback()
             raise type(e)(
@@ -298,78 +300,104 @@ class RecipeServices():
 
     @staticmethod
     def facilitate_recipe_link_creation(recipient, shared_id):
-        """"Distributes recipe data to corresponding function"""
-
+        """"Distributes recipe data to corresponding function based on if user has
+        no default book, standard default book, or a shared_inbox default book"""
         default_book_id = recipient.default_book_id
-        book = BookRepo.query_user_book_by_pk(default_book_id)
 
-        if not default_book_id:
+        if default_book_id is None:
             return RecipeServices.share_recipe_no_default_book(
                 recipient=recipient, shared_recipe_id=shared_id)
 
-        if book.book_type.value == "standard":
+        book = BookRepo.query_user_book_by_pk(default_book_id)
+        if book.book_type == BookType.standard:
             return RecipeServices.share_recipe_standard_default_book(
                 recipient=recipient, shared_recipe_id=shared_id)
 
-        if book.book_type.value == "shared_inbox":
-            return RecipeServices.share_recipe_shared_default_book(
-                recipient=recipient, shared_book_id=shared_id)
+        if book.book_type == BookType.shared_inbox:
+            return RecipeServices.share_recipe_shared_default_book(shared_book_id=book.id,
+                                                                   recipient=recipient, shared_recipe_id=shared_id)
 
         return {"message": "Nothing to process - try your request again.",
                 "error": "Unknown", "code": 500}
 
     @staticmethod
     def share_recipe_no_default_book(recipient, shared_recipe_id):
-        """User shares recipe with Recipient that has no default book assigned"""
-        response = RecipeServices.fetch_shared_link(
+        """User shares recipe with Recipient that has NO DEFAULT book """
+        shared_link_response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
 
-        if not response:
-            return
+        if shared_link_response is None:
+            return None
 
-        message = RecipeServices.share_recipe(
-            share_inbox_id=response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
+        response = RecipeServices.share_recipe(
+            share_inbox_id=shared_link_response["user_book"].book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
 
         # Assign Shared Recipe as default book
-        recipient.default_book_id = response.book_id
+        recipient.default_book_id = shared_link_response["user_book"].book_id
 
-        return message
+        if shared_link_response["isInstantiation"] is False:
+            response["payload"] = None
+
+        return response
 
     @staticmethod
     def share_recipe_standard_default_book(recipient, shared_recipe_id):
         """User shares recipe with Recipient that has STANDARD default book"""
-        response = RecipeServices.fetch_shared_link(
+        shared_link_response = RecipeServices.fetch_shared_link(
             recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
 
-        if not response:
-            return
+        if shared_link_response is None:
+            return None
 
-        message = RecipeServices.share_recipe(
-            share_inbox_id=response.book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
+        response = RecipeServices.share_recipe(
+            share_inbox_id=shared_link_response["user_book"].book_id,
+            recipe_id=shared_recipe_id, recipient_id=recipient.id)
 
-        return message
+        if shared_link_response["isInstantiation"] is False:
+            response["payload"] = None
+
+        return response
 
     @staticmethod
-    def share_recipe_shared_default_book(recipient, shared_recipe_id):
-        """User shares recipe with Recipient that has SHARED default book"""
-        response = RecipeServices.fetch_shared_link(
-            recipient_id=recipient.id, shared_recipe_id=shared_recipe_id)
+    def share_recipe_shared_default_book(shared_book_id, recipient, shared_recipe_id):
+        """User shares recipe with Recipient that has SHARED default books"""
+        is_recipe_shared = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
+            shared_book_id=shared_book_id, shared_recipe_id=shared_recipe_id)
+
+        if is_recipe_shared:
+            return None
+
+        response = RecipeServices.share_recipe(
+            share_inbox_id=shared_book_id, recipe_id=shared_recipe_id, recipient_id=recipient.id)
+
+        response["payload"] = None
+
+        return response
 
     @staticmethod
     def fetch_shared_link(recipient_id, shared_recipe_id):
-        """Queries shared link. Create if necessary and return link if not already shared"""
-        shared_link = UserBookRepo.query_shared_book(recipient_id=recipient_id)
-        if not shared_link:
+        """Queries user book link. Create and associate to user if necessary.
+        Check if recipe is already shared. Return None or user book link IF it's created"""
+        link = {"user_book": None, "isInstantiation": False}
+        link["user_book"] = UserBookRepo.query_user_shared_inbox(
+            recipient_id=recipient_id)
+
+        if link["user_book"] is None:
             shared_book = BookRepo.create_book(title="Shared Recipes",
                                                description="Inbox: Recipes shared by others",
                                                book_type=BookType.shared_inbox)
-            shared_link = UserBookRepo.create_entry(
+
+            link["user_book"] = UserBookRepo.create_entry(
                 user_id=recipient_id, book_id=shared_book["id"])
+            link["isInstantiation"] = True
 
         is_recipe_shared = RecipeBookRepo.does_recipe_exist_in_shared_inbox(
-            shared_link_id=shared_link.book_id, shared_recipe_id=shared_recipe_id)
+            shared_book_id=link["user_book"].book_id, shared_recipe_id=shared_recipe_id)
 
-        return is_recipe_shared or shared_link
+        if is_recipe_shared:
+            return None
+
+        return link
 
     @staticmethod
     def remove_recipe(auth_id, book_id, recipe_id, data):
@@ -409,15 +437,16 @@ class RecipeServices():
 
     @staticmethod
     def share_recipe(share_inbox_id, recipe_id, recipient_id):
-        """Associate user's shared recipe to recipients 'Shared Recipes' book"""
+        """Associate user's shared recipe to recipients 'Shared Recipes' book.
+        Build and return book object"""
         # take a look at this return object
-        res = RecipeBookRepo.create_entry(
+        RecipeBookRepo.create_entry(
             book_id=share_inbox_id, recipe_id=recipe_id)
-        # highlight(("RES:", res), "!")
+
         book_with_role = BookRepo.build_book_with_query(
             user_id=recipient_id, book_id=share_inbox_id)
 
         return {"message": "Recipe successfully shared!",
-                "recipient_id": recipe_id,
+                "recipient_id": recipient_id,
                 "code": 200, "payload": book_with_role
                 }
