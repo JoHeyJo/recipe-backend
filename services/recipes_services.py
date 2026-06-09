@@ -37,7 +37,7 @@ class RecipeServices():
             else:
                 recipe_data["instructions"] = []
 
-            # db.session.commit()
+            db.session.commit()
             return recipe_data
         except Exception as e:
             db.session.rollback()
@@ -452,5 +452,9 @@ class RecipeServices():
                 }
 
     @staticmethod
-    def copy_recipe():
-        """Cpoies """
+    def copy_recipe(request, book_id, user_id):
+        """Copy recipe to Recipient"""
+        RecipeServices.process_recipe_data(
+            request=request, book_id=book_id, user_id=user_id)
+        return RecipeServices.build_recipes(book_id=book_id)
+

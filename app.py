@@ -132,10 +132,9 @@ def add_recipe(authed_user_id, book_id, user_id):
 def copy_recipe(authed_user_id, book_id, recipe_id):
     """Facilitate changing ownership(copying) of shared recipe"""
     highlight("copy recipe", (request.json, book_id, recipe_id))
-    recipe_data = RecipeServices.process_recipe_data(
+    recipes = RecipeServices.copy_recipe(
         request={"recipe": request.json}, book_id=book_id, user_id=authed_user_id)
-    # what is received in request?
-    return jsonify(recipe_data), 200
+    return jsonify(recipes), 200
 
 
 @app.get("/users/<user_id>/books/<book_id>/recipes")
