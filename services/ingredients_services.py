@@ -85,6 +85,7 @@ class IngredientServices():
     def process_ingredient_components(book_id, ingredients):
         """Separates & processes ingredient components - creates ingredient return object"""
         ingredients_data = []
+        highlight("ingredients", ingredients)
         for ingredient in ingredients:
             item = ingredient["item"]
             amount = ingredient["amount"]
@@ -109,7 +110,7 @@ class IngredientServices():
 
             except Exception as e:
                 raise type(e)(
-                    f"IngredientsRepo -> process_ingredients error: {e}") from e
+                    f"IngredientsRepo -> process_ingredient_components error: {e}") from e
         return ingredients_data
 
     @staticmethod
@@ -135,6 +136,7 @@ class ItemServices():
     """Handles ingredient's component ITEM services"""
     @staticmethod
     def process_item(item, book_id):
+        highlight("item",item)
         """Handles item processing
         new item: create - associate - return 
         empty item: set value to null - return 
