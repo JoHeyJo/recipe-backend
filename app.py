@@ -126,14 +126,14 @@ def add_recipe(authed_user_id, book_id, user_id):
     return jsonify(recipe_data), 200
 
 
-@app.post("/books/<book_id>/recipes/<recipe_id>")
+@app.post("/books/<target_book_id>/recipes/<recipe_id>")
 @verify_jwt_identity
 @route_error_handler
-def copy_recipe(authed_user_id, book_id, recipe_id):
+def copy_recipe(authed_user_id, target_book_id, recipe_id):
     """Facilitate changing ownership(copying) of shared recipe"""
-    highlight("copy recipe", (request.json, book_id, recipe_id))
+    highlight("copy recipe", (request.json, "target_book_id", target_book_id,"recipe_id", recipe_id))
     recipes = RecipeServices.copy_recipe(
-        request={"recipe": request.json}, book_id=book_id, user_id=authed_user_id)
+        request={"recipe": request.json}, book_id=target_book_id, user_id=authed_user_id)
     return jsonify(recipes), 200
 
 
@@ -150,6 +150,7 @@ def get_book_recipes(authed_user_id, book_id, user_id):
 @verify_jwt_identity
 @route_error_handler
 def patch_user_recipe(authed_user_id, book_id, recipe_id):
+    highlight("patch user_recipe triggered")
     """Facilitate editing of recipe and records associated to book"""
     recipe = RecipeServices.process_edit(user_id=authed_user_id, book_id=book_id,
                                          data=request.json, recipe_id=int(recipe_id))
