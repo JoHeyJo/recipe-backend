@@ -104,8 +104,6 @@ class RecipeServices():
         complete_recipes = []
         try:
             book = Book.query.get(book_id)
-            highlight("Book:",book)
-            highlight("Book.recipes:",book.recipes)
             if book is None:
                 raise ValueError(f"No book found with ID {book_id}")
 
