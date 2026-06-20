@@ -97,7 +97,7 @@ class UserServices():
                     user.default_book_id = book_id
                     return {"is_default_replaced": True}
                 return {"is_default_replaced": False}
-        # db.session.add() is unnecessary if self is already a tracked/persistent object
+        # db.session.add() is not necessary if self is already a tracked/persistent object
         except Exception as e:
             db.session.rollback()
             raise type(e)(
