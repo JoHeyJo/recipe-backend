@@ -30,7 +30,7 @@ class BookServices():
                 message = UserServices.assign_default_book(
                     user_id=user_id, book_id=new_book["id"])
 
-                db.session.commit()
+                # db.session.commit()
                 new_book.update(message)
                 return new_book
         except Exception as e:
