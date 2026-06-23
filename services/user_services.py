@@ -5,9 +5,6 @@ from flask_jwt_extended import create_access_token, get_jwt_identity
 from exceptions import ForbiddenError
 from werkzeug.exceptions import Forbidden
 from models import BookRole
-from services.book_services import BookServices
-from services.recipes_services import RecipeServices
-
 
 class UserServices():
     """Handles ingredients view business logic"""
@@ -115,11 +112,3 @@ class UserServices():
         if user_book.role != BookRole.collaborator and auth_id != user_id:
             raise Forbidden("Action not authorized!")
 
-    @staticmethod
-    def create_book_copy_recipe(request, user_id):
-        """Call book and recipe services """
-        book = BookServices.process_new_book(
-            request=request.book, user_id=user_id)
-        recipes = RecipeServices.copy_recipe(
-            request=request.recipe, book_id=book["id"], user_id=user_id)
-        return {"book": book, "recipes": recipes}

@@ -4,6 +4,7 @@ from repository import UserRepo
 from models import UserBook, BookRole, BookType
 from utils.functions import highlight
 from services.user_services import UserServices
+from services.recipes_services import RecipeServices
 
 
 class BookServices():
@@ -97,3 +98,13 @@ class BookServices():
                     }
         except Exception as e:
             raise type(e)(f"BookServices - share_book error :{e}") from e
+
+    @staticmethod
+    def create_book_copy_recipe(request, user_id):
+        """Call book and recipe services """
+
+        book = BookServices.process_new_book(
+            request=request.book, user_id=user_id)
+        recipes = RecipeServices.copy_recipe(
+            request=request.recipe, book_id=book["id"], user_id=user_id)
+        return {"book": book, "recipes": recipes}

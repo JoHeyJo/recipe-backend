@@ -117,7 +117,7 @@ def confirm_reset(authed_user_id):
 @jwt_required()
 def add_book_add_recipe(authed_user_id):
     """Consolidate process to create a default book then copy recipe to book"""
-    res = UserServices.create_book_copy_recipe(request=request.json, user_id=authed_user_id)
+    res = BookServices.create_book_copy_recipe(request=request.json, user_id=authed_user_id)
     return jsonify(res)
 
 
