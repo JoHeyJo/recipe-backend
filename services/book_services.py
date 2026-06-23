@@ -16,7 +16,6 @@ class BookServices():
         title = request.json["title"]
         description = request.json["description"]
         book_data = {"title": title, "description": description}
-        highlight("Creating new book")
         try:
             new_book = BookRepo.create_book(
                 title=book_data["title"], description=book_data["description"])
@@ -31,7 +30,7 @@ class BookServices():
                 message = UserServices.assign_default_book(
                     user_id=user_id, book_id=new_book["id"])
 
-                db.session.commit()
+                # db.session.commit()
                 new_book.update(message)
                 return new_book
         except Exception as e:
@@ -104,7 +103,7 @@ class BookServices():
         """Call book and recipe services """
 
         book = BookServices.process_new_book(
-            request=request.book, user_id=user_id)
+            request=request, user_id=user_id)
         recipes = RecipeServices.copy_recipe(
-            request=request.recipe, book_id=book["id"], user_id=user_id)
+            request=request.json, book_id=book["id"], user_id=user_id)
         return {"book": book, "recipes": recipes}

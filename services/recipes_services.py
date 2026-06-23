@@ -13,6 +13,7 @@ class RecipeServices():
     def process_recipe_data(request, book_id, user_id):
         """Consolidate 'create recipe' process"""
         try:
+            highlight("request>>>>", request)
             recipe = request["recipe"]
             notes = recipe.get("notes")
             instructions = recipe.get("instructions")
