@@ -5,6 +5,8 @@ from flask_jwt_extended import create_access_token, get_jwt_identity
 from exceptions import ForbiddenError
 from werkzeug.exceptions import Forbidden
 from models import BookRole
+from services.book_services import BookServices
+from services.recipes_services import RecipeServices
 
 
 class UserServices():
@@ -49,7 +51,8 @@ class UserServices():
             default_book_id = user_data.get("default_book_id")
 
             if default_book_id:
-                default_book = BookRepo.build_book_with_query(user_id=user_id, book_id=default_book_id)
+                default_book = BookRepo.build_book_with_query(
+                    user_id=user_id, book_id=default_book_id)
                 user_data["default_book"] = default_book
             return user_data
         except Exception:
@@ -90,9 +93,10 @@ class UserServices():
             if user.default_book_id is None:
                 user.default_book_id = book_id
                 return {"is_default_replaced": False}
-            
+
             if user.default_book_id:
-                book = BookRepo.query_user_book_by_pk(book_pk=user.default_book_id)
+                book = BookRepo.query_user_book_by_pk(
+                    book_pk=user.default_book_id)
                 if book.book_type.value == "shared_inbox":
                     user.default_book_id = book_id
                     return {"is_default_replaced": True}
@@ -110,3 +114,12 @@ class UserServices():
             book_id=book_id, user_id=auth_id)
         if user_book.role != BookRole.collaborator and auth_id != user_id:
             raise Forbidden("Action not authorized!")
+
+    @staticmethod
+    def create_book_copy_recipe(request, user_id):
+        """Call book and recipe services """
+        book = BookServices.process_new_book(
+            request=request.book, user_id=user_id)
+        recipes = RecipeServices.copy_recipe(
+            request=request.recipe, book_id=book["id"], user_id=user_id)
+        return {"book": book, "recipes": recipes}
