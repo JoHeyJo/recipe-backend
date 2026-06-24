@@ -108,19 +108,18 @@ def request_reset(email):
 @jwt_required()
 def confirm_reset(authed_user_id):
     """Resets User password"""
-    message = UserServices.reset_password( 
+    message = UserServices.reset_password(
         user_id=authed_user_id, request=request.json)
     return jsonify(message)
+
 
 @app.post("/create_copy")
 @verify_jwt_identity
 @route_error_handler
 def add_book_add_recipe(authed_user_id):
     """Consolidate process to create a default book then copy recipe to book"""
-    # highlight("request", request.book)
-    highlight("request", request.json)
-    # highlight("request", request)
-    res = BookServices.create_book_copy_recipe(request=request, user_id=authed_user_id)
+    res = BookServices.create_book_copy_recipe(
+        request=request, user_id=authed_user_id)
     return jsonify(res)
 
 
@@ -133,7 +132,7 @@ def add_book_add_recipe(authed_user_id):
 def add_recipe(authed_user_id, book_id, user_id):
     """Consolidate recipe data. If successful recipes_ingredients record created"""
     recipe_data = RecipeServices.process_recipe_data(
-        request={"recipe": request}, book_id=book_id, user_id=authed_user_id)
+        request={"recipe": request.json}, book_id=book_id, user_id=authed_user_id)
     return jsonify(recipe_data), 200
 
 

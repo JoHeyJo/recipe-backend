@@ -21,7 +21,6 @@ class RecipeServices():
         except Exception as e:
             raise type(e)(
                 f"Failed to extract recipe data for book {book_id}: {e}") from e
-        highlight("process recipe data", [request, book_id, user_id])
         try:
             recipe_data = RecipeServices.process_recipe(
                 book_id=book_id, recipe_name=recipe["name"], notes=notes, user_id=user_id)
@@ -38,7 +37,7 @@ class RecipeServices():
             else:
                 recipe_data["instructions"] = []
 
-            # db.session.commit()
+            db.session.commit()
             return recipe_data
         except Exception as e:
             db.session.rollback()
