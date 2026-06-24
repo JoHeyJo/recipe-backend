@@ -113,6 +113,16 @@ def confirm_reset(authed_user_id):
     return jsonify(message)
 
 
+@app.post("/create_copy")
+@verify_jwt_identity
+@route_error_handler
+def add_book_add_recipe(authed_user_id):
+    """Consolidate process to create a default book then copy recipe to book"""
+    res = BookServices.create_book_copy_recipe(
+        request=request, user_id=authed_user_id)
+    return jsonify(res)
+
+
 ############ RECIPES ###########
 
 
@@ -126,10 +136,24 @@ def add_recipe(authed_user_id, book_id, user_id):
     return jsonify(recipe_data), 200
 
 
+@app.post("/books/<target_book_id>/recipes/<recipe_id>")
+@verify_jwt_identity
+@route_error_handler
+def copy_recipe(authed_user_id, target_book_id,recipe_id):
+    """Facilitate changing ownership(copying) of shared recipe"""
+    # user can only copy recipes 
+    # that has been shared with them - exist in shared inbox XXX
+    # to books they control - do they own target book
+    # cannot share to shared recipe book - target_book_id = shared_)inbox
+    recipes = RecipeServices.copy_recipe(
+        request={"recipe": request.json}, book_id=target_book_id, user_id=authed_user_id)
+    return jsonify(recipes), 200
+
+
 @app.get("/users/<user_id>/books/<book_id>/recipes")
 @verify_jwt_identity
 @route_error_handler
-def get_book_recipes(authed_user_id, book_id  , user_id):
+def get_book_recipes(authed_user_id, book_id, user_id):
     """Return recipes associated to user's book"""
     recipes = RecipeServices.build_recipes(book_id=book_id)
     return jsonify(recipes), 200
@@ -321,7 +345,8 @@ def handle_connect(auth):
                     authorized_user[sid] = identity
 
         except:
-            highlight("Invalid or missing JWT token. Disconnecting.", delimiter="#")
+            highlight("Invalid or missing JWT token. Disconnecting.",
+                      delimiter="#")
             disconnect()
     else:
         highlight("No token provided. Disconnecting.", delimiter="#")

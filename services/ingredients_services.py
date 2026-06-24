@@ -109,7 +109,7 @@ class IngredientServices():
 
             except Exception as e:
                 raise type(e)(
-                    f"IngredientsRepo -> process_ingredients error: {e}") from e
+                    f"IngredientsRepo -> process_ingredient_components error: {e}") from e
         return ingredients_data
 
     @staticmethod

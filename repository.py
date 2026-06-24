@@ -390,6 +390,15 @@ class BookRepo():
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
 
     @staticmethod
+    def query_user_books_instances(user_id):
+        """Returns all books instances associated to user. Books don't include 'book_role'"""
+        try:
+            user = UserRepo.query_user(user_pk=user_id)
+            return user.books
+        except Exception as e:
+            raise type(e)(f"BookRepo - get_user_books error: {e}") from e
+
+    @staticmethod
     def build_book(user_book):
         """Build book with user_book.book_type column"""
         book = Book.serialize(user_book.book)

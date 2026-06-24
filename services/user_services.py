@@ -6,7 +6,6 @@ from exceptions import ForbiddenError
 from werkzeug.exceptions import Forbidden
 from models import BookRole
 
-
 class UserServices():
     """Handles ingredients view business logic"""
     @staticmethod
@@ -49,7 +48,8 @@ class UserServices():
             default_book_id = user_data.get("default_book_id")
 
             if default_book_id:
-                default_book = BookRepo.build_book_with_query(user_id=user_id, book_id=default_book_id)
+                default_book = BookRepo.build_book_with_query(
+                    user_id=user_id, book_id=default_book_id)
                 user_data["default_book"] = default_book
             return user_data
         except Exception:
@@ -90,14 +90,15 @@ class UserServices():
             if user.default_book_id is None:
                 user.default_book_id = book_id
                 return {"is_default_replaced": False}
-            
+
             if user.default_book_id:
-                book = BookRepo.query_user_book_by_pk(book_pk=user.default_book_id)
+                book = BookRepo.query_user_book_by_pk(
+                    book_pk=user.default_book_id)
                 if book.book_type.value == "shared_inbox":
                     user.default_book_id = book_id
                     return {"is_default_replaced": True}
                 return {"is_default_replaced": False}
-        # db.session.add() is unnecessary if self is already a tracked/persistent object
+        # db.session.add() is not necessary if self is already a tracked/persistent object
         except Exception as e:
             db.session.rollback()
             raise type(e)(

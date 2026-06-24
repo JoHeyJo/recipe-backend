@@ -19,7 +19,6 @@ class InstructionServices():
 
     @staticmethod
     def fetch_book_instructions(book_id, user_id):
-        highlight("fetch_book_instructions",(book_id,user_id))
         """Retrieves book instructions"""
         has_access = InstructionServices.check_book_access(
             user_id=user_id, book_id=book_id)

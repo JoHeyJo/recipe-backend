@@ -5,6 +5,7 @@ from services.instructions_services import InstructionServices
 from services.user_services import UserServices
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Conflict
 from models import BookType
+from repository import BookRepo
 
 
 class RecipeServices():
@@ -20,7 +21,6 @@ class RecipeServices():
         except Exception as e:
             raise type(e)(
                 f"Failed to extract recipe data for book {book_id}: {e}") from e
-
         try:
             recipe_data = RecipeServices.process_recipe(
                 book_id=book_id, recipe_name=recipe["name"], notes=notes, user_id=user_id)
@@ -450,3 +450,40 @@ class RecipeServices():
                 "recipient_id": recipient_id,
                 "code": 200, "payload": book_with_role
                 }
+
+    @staticmethod
+    def copy_recipe(request, book_id, user_id):
+        """Copy recipe to Recipient"""
+        recipe = request["recipe"]
+
+        is_authed = RecipeServices.is_authed_to_copy(
+            user_id=user_id, recipe_id=recipe.get("id"), book_id=book_id)
+
+        if is_authed:
+            RecipeServices.process_recipe_data(
+                request=request, book_id=book_id, user_id=user_id)
+            return RecipeServices.build_recipes(book_id=book_id)
+        # Data sent by client does not match internal data
+        raise BadRequest("Unable to process request")
+
+    @staticmethod
+    def is_authed_to_copy(user_id, recipe_id, book_id):
+        """Checks if recipe exists in user's shared inbox and if user has access to targeted book"""
+        user_books = BookRepo.query_user_books_instances(user_id=user_id)
+
+        has_access_to_recipe = False
+        is_book_owner = False
+
+        for book in user_books:
+            if book.book_type.value == "shared_inbox":
+                if book.id == book_id:
+                    raise Conflict("You cannot share with your own 'Shared Books' recipe book.")
+                has_access_to_recipe = any(
+                    recipe.id == recipe_id for recipe in book.recipes)
+            if book.id == int(book_id):
+                is_book_owner = True
+
+            if has_access_to_recipe and is_book_owner:
+                return True
+
+        return False
