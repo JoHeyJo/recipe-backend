@@ -477,10 +477,11 @@ class RecipeServices():
 
         for book in user_books:
             if book.book_type.value == "shared_inbox":
+                if book.id == book_id:
+                    raise Conflict("You cannot share with your own 'Shared Books' recipe book.")
                 has_access_to_recipe = any(
                     recipe.id == recipe_id for recipe in book.recipes)
             if book.id == int(book_id):
-                highlight("ook.id == book_id:",(book.id,book_id))
                 is_book_owner = True
 
             if has_access_to_recipe and is_book_owner:
