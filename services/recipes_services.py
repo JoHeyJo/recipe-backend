@@ -458,7 +458,7 @@ class RecipeServices():
         recipe = request["recipe"]
 
         is_authed = RecipeServices.is_authed_to_copy(
-            user_id=user_id, recipe_id=recipe.get("id"))
+            user_id=user_id, recipe_id=recipe.get("id"), book_id=book_id)
 
         if is_authed:
             RecipeServices.process_recipe_data(
@@ -469,10 +469,21 @@ class RecipeServices():
 
     @staticmethod
     def is_authed_to_copy(user_id, recipe_id, book_id):
-        """Checks if recipe exists in user's shared inbox"""
+        """Checks if recipe exists in user's shared inbox and if user has access to targeted book"""
         user_books = BookRepo.query_user_books_instances(user_id=user_id)
+
+        has_access_to_recipe = False
+        is_book_owner = False
 
         for book in user_books:
             if book.book_type.value == "shared_inbox":
-                return any(recipe.id == recipe_id for recipe in book.recipes)
+                has_access_to_recipe = any(
+                    recipe.id == recipe_id for recipe in book.recipes)
+            if book.id == int(book_id):
+                highlight("ook.id == book_id:",(book.id,book_id))
+                is_book_owner = True
+
+            if has_access_to_recipe and is_book_owner:
+                return True
+
         return False
