@@ -163,7 +163,6 @@ def get_book_recipes(authed_user_id, book_id, user_id):
 @verify_jwt_identity
 @route_error_handler
 def patch_user_recipe(authed_user_id, book_id, recipe_id):
-    highlight("patch user_recipe triggered")
     """Facilitate editing of recipe and records associated to book"""
     recipe = RecipeServices.process_edit(user_id=authed_user_id, book_id=book_id,
                                          data=request.json, recipe_id=int(recipe_id))
