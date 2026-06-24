@@ -111,4 +111,3 @@ class UserServices():
             book_id=book_id, user_id=auth_id)
         if user_book.role != BookRole.collaborator and auth_id != user_id:
             raise Forbidden("Action not authorized!")
-

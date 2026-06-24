@@ -139,8 +139,12 @@ def add_recipe(authed_user_id, book_id, user_id):
 @app.post("/books/<target_book_id>/recipes/<recipe_id>")
 @verify_jwt_identity
 @route_error_handler
-def copy_recipe(authed_user_id, target_book_id, recipe_id):
+def copy_recipe(authed_user_id, target_book_id,recipe_id):
     """Facilitate changing ownership(copying) of shared recipe"""
+    # user can only copy recipes 
+    # that has been shared with them - exist in shared inbox XXX
+    # to books they control - do they own target book
+    # cannot share to shared recipe book - target_book_id = shared_)inbox
     recipes = RecipeServices.copy_recipe(
         request={"recipe": request.json}, book_id=target_book_id, user_id=authed_user_id)
     return jsonify(recipes), 200

@@ -5,6 +5,7 @@ from services.instructions_services import InstructionServices
 from services.user_services import UserServices
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Conflict
 from models import BookType
+from repository import BookRepo
 
 
 class RecipeServices():
@@ -453,10 +454,25 @@ class RecipeServices():
 
     @staticmethod
     def copy_recipe(request, book_id, user_id):
-        """Copy recipe to Recipient
-        """
-        RecipeServices.process_recipe_data(
-            request=request, book_id=book_id, user_id=user_id)
-        return RecipeServices.build_recipes(book_id=book_id)
+        """Copy recipe to Recipient"""
+        recipe = request["recipe"]
 
+        is_authed = RecipeServices.is_authed_to_copy(
+            user_id=user_id, recipe_id=recipe.get("id"))
 
+        if is_authed:
+            RecipeServices.process_recipe_data(
+                request=request, book_id=book_id, user_id=user_id)
+            return RecipeServices.build_recipes(book_id=book_id)
+        # Data sent by client does not match internal data
+        raise BadRequest("Unable to process request")
+
+    @staticmethod
+    def is_authed_to_copy(user_id, recipe_id, book_id):
+        """Checks if recipe exists in user's shared inbox"""
+        user_books = BookRepo.query_user_books_instances(user_id=user_id)
+
+        for book in user_books:
+            if book.book_type.value == "shared_inbox":
+                return any(recipe.id == recipe_id for recipe in book.recipes)
+        return False
