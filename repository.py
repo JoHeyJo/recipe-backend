@@ -112,35 +112,24 @@ class RecipeRepo():
     """Facilitates recipes table interactions"""
 
     @staticmethod
-    def query_recipe(recipe_pk):
-        """Query recipe by PK. Return Recipe or None if not found"""
+    def query_recipe(recipe_pk: int, *, eager: bool) -> Recipe | None:
+        """Query recipe by PK. eager=True hydrates instructions/ingredients
+        for serialization; eager=False fetches scalar columns only."""
         try:
-            return db.session.get(Recipe, recipe_pk)
-        except Exception as e:
-            raise type(e)(f"RecipeRepo -> create_recipe error:{e}") from e
-
-    @staticmethod
-    def query_built_recipe(recipe_pk):
-        """Query recipe by PK with eager loads. Return Recipe or None if not found."""
-        try:
+            options = (
+                selectinload(Recipe.instructions),
+                selectinload(Recipe.ingredients).selectinload(
+                    Ingredient.amount),
+                selectinload(Recipe.ingredients).selectinload(Ingredient.unit),
+                selectinload(Recipe.ingredients).selectinload(Ingredient.item),
+            ) if eager else ()
             return db.session.get(
-                Recipe,
-                recipe_pk,
-                options=(
-                    selectinload(Recipe.instructions),
-                    selectinload(Recipe.ingredients).selectinload(
-                        Ingredient.amount),
-                    selectinload(Recipe.ingredients).selectinload(
-                        Ingredient.unit),
-                    selectinload(Recipe.ingredients).selectinload(
-                        Ingredient.item),
-                ),
-                populate_existing=True,
+                Recipe, recipe_pk, options=options, populate_existing=eager,
             )
         except Exception as e:
-            logger.exception("RecipeRepo - query_built_recipe failed")
-            raise type(e)(f"RecipeRepo - query_built_recipe error: {e}") from e
-
+            logger.exception("RecipeRepo - query_recipe failed")
+            raise type(e)(f"RecipeRepo - query_recipe error: {e}") from e
+        
     @staticmethod
     def create_recipe(name, notes, user_id):
         """Creates recipe instance and adds it to database"""

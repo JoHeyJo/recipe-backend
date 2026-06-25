@@ -144,13 +144,12 @@ class RecipeServices():
     def build_recipe(recipe_id):
         """Builds individual recipes"""
         try:
-            recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
+            recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id, eager=True)
             instructions = InstructionServices.build_instructions(
                 instances=recipe.instructions)
             ingredients = IngredientServices.build_ingredients(
                 instances=recipe.ingredients)
             return {
-                "is_owned_by": recipe.created_by_id,
                 "id": recipe.id,
                 "created_by_id": recipe.created_by_id,
                 "name": recipe.name,
@@ -176,23 +175,22 @@ class RecipeServices():
         except Exception as e:
             raise type(e)(
                 f"Failed to extract recipe edit data for recipe {recipe_id}: {e}") from e
-        edited_recipe = {}
+        
         try:
             if name or notes:
-                recipe_info = RecipeServices.process_edit_recipe_info(
+                RecipeServices.process_edit_recipe_info(
                     name=name, notes=notes, recipe_id=recipe_id)
-                edited_recipe["name"] = recipe_info.name
-                edited_recipe["info"] = recipe_info.notes
 
             if ingredients:
-                edited_recipe["ingredients"] = RecipeServices.process_edit_ingredients(
+                RecipeServices.process_edit_ingredients(
                     ingredients=ingredients, recipe_id=recipe_id)
             if instructions:
-                edited_recipe["instructions"] = RecipeServices.process_edit_instructions(
+                RecipeServices.process_edit_instructions(
                     instructions=instructions, recipe_id=recipe_id)
 
             db.session.commit()
             edited_recipe = RecipeServices.build_recipe(recipe_id=recipe_id)
+            highlight("edited_recipe", edited_recipe)
             return edited_recipe
         except Exception as e:
             db.session.rollback()
@@ -202,7 +200,7 @@ class RecipeServices():
     def process_edit_recipe_info(name, notes, recipe_id):
         """Edits recipe name and notes"""
         try:
-            recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
+            recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id, eager=False)
             if not recipe:
                 raise ValueError(f"No recipe matching id #: {recipe_id}")
             if name:
@@ -283,7 +281,7 @@ class RecipeServices():
     def process_recipe_share(auth_id, recipient, recipe_id):
         """Process sharing user recipe with recipient"""
         recipient = UserRepo.query_user_name(user_name=recipient)
-        recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id)
+        recipe = RecipeRepo.query_recipe(recipe_pk=recipe_id, eager=False)
         recipe_build = RecipeServices.build_recipe(recipe_id=recipe_id)
 
         if not recipient:
