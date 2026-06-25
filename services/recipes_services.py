@@ -177,6 +177,7 @@ class RecipeServices():
                 f"Failed to extract recipe edit data for recipe {recipe_id}: {e}") from e
         
         try:
+            # can these three functions be consolidated into one after query recipe refactor?
             if name or notes:
                 RecipeServices.process_edit_recipe_info(
                     name=name, notes=notes, recipe_id=recipe_id)
