@@ -5,6 +5,7 @@ from exceptions import *
 from utils.functions import insert_first, highlight
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 import logging
 
 logger = logging.getLogger(__name__)
@@ -365,10 +366,9 @@ class BookRepo():
 
     @staticmethod
     def query_user_book_by_pk(book_pk):
-        """Query book by pk. Return instance or none if not found"""
+        """Query <book> by pk. Return instance or none if not found"""
         try:
-            stmt = db.select(Book).where(Book.id == book_pk)
-            return db.session.execute(stmt).scalar_one_or_none()
+            return db.session.get(Book, book_pk)
         except Exception as e:
             raise type(e)(
                 f"BookRepo - query_user_book_by_pk error: {e}") from e
@@ -377,15 +377,21 @@ class BookRepo():
     def query_user_books(user_id):
         """Returns all books associated to user"""
         try:
-            user = UserRepo.query_user(user_pk=user_id)
-            books = [
+            stmt = (
+                db.select(UserBook)
+                .where(UserBook.user_id == user_id)
+                .options(selectinload(UserBook.book))
+            )
+
+            user_books = db.session.execute(stmt).scalars().all()
+
+            return  [
                 {
                     **Book.serialize(user_book.book),
                     "book_role": user_book.role.value
                 }
-                for user_book in user.user_books
+                for user_book in user_books
             ]
-            return books
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
 

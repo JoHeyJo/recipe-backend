@@ -1,5 +1,5 @@
 from repository import *
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import selectinload
 from services.ingredients_services import IngredientServices
 from services.instructions_services import InstructionServices
 from services.user_services import UserServices
@@ -103,30 +103,40 @@ class RecipeServices():
         """Consolidate recipe parts: recipe info, instructions, ingredients"""
         complete_recipes = []
         try:
-            book = Book.query.get(book_id)
+            book = BookRepo.query_user_book_by_pk(book_pk=book_id)
             if book is None:
                 raise ValueError(f"No book found with ID {book_id}")
 
-            recipes_instances = book.recipes
-            for recipe_instance in recipes_instances:
-                recipe_build = {}
+            stmt = (
+                db.select(Recipe)
+                .join(RecipeBook, RecipeBook.recipe_id == Recipe.id)
+                .where(RecipeBook.book_id == book_id)
+                .options(
+                    selectinload(Recipe.instructions),
+                    selectinload(Recipe.ingredients).selectinload(
+                        Ingredient.amount),
+                    selectinload(Recipe.ingredients).selectinload(Ingredient.unit),
+                    selectinload(Recipe.ingredients).selectinload(Ingredient.item),
+                )
+                .order_by(Recipe.name)
+            )
+            recipe_instances = db.session.execute(stmt).scalars().all()
 
-                recipe = Recipe.serialize(recipe_instance)
+            for recipe_instance in recipe_instances:
+                recipe_build = Recipe.serialize(recipe_instance)
 
-                recipe_build.update(recipe)
-
-                instructions = InstructionServices.build_instructions(
+                recipe_build["instructions"] = InstructionServices.build_instructions(
                     instances=recipe_instance.instructions)
-                recipe_build["instructions"] = instructions
-
-                ingredients = IngredientServices.build_ingredients(
+                
+                recipe_build["ingredients"] = IngredientServices.build_ingredients(
                     instances=recipe_instance.ingredients)
-                recipe_build["ingredients"] = ingredients
-
+                
                 complete_recipes.append(recipe_build)
+                
             return complete_recipes
         except Exception as e:
             raise type(e)(f"RecipeServices - build_recipes error: {e}") from e
+        
 
     @staticmethod
     def build_recipe(recipe_id):
@@ -477,7 +487,8 @@ class RecipeServices():
         for book in user_books:
             if book.book_type.value == "shared_inbox":
                 if book.id == book_id:
-                    raise Conflict("You cannot share with your own 'Shared Books' recipe book.")
+                    raise Conflict(
+                        "You cannot share with your own 'Shared Books' recipe book.")
                 has_access_to_recipe = any(
                     recipe.id == recipe_id for recipe in book.recipes)
             if book.id == int(book_id):
