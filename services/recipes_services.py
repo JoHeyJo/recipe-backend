@@ -100,7 +100,9 @@ class RecipeServices():
 
     @staticmethod
     def build_recipes(book_id):
-        """Consolidate recipe parts: recipe info, instructions, ingredients"""
+        """Consolidate recipe parts: recipe info, instructions, ingredients - returns to client list
+        of readable recipes.
+        My code before AI refactor d1072a4552ba6f0aaad85bbb5c3eaf39ca9c82f7"""
         complete_recipes = []
         try:
             book = BookRepo.query_user_book_by_pk(book_pk=book_id)

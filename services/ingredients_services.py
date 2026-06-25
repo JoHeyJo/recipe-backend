@@ -127,6 +127,7 @@ class IngredientServices():
                     {"ingredient_id": ingredient.id, "amount": amount, "unit": unit, "item": item})
             return ingredients
         except Exception as e:
+            logger.exception("Ingredient_services - build_ingredients failed")
             raise type(e)(
                 f"Ingredient_services - build_ingredients error: {e}") from e
 

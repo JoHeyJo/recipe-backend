@@ -95,7 +95,7 @@ class UserRepo():
 
             Should return all resources associated to a user
             but when a book is associated to a recipient-user that recipient-user
-            can now receive the senders resources   
+            can now receive the senders resources
         """
         def query(user_id: int):
             stmt = (
@@ -118,6 +118,28 @@ class RecipeRepo():
             return db.session.get(Recipe, recipe_pk)
         except Exception as e:
             raise type(e)(f"RecipeRepo -> create_recipe error:{e}") from e
+
+    @staticmethod
+    def query_built_recipe(recipe_pk):
+        """Query recipe by PK with eager loads. Return Recipe or None if not found."""
+        try:
+            return db.session.get(
+                Recipe,
+                recipe_pk,
+                options=(
+                    selectinload(Recipe.instructions),
+                    selectinload(Recipe.ingredients).selectinload(
+                        Ingredient.amount),
+                    selectinload(Recipe.ingredients).selectinload(
+                        Ingredient.unit),
+                    selectinload(Recipe.ingredients).selectinload(
+                        Ingredient.item),
+                ),
+                populate_existing=True,
+            )
+        except Exception as e:
+            logger.exception("RecipeRepo - query_built_recipe failed")
+            raise type(e)(f"RecipeRepo - query_built_recipe error: {e}") from e
 
     @staticmethod
     def create_recipe(name, notes, user_id):
@@ -375,7 +397,8 @@ class BookRepo():
 
     @staticmethod
     def query_user_books(user_id):
-        """Returns all books associated to user"""
+        """Returns all books associated to user
+        My code before AI refactor d1072a4552ba6f0aaad85bbb5c3eaf39ca9c82f7"""
         try:
             stmt = (
                 db.select(UserBook)
