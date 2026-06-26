@@ -129,7 +129,7 @@ class RecipeRepo():
         except Exception as e:
             logger.exception("RecipeRepo - query_recipe failed")
             raise type(e)(f"RecipeRepo - query_recipe error: {e}") from e
-        
+
     @staticmethod
     def create_recipe(name, notes, user_id):
         """Creates recipe instance and adds it to database"""
@@ -360,6 +360,19 @@ class IngredientsRepo():
             raise type(e)(
                 f"Error in IngredientsRepo -> query_ingredient: {e}") from e
 
+    @staticmethod
+    def query_ingredients(primary_keys: list[int]) -> list[Ingredient]:
+        """Query multiple ingredients by PK in one batched SELECT."""
+        try:
+            if not primary_keys:
+                return []
+            stmt = db.select(Ingredient).where(Ingredient.id.in_(primary_keys))
+            return db.session.execute(stmt).scalars().all()
+        except Exception as e:
+            logger.exception("IngredientsRepo - query_ingredients failed")
+            raise type(e)(
+                f"IngredientsRepo - query_ingredients error: {e}") from e
+
 
 class BookRepo():
     """Facilitates books table interactions"""
@@ -397,7 +410,7 @@ class BookRepo():
 
             user_books = db.session.execute(stmt).scalars().all()
 
-            return  [
+            return [
                 {
                     **Book.serialize(user_book.book),
                     "book_role": user_book.role.value

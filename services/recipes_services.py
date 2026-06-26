@@ -215,8 +215,14 @@ class RecipeServices():
     @staticmethod
     def process_edit_ingredients(ingredients, recipe_id):
         """Edits recipe's ingredients by modifying Ingredient association 
-        or creating a new association for new ingredient"""
+        or creating a new association for new ingredient. Existing ingredients are fetched in one batch."""
         try:
+            edit_ids = [ing["id"] for ing in ingredients if ing["id"]]
+            existing = {
+                ing.id: ing
+                for ing in IngredientsRepo.query_ingredients(edit_ids)
+            }
+
             for ingredient in ingredients:
                 item = ingredient.get("item")
                 amount = ingredient.get("amount")
@@ -233,8 +239,7 @@ class RecipeServices():
                     raise ValueError("Ingredient must have an item name.")
 
                 if ingredient["id"]:
-                    recipe_ingredient = IngredientsRepo.query_ingredient(
-                        ingredient["id"])
+                    recipe_ingredient = existing.get(ingredient["id"])
 
                     if not recipe_ingredient:
                         raise NotFound(
