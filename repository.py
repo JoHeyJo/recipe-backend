@@ -249,15 +249,7 @@ class QuantityAmountRepo():
                 f"QuantityAmountRepo -  get_all_amounts error: {e}") from e
 
     @staticmethod
-    def query_book_amounts(book_id):
-        """Return user amounts"""
-        try:
-            amounts = db.session.query(Book).filter_by(
-                id=book_id).first().amounts
-            return [QuantityAmount.serialize(amount) for amount in amounts]
-        except Exception as e:
-            raise type(e)(
-                f"QuantityAmountRepo -  get_book_amounts error: {e}") from e
+ 
 
     @staticmethod
     def query_user_amounts(user_id):
