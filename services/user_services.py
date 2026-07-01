@@ -6,8 +6,10 @@ from exceptions import ForbiddenError
 from werkzeug.exceptions import Forbidden
 from models import BookRole
 
-class UserServices():
+
+class UserServices:
     """Handles ingredients view business logic"""
+
     @staticmethod
     def authenticate_signup(request):
         """Process new user information"""
@@ -17,8 +19,7 @@ class UserServices():
         password = request.json["password"]
         email = request.json["email"]
         try:
-            token = UserRepo.signup(user_name, first_name,
-                                    last_name, email, password)
+            token = UserRepo.signup(user_name, first_name, last_name, email, password)
             db.session.commit()
             return token
         except Exception:
@@ -30,7 +31,8 @@ class UserServices():
         """Process user credentials - read-only operation"""
         try:
             token = UserRepo.login(
-                user_name=request.json["userName"], password=request.json["password"])
+                user_name=request.json["userName"], password=request.json["password"]
+            )
             return token
         except Exception:
             db.session.rollback()
@@ -49,7 +51,8 @@ class UserServices():
 
             if default_book_id:
                 default_book = BookRepo.build_book_with_query(
-                    user_id=user_id, book_id=default_book_id)
+                    user_id=user_id, book_id=default_book_id
+                )
                 user_data["default_book"] = default_book
             return user_data
         except Exception:
@@ -60,7 +63,10 @@ class UserServices():
         """Generates specialized time sensitive token"""
         expires = timedelta(minutes=30)
         reset_token = create_access_token(
-            identity=user_id, expires_delta=expires, additional_claims={"type": "password_reset"})
+            identity=user_id,
+            expires_delta=expires,
+            additional_claims={"type": "password_reset"},
+        )
         return reset_token
 
     @staticmethod
@@ -71,7 +77,8 @@ class UserServices():
 
             if user.user_name != request["userName"]:
                 raise ForbiddenError(
-                    "Error updating password. Do not tamper with token. Make sure username is correct")
+                    "Error updating password. Do not tamper with token. Make sure username is correct"
+                )
 
             user.password = UserRepo.hash_password(string=request["password"])
             db.session.commit()
@@ -92,8 +99,7 @@ class UserServices():
                 return {"is_default_replaced": False}
 
             if user.default_book_id:
-                book = BookRepo.query_user_book_by_pk(
-                    book_pk=user.default_book_id)
+                book = BookRepo.query_user_book_by_pk(book_pk=user.default_book_id)
                 if book.book_type.value == "shared_inbox":
                     user.default_book_id = book_id
                     return {"is_default_replaced": True}
@@ -101,13 +107,11 @@ class UserServices():
         # db.session.add() is not necessary if self is already a tracked/persistent object
         except Exception as e:
             db.session.rollback()
-            raise type(e)(
-                f"UserServices - assign_default_book  error:{e}") from e
+            raise type(e)(f"UserServices - assign_default_book  error:{e}") from e
 
     @staticmethod
     def check_book_privileges(book_id, auth_id, user_id):
         """Verifies or denies a user CRUD capabilities"""
-        user_book = UserBookRepo.query_users_books(
-            book_id=book_id, user_id=auth_id)
+        user_book = UserBookRepo.query_user_book(book_id=book_id, user_id=auth_id)
         if user_book.role != BookRole.collaborator and auth_id != user_id:
             raise Forbidden("Action not authorized!")
