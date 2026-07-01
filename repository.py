@@ -249,15 +249,20 @@ class QuantityAmountRepo():
                 f"QuantityAmountRepo -  get_all_amounts error: {e}") from e
 
     @staticmethod
-    def query_book_amounts(book_id):
-        """Return user amounts"""
+    def query_book_amounts(book_id: int) -> list[QuantityAmount]:
+        """Return all amounts belonging to a book. Direct query"""
         try:
-            amounts = db.session.query(Book).filter_by(
-                id=book_id).first().amounts
-            return [QuantityAmount.serialize(amount) for amount in amounts]
+            stmt = (
+                db.select(QuantityAmount)
+                .join(AmountBook, QuantityAmount.id == AmountBook.amount_id)
+                .where(AmountBook.book_id == book_id)
+                .order_by(QuantityAmount.value)
+            )
+            return db.session.execute(stmt).scalars().all()
         except Exception as e:
+            logger.exception("QuantityAmountRepo - query_book_amounts failed")
             raise type(e)(
-                f"QuantityAmountRepo -  get_book_amounts error: {e}") from e
+                f"QuantityAmountRepo - query_book_amounts error: {e}") from e
 
     @staticmethod
     def query_user_amounts(user_id):
@@ -297,15 +302,20 @@ class QuantityUnitRepo():
                 f"QuantityUnitRepo - query_user_units error: {e}") from e
 
     @staticmethod
-    def query_book_units(book_id):
-        """Return book's units"""
+    def query_book_units(book_id: int) -> list[QuantityAmount]:
+        """Return all amounts belonging to a book."""
         try:
-            units = db.session.query(Book).filter_by(
-                id=book_id).first().units
-            return [QuantityUnit.serialize(unit) for unit in units]
+            stmt = (
+                db.select(QuantityUnit)
+                .join(UnitBook, QuantityUnit.id == UnitBook.unit_id)
+                .where(UnitBook.book_id == book_id)
+                .order_by(QuantityUnit.type)
+            )
+            return db.session.execute(stmt).scalars().all()
         except Exception as e:
+            logger.exception("QuantityAmountRepo - query_book_units failed")
             raise type(e)(
-                f"QuantityUnitRepo - get_book_units error: {e}") from e
+                f"QuantityUnitRepo - query_book_units error: {e}") from e
 
 
 class ItemRepo():
@@ -330,13 +340,19 @@ class ItemRepo():
             raise type(e)(f"get_all_item error: {e}") from e
 
     @staticmethod
-    def query_book_items(book_id):
-        """Return book's items"""
+    def query_book_items(book_id: int) -> list[QuantityAmount]:
+        """Return all amounts belonging to a book."""
         try:
-            items = db.session.query(Book).filter_by(id=book_id).first().items
-            return [Item.serialize(item) for item in items]
+            stmt = (
+                db.select(Item)
+                .join(ItemBook, Item.id == ItemBook.item_id)
+                .where(ItemBook.book_id == book_id)
+                .order_by(Item.name)
+            )
+            return db.session.execute(stmt).scalars().all()
         except Exception as e:
-            raise type(e)(f"get_book_items error: {e}") from e
+            logger.exception("ItemRepo - query_book_items failed")
+            raise type(e)(f"ItemRepo - query_book_items error: {e}") from e
 
     @staticmethod
     def query_user_items(user_id):
