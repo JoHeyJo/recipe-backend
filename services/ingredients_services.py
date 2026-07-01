@@ -25,6 +25,8 @@ class IngredientServices():
             amounts = QuantityAmountRepo.query_book_amounts(book_id=book_id)
             units = QuantityUnitRepo.query_book_units(book_id=book_id)
             items = ItemRepo.query_book_items(book_id=book_id)
+            highlight("fetch_book_components_options", {
+                      "amounts": amounts, "units": units, "items": items})
             return {"amounts": amounts, "units": units, "items": items}
         except Exception as e:
             raise type(e)(
