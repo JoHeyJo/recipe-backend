@@ -1,6 +1,7 @@
 from sqlalchemy.dialects.postgresql import insert
 import logging
 from flask import current_app
+logger = logging.getLogger(__name__)
 
 def check_auth_users(user_id):
     """authorize incoming request after initial websocket handshake. If sid exists
@@ -11,30 +12,35 @@ def check_auth_users(user_id):
 
 
 def insert_first(Model, data, column_name, db):
-    """Insert-first data entry method leveraging SQLAlchemy CORE. Auto commits session"""
+    """Insert-if-absent using SQLAlchemy Core upsert. Returns the row (id + the
+    named column) whether newly inserted or pre-existing. Auto-commits.
+
+    Note: the returned object is a lightweight, transient instance carrying only
+    id and `column_name` — it is NOT session-managed. Callers should treat it as
+    a serialization source, not a live ORM object (no relationship access, no
+    mutate-and-recommit).
+    """
     try:
-        # Insert with conflict handling
         stmt = (
             insert(Model)
             .values(**{column_name: data})
             .on_conflict_do_nothing()
             .returning(Model.id, getattr(Model, column_name))
         )
-
-        # Execute the insert and fetch result - this is NOT a separate query.
+        # RETURNING gives the row on the insert path with no extra round-trip.
+        # On conflict, RETURNING yields nothing, so fall back to a lookup.
         result = db.session.execute(stmt).fetchone()
 
-        # If no result (conflict occurred), query the existing record
         if result is None:
-            quantity_amount = db.session.query(
-                Model).filter_by(**{column_name: data}).one()
+            select_stmt = db.select(Model).where(getattr(Model, column_name) == data)
+            instance = db.session.execute(select_stmt).scalar_one()
         else:
-            # Map result to Model instance
-            quantity_amount = Model(id=result.id, **{column_name: result[1]})
+            instance = Model(id=result.id, **{column_name: result[1]})
 
-        return quantity_amount
+        return instance
 
     except Exception as e:
+        logger.exception("insert_first failed")
         raise type(e)(f"insert_first: Database error occurred: {e}") from e
 
 
