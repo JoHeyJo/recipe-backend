@@ -1,6 +1,8 @@
 from repository import *
 from utils.functions import highlight
 import logging
+from services.instructions_services import InstructionServices
+from exceptions import ForbiddenError
 
 logger = logging.getLogger(__name__)
 
@@ -43,8 +45,13 @@ class IngredientServices:
             ) from e
 
     @staticmethod
-    def build_book_components(book_id: int) -> dict:
+    def build_book_components(user_id: int, book_id: int) -> dict:
         """Assemble all component lists for a book."""
+        has_access = InstructionServices.check_book_access(
+            user_id=user_id, book_id=book_id
+        )
+        if has_access is None:
+            raise ForbiddenError("User does not have access.")
         try:
             return {
                 "amounts": [
@@ -57,11 +64,7 @@ class IngredientServices:
                 ],
                 "items": [
                     Item.serialize(i) for i in ItemRepo.query_book_items(book_id)
-                ],
-                # "instructions": [
-                #     Instruction.serialize(i)
-                #     for i in InstructionRepo.query_book_instructions(book_id)
-                # ],
+                ]
             }
         except Exception as e:
             logger.exception("ComponentServices - build_book_components failed")

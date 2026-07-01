@@ -255,7 +255,7 @@ def get_user_ingredients(authed_user_id, user_id):
 @route_error_handler
 def get_book_ingredient_components(authed_user_id, book_id, user_id):
     """Facilitates retrieval of components options associated to Book"""
-    return IngredientServices.build_book_components(book_id=book_id)
+    return IngredientServices.build_book_components(user_id=authed_user_id, book_id=book_id)
 
 
 ########### INSTRUCTIONS ###########

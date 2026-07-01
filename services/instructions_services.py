@@ -4,6 +4,7 @@ from models import db, Instruction
 from repository import UserBookRepo, BookInstructionRepo, RecipeInstructionRepo
 from werkzeug.exceptions import Conflict
 from utils.functions import highlight
+from exceptions import ForbiddenError
 
 
 class InstructionServices:
@@ -26,30 +27,25 @@ class InstructionServices:
         has_access = InstructionServices.check_book_access(
             user_id=user_id, book_id=book_id
         )
-        if has_access:
-            try:
-                return {
-                    "instructions": [
-                        Instruction.serialize(i)
-                        for i in InstructionRepo.query_book_instructions(book_id)
-                    ]
-                }
-            except Exception as e:
-                raise type(e)(
-                    f"Error in InstructionServices -> fetch_book_instructions: {e}"
-                ) from e
-        else:
-            raise ProgrammingError("User does not have access to book")
+        if has_access is None:
+            raise ForbiddenError("User does not have access.")
+        try:
+            return {
+                "instructions": [
+                    Instruction.serialize(i)
+                    for i in InstructionRepo.query_book_instructions(book_id)
+                ]
+            }
+        except Exception as e:
+            raise type(e)(
+                f"Error in InstructionServices -> fetch_book_instructions: {e}"
+            ) from e
 
     @staticmethod
     def check_book_access(user_id, book_id):
-        """Authorizes user access to book"""
+        """Authorizes user access to book. should go in repo"""
         try:
-            book = UserBookRepo.query_user_book(book_id=book_id, user_id=user_id)
-            if book:
-                return True
-            else:
-                return False
+            return UserBookRepo.query_user_book(book_id=book_id, user_id=user_id)
         except Exception as e:
             raise type(e)(
                 f"Error in InstructionServices -> check_user_access: {e}"

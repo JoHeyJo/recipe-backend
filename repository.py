@@ -492,7 +492,7 @@ class BookRepo:
         Need to review if where this function is called a user_book instance already exists
         !!should be moved to service layer!!'"""
         try:
-            user_book = UserBookRepo.query_users_book(book_id=book_id, user_id=user_id)
+            user_book = UserBookRepo.query_user_book(book_id=book_id, user_id=user_id)
 
             serialized = Book.serialize(user_book.book)
 
