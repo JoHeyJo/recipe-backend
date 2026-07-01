@@ -18,14 +18,18 @@ class InstructionServices():
                 f"Error in InstructionServices -> fetch_user_instructions: {e}") from e
 
     @staticmethod
-    def fetch_book_instructions(book_id, user_id):
+    def build_book_instructions(book_id, user_id):
         """Retrieves book instructions"""
         has_access = InstructionServices.check_book_access(
             user_id=user_id, book_id=book_id)
         if has_access:
             try:
-                instructions = InstructionRepo.query_book_instructions(book_id)
-                return instructions
+                return {
+                    "instructions": [
+                        Instruction.serialize(i)
+                        for i in InstructionRepo.query_book_instructions(book_id)
+                    ]
+                }
             except Exception as e:
                 raise type(e)(
                     f"Error in InstructionServices -> fetch_book_instructions: {e}") from e

@@ -44,7 +44,7 @@ class IngredientServices:
 
     @staticmethod
     def build_book_components(book_id: int) -> dict:
-        """Assemble all component lists for a book in one place."""
+        """Assemble all component lists for a book."""
         try:
             return {
                 "amounts": [

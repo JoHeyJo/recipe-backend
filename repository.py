@@ -250,7 +250,7 @@ class QuantityAmountRepo():
 
     @staticmethod
     def query_book_amounts(book_id: int) -> list[QuantityAmount]:
-        """Return all amounts belonging to a book. Direct query"""
+        """Return all amounts belonging to a book. Explicit queries"""
         try:
             stmt = (
                 db.select(QuantityAmount)
@@ -303,7 +303,7 @@ class QuantityUnitRepo():
 
     @staticmethod
     def query_book_units(book_id: int) -> list[QuantityAmount]:
-        """Return all amounts belonging to a book."""
+        """Return all amounts belonging to a book. Explicit queries"""
         try:
             stmt = (
                 db.select(QuantityUnit)
@@ -341,7 +341,7 @@ class ItemRepo():
 
     @staticmethod
     def query_book_items(book_id: int) -> list[QuantityAmount]:
-        """Return all amounts belonging to a book."""
+        """Return all amounts belonging to a book. Explicit queries"""
         try:
             stmt = (
                 db.select(Item)
@@ -506,13 +506,18 @@ class InstructionRepo():
                 f"InstructionRepo - get_user_instructions error: {e}")
 
     @staticmethod
-    def query_book_instructions(book_id):
-        """Query all instructions associated with a book"""
+    def query_book_instructions(book_id: int) -> list[QuantityAmount]:
+        """Return all amounts belonging to a book. Explicit queries"""
         try:
-            book = db.session.query(Book).filter_by(id=book_id).first()
-            instructions = book.instructions
-            return [Instruction.serialize(instruction) for instruction in instructions]
+            stmt = (
+                db.select(Instruction)
+                .join(BookInstruction, Instruction.id == BookInstruction.instruction_id)
+                .where(BookInstruction.book_id == book_id)
+                .order_by(Instruction.instruction)
+            )
+            return db.session.execute(stmt).scalars().all()
         except Exception as e:
+            logger.exception("InstructionRepo - query_book_instructions failed")
             raise type(e)(
                 f"InstructionRepo - query_book_instructions error: {e}") from e
 

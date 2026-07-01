@@ -1,4 +1,5 @@
 # recipe-backend
-Repo layer returns instances
+Repo layer returns instances & queries
 
-Service layer searialize instance4s
+Service layer serialize instances & builds
+
