@@ -201,7 +201,10 @@ class RecipeServices:
             ) from e
 
         try:
-            # can these three functions be consolidated into one after query recipe refactor?
+            # can these three functions be consolidated into one after query recipe refactor???
+            # process_edit_ingredients & process_edit_instructions require data from client to 
+            # modifying or create - returning data from process_edit_recipe_info does not include the missing data
+            # required to dictate modifying or create
             if name or notes:
                 RecipeServices.process_edit_recipe_info(
                     name=name, notes=notes, recipe_id=recipe_id
@@ -218,7 +221,6 @@ class RecipeServices:
 
             db.session.commit()
             edited_recipe = RecipeServices.build_recipe(recipe_id=recipe_id)
-            highlight("edited_recipe", edited_recipe)
             return edited_recipe
         except Exception as e:
             db.session.rollback()
