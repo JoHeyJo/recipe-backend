@@ -188,7 +188,12 @@ class ItemServices:
         """Handles item processing
         new item: create - associate - return
         empty item: set value to null - return
-        existing item: return"""
+        existing item: return
+        
+        Ensure an item exists and is linked to a book. Fully idempotent:
+        safe to call repeatedly (double-submit, retry) — existing item is
+        reused, existing link is a no-op. Commits once.
+        """
         try:
             is_stored = item.get("id")
             is_empty_value = item.get("name") == ""

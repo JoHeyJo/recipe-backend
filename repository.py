@@ -26,6 +26,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 import logging
+from sqlalchemy.dialects.postgresql import insert
 
 logger = logging.getLogger(__name__)
 
@@ -363,7 +364,7 @@ class ItemRepo:
 
     @staticmethod
     def create_item(name):
-        """Create item and add to database"""
+        """Create item and add to database - move serialize to service layer"""
         try:
             item = insert_first(Model=Item, data=name, column_name="name", db=db)
             return Item.serialize(item)
@@ -782,12 +783,16 @@ class ItemBookRepo:
     """Facilitates association of items & books"""
 
     @staticmethod
-    def create_entry(item_id, book_id):
-        """Create item and book association -> add to database"""
+    def create_entry(item_id: int, book_id: int) -> None:
+        """Link an item to a book. Idempotent — a duplicate (item_id, book_id)
+        link is a silent no-op via ON CONFLICT DO NOTHING."""
         try:
-            entry = ItemBook(item_id=item_id, book_id=book_id)
-            db.session.add(entry)
-            # db.session.flush()
-            # return entry.id
+            stmt = (
+                insert(ItemBook)
+                .values(item_id=item_id, book_id=book_id)
+                .on_conflict_do_nothing()
+            )
+            db.session.execute(stmt)
         except Exception as e:
-            raise type(e)(f"ItemBookRepo - create_entry error:{e}") from e
+            logger.exception("ItemBookRepo - create_entry failed")
+            raise type(e)(f"ItemBookRepo - create_entry error: {e}") from e
