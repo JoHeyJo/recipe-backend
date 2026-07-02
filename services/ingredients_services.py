@@ -64,7 +64,7 @@ class IngredientServices:
                 ],
                 "items": [
                     Item.serialize(i) for i in ItemRepo.query_book_items(book_id)
-                ]
+                ],
             }
         except Exception as e:
             logger.exception("ComponentServices - build_book_components failed")
@@ -189,7 +189,7 @@ class ItemServices:
         new item: create - associate - return
         empty item: set value to null - return
         existing item: return
-        
+
         Ensure an item exists and is linked to a book. Fully idempotent:
         safe to call repeatedly (double-submit, retry) — existing item is
         reused, existing link is a no-op. Commits once.
@@ -218,7 +218,12 @@ class AmountServices:
         """Handles amount processing
         new amount: create - associate - return
         empty amount: set value to null - return
-        existing amount: return"""
+        existing amount: return
+
+        Ensure an amount exists and is linked to a book. Fully idempotent:
+        safe to call repeatedly (double-submit, retry) — existing item is
+        reused, existing link is a no-op. Commits once.
+        """
         try:
             is_stored = amount.get("id")
             is_empty_value = amount.get("value") == ""
@@ -243,7 +248,12 @@ class UnitServices:
         """Handles unit processing
         new unit: create - associate - return
         empty unit: set value to null - return
-        existing unit: return"""
+        existing unit: return
+        
+        Ensure an unit exists and is linked to a book. Fully idempotent:
+        safe to call repeatedly (double-submit, retry) — existing item is
+        reused, existing link is a no-op. Commits once.
+        """
         try:
             is_stored = unit.get("id")
             is_empty_value = unit.get("type") == ""

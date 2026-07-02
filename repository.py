@@ -753,13 +753,16 @@ class AmountBookRepo:
     """Facilitates association of amounts & books"""
 
     @staticmethod
-    def create_entry(amount_id, book_id):
-        """Create amount and book association -> add to database"""
+    def create_entry(amount_id: int, book_id: int) -> None:
+        """Link an item to a book. Idempotent — a duplicate (item_id, book_id)
+        link is a silent no-op via ON CONFLICT DO NOTHING."""
         try:
-            entry = AmountBook(amount_id=amount_id, book_id=book_id)
-            db.session.add(entry)
-            # db.session.flush()
-            # return entry.id
+            stmt = (
+                insert(UnitBook)
+                .values(amount_id=amount_id, book_id=book_id)
+                .on_conflict_do_nothing()
+            )
+            db.session.execute(stmt)
         except Exception as e:
             raise type(e)(f"AmountBookRepo - create_entry error :{e}") from e
 
@@ -768,13 +771,16 @@ class UnitBookRepo:
     """Facilitates association of units & books"""
 
     @staticmethod
-    def create_entry(unit_id, book_id):
-        """Create unit and book association -> add to database"""
+    def create_entry(unit_id: int, book_id: int) -> None:
+        """Link an item to a book. Idempotent — a duplicate (item_id, book_id)
+        link is a silent no-op via ON CONFLICT DO NOTHING."""
         try:
-            entry = UnitBook(unit_id=unit_id, book_id=book_id)
-            db.session.add(entry)
-            # db.session.flush()
-            # return entry.id
+            stmt = (
+                insert(UnitBook)
+                .values(unit_id=unit_id, book_id=book_id)
+                .on_conflict_do_nothing()
+            )
+            db.session.execute(stmt)
         except Exception as e:
             raise type(e)(f"UnitBookRepo - create_entry error:{e}") from e
 
