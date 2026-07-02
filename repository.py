@@ -754,16 +754,17 @@ class AmountBookRepo:
 
     @staticmethod
     def create_entry(amount_id: int, book_id: int) -> None:
-        """Link an item to a book. Idempotent — a duplicate (item_id, book_id)
+        """Link an item to a book. Idempotent — a duplicate (amount_id, book_id)
         link is a silent no-op via ON CONFLICT DO NOTHING."""
         try:
             stmt = (
-                insert(UnitBook)
+                insert(AmountBook)
                 .values(amount_id=amount_id, book_id=book_id)
                 .on_conflict_do_nothing()
             )
             db.session.execute(stmt)
         except Exception as e:
+            logger.exception("AmountBookRepo - create_entry failed")
             raise type(e)(f"AmountBookRepo - create_entry error :{e}") from e
 
 
@@ -772,7 +773,7 @@ class UnitBookRepo:
 
     @staticmethod
     def create_entry(unit_id: int, book_id: int) -> None:
-        """Link an item to a book. Idempotent — a duplicate (item_id, book_id)
+        """Link an item to a book. Idempotent — a duplicate (unit_id, book_id)
         link is a silent no-op via ON CONFLICT DO NOTHING."""
         try:
             stmt = (
@@ -782,6 +783,7 @@ class UnitBookRepo:
             )
             db.session.execute(stmt)
         except Exception as e:
+            logger.exception("UnitBookRepo - create_entry failed")
             raise type(e)(f"UnitBookRepo - create_entry error:{e}") from e
 
 
