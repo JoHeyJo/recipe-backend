@@ -476,6 +476,7 @@ class BookRepo:
         """Returns all books instances associated to user. Books don't include 'book_role'"""
         try:
             user = UserRepo.query_user(user_pk=user_id)
+            user = UserRepo.query_user(user_pk=user_id)
             return user.books
         except Exception as e:
             raise type(e)(f"BookRepo - get_user_books error: {e}") from e
