@@ -430,3 +430,5 @@ def connect_db(app):
             db.create_all()
         except Exception as e:
             print(f"Error creating database tables: {e}")
+
+
