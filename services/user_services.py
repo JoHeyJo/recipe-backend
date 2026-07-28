@@ -5,6 +5,9 @@ from flask_jwt_extended import create_access_token, get_jwt_identity
 from exceptions import ForbiddenError
 from werkzeug.exceptions import Forbidden
 from models import BookRole
+from services.email_services import EmailServices
+from flask import current_app
+from urllib.parse import urlencode
 
 
 class UserServices:
@@ -117,5 +120,18 @@ class UserServices:
             raise Forbidden("Action not authorized!")
 
     @staticmethod
-    def invite_user():
+    def invite_user(user_id, email, tester_email):
         """Creates invitation token for a beta tester"""
+        if user_id != 1 and email != "jpf0628@gmail.com":
+            return {"message": "Ah ah ah, you didn't say the magic work..."}
+        token = create_access_token(identity=tester_email, expires_delta=timedelta(minutes=2))
+        link = f"{current_app.config['FRONTEND_RESET_URL']}?{urlencode({'token': token})}"
+        EmailServices.send_email_ses(
+            recipient_email=tester_email,
+            subject="Invite: Sling It beta test!",
+            body_html=f"""
+            <p>Please follow the link to signup to be a Sling It beta tester.</p>
+            <p><a href="{link}">Click here to sign up to be a beta tester!</a></p>
+            <p>Thank you for your help, 🍻 Cheers!</p>
+            """
+        )

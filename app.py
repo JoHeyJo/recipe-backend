@@ -2,9 +2,15 @@ import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from repository import *
-from models import connect_db, db
+from models import connect_db, db, User
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager, get_jwt_identity, verify_jwt_in_request, jwt_required
+from flask_jwt_extended import (
+    JWTManager,
+    get_jwt_identity,
+    verify_jwt_in_request,
+    jwt_required,
+    create_access_token,
+)
 from exceptions import *
 from services.user_services import UserServices
 from services.recipes_services import RecipeServices
