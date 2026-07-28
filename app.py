@@ -85,6 +85,13 @@ def login():
     except Exception as e:
         return jsonify({"error": "An error occurred during login"}), 500
 
+@app.post("/invite")
+@verify_jwt_identity
+def invite_user(authed_user_id):
+    email = request.json["email"]
+    return UserServices.invite_user(user_id=authed_user_id, email=email)
+
+
 
 ########### USERS ###########
 @app.get("/users/<user_id>")
