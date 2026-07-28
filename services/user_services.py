@@ -125,7 +125,7 @@ class UserServices:
         if user_id != 1:
             return {"message": "You're not authorized to do this."}
         token = create_access_token(identity=email, expires_delta=timedelta(minutes=2))
-        link = f"{current_app.config['FRONTEND_RESET_URL']}?{urlencode({'token': token})}"
+        link = f"{current_app.config['INVITE_URL']}?{urlencode({'token': token})}"
         EmailServices.send_email_ses(
             recipient_email=email,
             subject="Invite: Sling It beta test!",
