@@ -115,3 +115,7 @@ class UserServices:
         user_book = UserBookRepo.query_user_book(book_id=book_id, user_id=auth_id)
         if user_book.role != BookRole.collaborator and auth_id != user_id:
             raise Forbidden("Action not authorized!")
+
+    @staticmethod
+    def invite_user():
+        """Creates invitation token for a beta tester"""
