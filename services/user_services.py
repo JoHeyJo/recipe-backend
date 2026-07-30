@@ -137,3 +137,15 @@ class UserServices:
             """
         )
         return {"message": f"""Invite sent to {email}"""}
+
+    @staticmethod
+    def request_invite_token(email):
+        """Trigger SNS to ADMIN - request token for new beta tester"""
+        EmailServices.send_email_ses(
+            recipient_email=current_app.config["ADMIN_EMAIL"],
+            subject="Request beta tester token",
+            body_html=f"""
+            <p>{email} is requesting auth token to be admitted into beta test.</p>
+            """,
+        )
+        return {"message":"Check your email for an signup authorization link."}

@@ -27,6 +27,7 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_ECHO = True
     DEBUG = True
     DEBUG_TB_INTERCEPT_REDIRECTS = True
+    ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
 
 
 class ProductionConfig(Config):

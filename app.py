@@ -67,6 +67,7 @@ def test():
 @app.post("/signup")
 @route_error_handler
 def signup():
+    # REFACTOR TO ACCOMMODATE CLOSED BETA
     """Facilitates new user data, return token"""
     token = UserServices.authenticate_signup(request=request)
     return jsonify({"token": token})
@@ -76,6 +77,7 @@ def signup():
 @route_error_handler
 def login():
     """Validate user credentials"""
+    highlight("IN","None")
     try:
         token = UserServices.authenticate_login(request=request)
         if not token:
@@ -90,6 +92,12 @@ def login():
 def invite_user(authed_user_id):
     email = request.json["email"]
     return UserServices.invite_user(user_id=authed_user_id, email=email)
+
+@app.post("/request_invite")
+def request_invite():
+    """Triggers request to send ADMIN email of new beta tester"""
+    email = request.json["email"]
+    return UserServices.request_invite_token(email=email)
 
 
 
