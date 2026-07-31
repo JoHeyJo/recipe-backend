@@ -125,7 +125,7 @@ class UserServices:
         if user_id != 1:
             return {"message": "You're not authorized to do this."}
         token = create_access_token(identity=email, expires_delta=timedelta(minutes=2))
-        link = f"{current_app.config['INVITE_URL']}?{urlencode({'token': token})}"
+        link = f"{current_app.config['INVITE_URL']}?{urlencode({'tab': 'signup', 'token': token, 'email': email})}"
         EmailServices.send_email_ses(
             recipient_email=email,
             subject="Invite: Sling It beta test!",
@@ -134,7 +134,7 @@ class UserServices:
             <p><a href="{link}">Click here to sign up to be a beta tester!</a></p>
             <p>Thank you for your help,</p> 
             <p>🍻 Cheers!</p>
-            """
+            """,
         )
         return {"message": f"""Invite sent to {email}"""}
 
@@ -148,4 +148,4 @@ class UserServices:
             <p>{email} is requesting auth token to be admitted into beta test.</p>
             """,
         )
-        return {"message":"Check your email for a signup authorization link."}
+        return {"message": "Check your email for a signup authorization link."}
