@@ -65,10 +65,14 @@ def test():
 
 
 @app.post("/signup")
+@verify_jwt_identity
 @route_error_handler
-def signup():
-    # REFACTOR TO ACCOMMODATE CLOSED BETA
+def signup(authed_user_id):
     """Facilitates new user data, return token"""
+    highlight("USER token",(authed_user_id,request.json["email"]))
+    if request.json["email"] != authed_user_id:
+        highlight("resturn message")
+        return jsonify({"message": "Sign up not authorized!"})
     token = UserServices.authenticate_signup(request=request)
     return jsonify({"token": token})
 
@@ -77,7 +81,6 @@ def signup():
 @route_error_handler
 def login():
     """Validate user credentials"""
-    highlight("IN","None")
     try:
         token = UserServices.authenticate_login(request=request)
         if not token:
