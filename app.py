@@ -2,9 +2,15 @@ import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from repository import *
-from models import connect_db, db
+from models import connect_db, db, User
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager, get_jwt_identity, verify_jwt_in_request, jwt_required
+from flask_jwt_extended import (
+    JWTManager,
+    get_jwt_identity,
+    verify_jwt_in_request,
+    jwt_required,
+    create_access_token,
+)
 from exceptions import *
 from services.user_services import UserServices
 from services.recipes_services import RecipeServices
@@ -59,9 +65,12 @@ def test():
 
 
 @app.post("/signup")
+@verify_jwt_identity
 @route_error_handler
-def signup():
+def signup(authed_user_id):
     """Facilitates new user data, return token"""
+    if request.json["email"] != authed_user_id:
+        raise ForbiddenError("Sign up not authorized!")
     token = UserServices.authenticate_signup(request=request)
     return jsonify({"token": token})
 
@@ -78,6 +87,19 @@ def login():
         return jsonify({"token": token}), 200
     except Exception as e:
         return jsonify({"error": "An error occurred during login"}), 500
+
+@app.post("/invite")
+@verify_jwt_identity
+def invite_user(authed_user_id):
+    email = request.json["email"]
+    return UserServices.invite_user(user_id=authed_user_id, email=email)
+
+@app.post("/request_invite")
+def request_invite():
+    """Triggers request to send ADMIN email of new beta tester"""
+    email = request.json["email"]
+    return UserServices.request_invite_token(email=email)
+
 
 
 ########### USERS ###########

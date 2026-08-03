@@ -5,6 +5,9 @@ from flask_jwt_extended import create_access_token, get_jwt_identity
 from exceptions import ForbiddenError
 from werkzeug.exceptions import Forbidden
 from models import BookRole
+from services.email_services import EmailServices
+from flask import current_app
+from urllib.parse import urlencode
 
 
 class UserServices:
@@ -115,3 +118,34 @@ class UserServices:
         user_book = UserBookRepo.query_user_book(book_id=book_id, user_id=auth_id)
         if user_book.role != BookRole.collaborator and auth_id != user_id:
             raise Forbidden("Action not authorized!")
+
+    @staticmethod
+    def invite_user(user_id, email):
+        """Creates invitation token for a beta tester"""
+        if user_id != 1:
+            return {"message": "You're not authorized to do this."}
+        token = create_access_token(identity=email, expires_delta=timedelta(minutes=2))
+        link = f"{current_app.config['INVITE_URL']}?{urlencode({'tab': 'signup', 'token': token, 'email': email})}"
+        EmailServices.send_email_ses(
+            recipient_email=email,
+            subject="Invite: Sling It beta test!",
+            body_html=f"""
+            <p>Please follow the link to signup to be a Sling It beta tester.</p>
+            <p><a href="{link}">Click here to sign up to be a beta tester!</a></p>
+            <p>Thank you for your help,</p> 
+            <p>🍻 Cheers!</p>
+            """,
+        )
+        return {"message": f"""Invite sent to {email}"""}
+
+    @staticmethod
+    def request_invite_token(email):
+        """Trigger SNS to ADMIN - request token for new beta tester"""
+        EmailServices.send_email_ses(
+            recipient_email=current_app.config["ADMIN_EMAIL"],
+            subject="Request beta tester token",
+            body_html=f"""
+            <p>{email} is requesting auth token to be admitted into beta test.</p>
+            """,
+        )
+        return {"message": "Check your email for a signup authorization link."}
