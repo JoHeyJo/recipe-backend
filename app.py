@@ -69,10 +69,8 @@ def test():
 @route_error_handler
 def signup(authed_user_id):
     """Facilitates new user data, return token"""
-    highlight("USER token",(authed_user_id,request.json["email"]))
     if request.json["email"] != authed_user_id:
-        highlight("resturn message")
-        return jsonify({"message": "Sign up not authorized!"})
+        raise ForbiddenError("Sign up not authorized!")
     token = UserServices.authenticate_signup(request=request)
     return jsonify({"token": token})
 
