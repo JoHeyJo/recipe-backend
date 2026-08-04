@@ -736,14 +736,14 @@ class RecipeInstructionRepo:
     def query_recipe_instructions(recipe_id):
         """Query instructions associated to recipe id"""
         try:
-            stmt = select(RecipeInstruction).where(
-                RecipeInstruction.recipe_id == recipe_id
+            stmt = (
+                select(Instruction)
+                .join(RecipeInstruction, RecipeInstruction.instruction_id == Instruction.id)
+                .where(RecipeInstruction.recipe_id == recipe_id)
+                .order_by(RecipeInstruction.created_at)
             )
             instructions = db.session.scalars(stmt).all()
-            return [
-                {"id": i.instruction_id, "instruction": i.instruction.instruction}
-                for i in instructions
-            ]
+            return [{"id": i.id, "instruction": i.instruction} for i in instructions]
         except Exception as e:
             raise type(e)(
                 f"RecipeInstructionRepo - query_recipe_instructions error :{e}"

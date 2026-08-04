@@ -277,13 +277,7 @@ class Instruction(ReprMixin, TableNameMixin, TimestampMixin, db.Model):
         "Recipe",
         secondary="recipes_instructions",
         back_populates="instructions",
-        viewonly=True,
     )
-
-    recipe_instructions: Mapped[List["RecipeInstruction"]] = relationship(
-        "RecipeInstruction", back_populates="instruction"
-    )
-
 
 ###################### ASSOCIATION MODELS ############################
 
@@ -370,9 +364,7 @@ class BookInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.M
 
 
 class RecipeInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
-    """Association table for recipes and instructions
-    NOTE: is connected by simple M2M and associated object pattern. Recipe and Instruction models
-    are viewonly to avoid conflict. Is this necessary can models be connected by only one pattern?"""
+    """Association table for recipes and instructions"""
 
     recipe_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("recipes.id", ondelete="CASCADE"), primary_key=True
@@ -381,9 +373,6 @@ class RecipeInstruction(ReprMixin, AssociationTableNameMixin, TimestampMixin, db
         Integer, ForeignKey("instructions.id"), primary_key=True
     )
 
-    instruction: Mapped["Instruction"] = relationship(
-        "Instruction", back_populates="recipe_instructions"
-    )
 
 
 class AmountBook(ReprMixin, AssociationTableNameMixin, TimestampMixin, db.Model):
