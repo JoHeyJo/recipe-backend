@@ -125,7 +125,7 @@ class UserServices:
         if user_id != 1:
             return {"message": "You're not authorized to do this."}
         token = create_access_token(identity=email, expires_delta=timedelta(minutes=2))
-        link = f"{current_app.config['INVITE_URL']}?{urlencode({'tab': 'signup', 'token': token, 'email': email})}"
+        link = f"{current_app.config['BASE_URL']}?{urlencode({'tab': 'signup', 'token': token, 'email': email})}"
         EmailServices.send_email_ses(
             recipient_email=email,
             subject="Invite: Sling It beta test!",
@@ -141,6 +141,7 @@ class UserServices:
     @staticmethod
     def request_invite_token(email):
         """Trigger SNS to ADMIN - request token for new beta tester"""
+        current_app.config["ADMIN_EMAIL"]
         EmailServices.send_email_ses(
             recipient_email=current_app.config["ADMIN_EMAIL"],
             subject="Request beta tester token",

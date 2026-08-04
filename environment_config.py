@@ -23,7 +23,7 @@ class DevelopmentConfig(Config):
     AWS_REGION = os.getenv("AWS_REGION")
     SES_FROM_EMAIL = os.getenv("SES_FROM_EMAIL")
     FRONTEND_RESET_URL = os.getenv("FRONTEND_RESET_URL")
-    INVITE_URL = os.getenv("INVITE_URL")
+    BASE_URL = os.getenv("BASE_URL")
     SQLALCHEMY_ECHO = True
     DEBUG = True
     DEBUG_TB_INTERCEPT_REDIRECTS = True
