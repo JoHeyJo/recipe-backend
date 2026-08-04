@@ -141,7 +141,6 @@ class UserServices:
     @staticmethod
     def request_invite_token(email):
         """Trigger SNS to ADMIN - request token for new beta tester"""
-        current_app.config["ADMIN_EMAIL"]
         EmailServices.send_email_ses(
             recipient_email=current_app.config["ADMIN_EMAIL"],
             subject="Request beta tester token",
