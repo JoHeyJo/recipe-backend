@@ -53,15 +53,15 @@ def enable_logging():
 app_logger = logging.getLogger("app")
 
 
-@app.route('/__test__')
+@app.route("/__test__")
 def test():
-    return 'This is working'
+    return "This is working"
 
 
 # @app.get("/")
 # @jwt_required()
 # def index():
-    # return f"Environment: {app.config['ENV']} - Debug: {app.config['DEBUG']} - Server: {os.environ.get('SERVER_SOFTWARE')}"
+# return f"Environment: {app.config['ENV']} - Debug: {app.config['DEBUG']} - Server: {os.environ.get('SERVER_SOFTWARE')}"
 
 
 @app.post("/signup")
@@ -75,7 +75,7 @@ def signup(authed_user_id):
     return jsonify({"token": token})
 
 
-@app.post('/login')
+@app.post("/login")
 @route_error_handler
 def login():
     """Validate user credentials"""
@@ -88,18 +88,19 @@ def login():
     except Exception as e:
         return jsonify({"error": "An error occurred during login"}), 500
 
+
 @app.post("/invite")
 @verify_jwt_identity
 def invite_user(authed_user_id):
     email = request.json["email"]
     return UserServices.invite_user(user_id=authed_user_id, email=email)
 
+
 @app.post("/request_invite")
 def request_invite():
     """Triggers request to send ADMIN email of new beta tester"""
     email = request.json["email"]
     return UserServices.request_invite_token(email=email)
-
 
 
 ########### USERS ###########
@@ -115,13 +116,16 @@ def get_user(authed_user_id, user_id):
 @route_error_handler
 def request_reset(email):
     """Verifies User email exists"""
-    user = db.session.query(User).filter(
-        func.lower(User.email) == email.lower()).first()
+    user = (
+        db.session.query(User).filter(func.lower(User.email) == email.lower()).first()
+    )
     if user:
         reset_token = create_access_token(
-            identity=user.id, expires_delta=timedelta(minutes=15))
+            identity=user.id, expires_delta=timedelta(minutes=15)
+        )
         EmailServices.create_password_reset_email(
-            token=reset_token, recipient_email=user.email)
+            token=reset_token, recipient_email=user.email
+        )
     return jsonify({"message": "If an account exists, a reset link has been sent."})
 
 
@@ -130,8 +134,7 @@ def request_reset(email):
 @jwt_required()
 def confirm_reset(authed_user_id):
     """Resets User password"""
-    message = UserServices.reset_password(
-        user_id=authed_user_id, request=request.json)
+    message = UserServices.reset_password(user_id=authed_user_id, request=request.json)
     return jsonify(message)
 
 
@@ -140,9 +143,17 @@ def confirm_reset(authed_user_id):
 @route_error_handler
 def add_book_add_recipe(authed_user_id):
     """Consolidate process to create a default book then copy recipe to book"""
-    res = BookServices.create_book_copy_recipe(
-        request=request, user_id=authed_user_id)
+    res = BookServices.create_book_copy_recipe(request=request, user_id=authed_user_id)
     return jsonify(res)
+
+
+@app.get("/users/ingredients/instructions")
+@verify_jwt_identity
+@route_error_handler
+def get_user_ingredients_instructions(authed_user_id):
+    """Calls services that gathers user's instructions and ingredients"""
+    data = UserServices.build_user_ingredients_instructions(user_id=authed_user_id)
+    return jsonify(data)
 
 
 ############ RECIPES ###########
@@ -154,21 +165,23 @@ def add_book_add_recipe(authed_user_id):
 def add_recipe(authed_user_id, book_id, user_id):
     """Consolidate recipe data. If successful recipes_ingredients record created"""
     recipe_data = RecipeServices.process_recipe_data(
-        request={"recipe": request.json}, book_id=book_id, user_id=authed_user_id)
+        request={"recipe": request.json}, book_id=book_id, user_id=authed_user_id
+    )
     return jsonify(recipe_data), 200
 
 
 @app.post("/books/<target_book_id>/recipes/<recipe_id>")
 @verify_jwt_identity
 @route_error_handler
-def copy_recipe(authed_user_id, target_book_id,recipe_id):
+def copy_recipe(authed_user_id, target_book_id, recipe_id):
     """Facilitate changing ownership(copying) of shared recipe"""
-    # user can only copy recipes 
+    # user can only copy recipes
     # that has been shared with them - exist in shared inbox XXX
     # to books they control - do they own target book
     # cannot share to shared recipe book - target_book_id = shared_)inbox
     recipes = RecipeServices.copy_recipe(
-        request={"recipe": request.json}, book_id=target_book_id, user_id=authed_user_id)
+        request={"recipe": request.json}, book_id=target_book_id, user_id=authed_user_id
+    )
     return jsonify(recipes), 200
 
 
@@ -186,8 +199,12 @@ def get_book_recipes(authed_user_id, book_id, user_id):
 @route_error_handler
 def patch_user_recipe(authed_user_id, book_id, recipe_id):
     """Facilitate editing of recipe and records associated to book"""
-    recipe = RecipeServices.process_edit(user_id=authed_user_id, book_id=book_id,
-                                         data=request.json, recipe_id=int(recipe_id))
+    recipe = RecipeServices.process_edit(
+        user_id=authed_user_id,
+        book_id=book_id,
+        data=request.json,
+        recipe_id=int(recipe_id),
+    )
     return jsonify(recipe), 200
 
 
@@ -197,7 +214,8 @@ def patch_user_recipe(authed_user_id, book_id, recipe_id):
 def delete_recipe(authed_user_id, user_id, book_id, recipe_id):
     """Facilitate deletion of recipe record associated to user"""
     response = RecipeServices.remove_recipe(
-        auth_id=authed_user_id, book_id=book_id, recipe_id=recipe_id, data=request.json)
+        auth_id=authed_user_id, book_id=book_id, recipe_id=recipe_id, data=request.json
+    )
     return jsonify(response), 200
 
 
@@ -207,19 +225,20 @@ def delete_recipe(authed_user_id, user_id, book_id, recipe_id):
 def delete_shared_recipe(authed_user_id, book_id, recipe_id):
     """Facilitates deletion of association record linking shared recipe to recipient"""
     response = RecipeServices.remove_shared_recipe(
-        authed_id=authed_user_id, recipe_id=recipe_id, book_id=book_id)
+        authed_id=authed_user_id, recipe_id=recipe_id, book_id=book_id
+    )
     return jsonify(response), 200
 
 
 ########### BOOKS ###########
+
 
 @app.post("/users/<user_id>/books")
 @verify_jwt_identity
 @route_error_handler
 def add_book(authed_user_id, user_id):
     """Facilitates creation of book"""
-    book_data = BookServices.process_new_book(
-        request=request, user_id=authed_user_id)
+    book_data = BookServices.process_new_book(request=request, user_id=authed_user_id)
     return jsonify(book_data), 200
 
 
@@ -239,10 +258,23 @@ def add_shared_book(authed_user_id, book_id, user_id):
     """Shares book with User provided in query"""
     recipient = request.json["recipient"]
     response = BookServices.process_shared_book(
-        user_id=int(authed_user_id), recipient_name=recipient, book_id=book_id)
+        user_id=int(authed_user_id), recipient_name=recipient, book_id=book_id
+    )
     return jsonify(response), 200
 
-###########  COMPONENT OPTIONS = {amount, unit, item} = INGREDIENT ###########
+
+@app.get("/books/<book_id>/ingredients/instructions")
+@verify_jwt_identity
+@route_error_handler
+def get_book_ingredients_instructions(auth_user_id, book_id):
+    """Calls services that gathers book's instructions and ingredients"""
+    data = BookServices.build_book_ingredients_instructions(
+        user_id=auth_user_id, book_id=book_id
+    )
+    return jsonify(data)
+
+
+###########  COMPONENT OPTIONS = {amount, unit, item} = INGREDIENTS ###########
 
 
 @app.post("/users/<user_id>/books/<book_id>/ingredients/<component>")
@@ -251,7 +283,8 @@ def add_shared_book(authed_user_id, book_id, user_id):
 def add_book_ingredient(authed_user_id, book_id, component, user_id):
     """Facilitates creation of book's component option"""
     return IngredientServices.post_component_option(
-        component=component, option=request.json, book_id=book_id)
+        component=component, option=request.json, book_id=book_id
+    )
 
 
 @app.post("/users/<user_id>/books/<book_id>/components/<component>/options/<option_id>")
@@ -260,7 +293,8 @@ def add_book_ingredient(authed_user_id, book_id, component, user_id):
 def add_option_association(authed_user_id, book_id, component, option_id, user_id):
     """Facilitates association of user option to book"""
     response = IngredientServices.create_option_association(
-        component=component, book_id=book_id, option_id=option_id)
+        component=component, book_id=book_id, option_id=option_id
+    )
     return jsonify(response)
 
 
@@ -268,26 +302,31 @@ def add_option_association(authed_user_id, book_id, component, option_id, user_i
 @verify_jwt_identity
 @route_error_handler
 def get_user_ingredients(authed_user_id, user_id):
-    """Facilitates retrieval of components options associated to User"""
-    return IngredientServices.fetch_user_components_options(user_id=authed_user_id)
+    """Facilitates retrieval of all the different parts(components) of an ingredient associated to User"""
+    return IngredientServices.build_user_components(user_id=authed_user_id)
 
 
 @app.get("/users/<user_id>/books/<book_id>/ingredients/components")
 @verify_jwt_identity
 @route_error_handler
 def get_book_ingredient_components(authed_user_id, book_id, user_id):
-    """Facilitates retrieval of components options associated to Book"""
-    return IngredientServices.build_book_components(user_id=authed_user_id, book_id=book_id)
+    """Facilitates retrieval of all the different parts(components) of an ingredient associated to Book"""
+    return IngredientServices.build_book_components(
+        user_id=authed_user_id, book_id=book_id
+    )
 
 
 ########### INSTRUCTIONS ###########
+
+
 @app.post("/users/<user_id>/books/<book_id>/instructions")
 @verify_jwt_identity
 @route_error_handler
 def add_instruction(authed_user_id, book_id, user_id):
     """Facilitates creation of book instruction"""
     instruction = InstructionServices.process_book_instruction(
-        request=request.json, book_id=book_id)
+        request=request.json, book_id=book_id
+    )
     return jsonify(instruction)
 
 
@@ -297,7 +336,8 @@ def add_instruction(authed_user_id, book_id, user_id):
 def add_instruction_association(authed_user_id, book_id, instruction_id, user_id):
     """Facilitates association of user instruction to book"""
     message = InstructionServices.create_instruction_association(
-        book_id=book_id, instruction_id=instruction_id)
+        book_id=book_id, instruction_id=instruction_id
+    )
     return jsonify(message)
 
 
@@ -315,8 +355,7 @@ def get_instructions():
 @route_error_handler
 def get_user_instructions(authed_user_id, user_id):
     """Facilitates retrieval of user instructions"""
-    instructions = InstructionServices.fetch_user_instructions(
-        user_id=authed_user_id)
+    instructions = InstructionServices.fetch_user_instructions(user_id=authed_user_id)
     return jsonify(instructions)
 
 
@@ -326,8 +365,10 @@ def get_user_instructions(authed_user_id, user_id):
 def get_book_instructions(authed_user_id, book_id, user_id):
     """Facilitates retrieval of book instructions"""
     response = InstructionServices.build_book_instructions(
-        book_id=int(book_id), user_id=authed_user_id)
+        book_id=int(book_id), user_id=authed_user_id
+    )
     return jsonify(response)
+
 
 ################################################################################
 
@@ -343,6 +384,7 @@ def test_function(authed_user_id):
 
     return jsonify(res)
 
+
 ################################################################################
 
 
@@ -351,7 +393,7 @@ connected_users = {}
 authorized_user = {}
 
 
-@socketio.on('connect')
+@socketio.on("connect")
 def handle_connect(auth):
     """Establish WebSocket connection"""
     token = auth["token"]
@@ -359,7 +401,7 @@ def handle_connect(auth):
     sid = request.sid
     if token:
         try:
-            with app.test_request_context(headers={'Authorization': f'Bearer {token}'}):
+            with app.test_request_context(headers={"Authorization": f"Bearer {token}"}):
                 verify_jwt_in_request()
                 identity = get_jwt_identity()
                 if identity == user_id:
@@ -367,21 +409,20 @@ def handle_connect(auth):
                     authorized_user[sid] = identity
 
         except:
-            highlight("Invalid or missing JWT token. Disconnecting.",
-                      delimiter="#")
+            highlight("Invalid or missing JWT token. Disconnecting.", delimiter="#")
             disconnect()
     else:
         highlight("No token provided. Disconnecting.", delimiter="#")
         disconnect()
 
 
-@socketio.on('share_book')
+@socketio.on("share_book")
 def share_book(data):
     """Facilitates book sharing request and response"""
     user_id = check_auth_users(user_id=authorized_user.get(request.sid))
 
     if not user_id:
-        emit('error_sharing_book', {'data': 'Unauthorized'})
+        emit("error_sharing_book", {"data": "Unauthorized"})
         return
 
     book = data.get("currentBook")
@@ -392,50 +433,59 @@ def share_book(data):
     privileges = data.get("privileges")
 
     if book["book_role"] != "owner":
-        emit('error_sharing_book', {'data': 'Not authorized to share!'})
+        emit("error_sharing_book", {"data": "Not authorized to share!"})
         return
 
     if not all([recipient, book_id, title]):
-        emit('error_sharing_book', {'data': 'Invalid request missing data'})
+        emit("error_sharing_book", {"data": "Invalid request missing data"})
         return
 
     try:
         response = BookServices.process_shared_book(
-            user_id=int(user_id), recipient_name=recipient, book_id=book_id, privileges=privileges)
+            user_id=int(user_id),
+            recipient_name=recipient,
+            book_id=book_id,
+            privileges=privileges,
+        )
 
         if response["code"] in (422, 409, 404):
-            emit('error_sharing_book', {'data': response["message"]})
+            emit("error_sharing_book", {"data": response["message"]})
             return
         if response["code"] == 200:
             # SENDER
             sender_id = connected_users.get("user_id")
-            emit('book_shared', {
-                 "message": response["message"]}, room=sender_id)
+            emit("book_shared", {"message": response["message"]}, room=sender_id)
             # Handle users that are not connected...
             recipient_id = connected_users.get(response["recipient_id"])
             # RECIPIENT
             if recipient_id:
                 message = f"{sender} has shared '{title}' recipe book with you!"
-                books = BookServices.fetch_user_books(
-                    user_id=response["recipient_id"])
-                emit('user_shared_book', {
-                     "message": message, "books": books, "payload": response.get("payload")}, room=recipient_id)
+                books = BookServices.fetch_user_books(user_id=response["recipient_id"])
+                emit(
+                    "user_shared_book",
+                    {
+                        "message": message,
+                        "books": books,
+                        "payload": response.get("payload"),
+                    },
+                    room=recipient_id,
+                )
                 return
             # else:
-                # Future logic to que up message for offline recipient
+            # Future logic to que up message for offline recipient
     except Exception as e:
         db.session.rollback()
-        emit('error_sharing_book', {'data': 'Something went wrong'})
+        emit("error_sharing_book", {"data": "Something went wrong"})
         app.logger.error(f"socketio - share_book: {e}")
         return
 
 
-@socketio.on('share_recipe')
+@socketio.on("share_recipe")
 def share_recipe(data):
     """Facilitates recipe sharing request and response"""
     user_id = check_auth_users(user_id=authorized_user.get(request.sid))
     if not user_id:
-        emit('error_sharing_recipe', {'data': 'Unauthorized'})
+        emit("error_sharing_recipe", {"data": "Unauthorized"})
         return
     recipe_id = data.get("recipeId")
     sender = data.get("user")
@@ -443,42 +493,50 @@ def share_recipe(data):
     recipient = data.get("recipient")
 
     if not all([recipe_id, sender, recipe, recipient]):
-        emit('error_sharing_recipe', {'data': 'Invalid request missing data'})
+        emit("error_sharing_recipe", {"data": "Invalid request missing data"})
         return
     try:
         response = RecipeServices.process_recipe_share(
-            auth_id=user_id, recipient=recipient, recipe_id=recipe_id)
+            auth_id=user_id, recipient=recipient, recipe_id=recipe_id
+        )
 
         if response["code"] in (400, 403, 404, 409):
-            emit('error_sharing_recipe', {'data': response["message"]})
+            emit("error_sharing_recipe", {"data": response["message"]})
             return
 
         if response["code"] == 200:
             sender_id = connected_users.get("user_id")
-            emit('recipe_shared', {
-                 "message": response["message"]}, room=sender_id)
+            emit("recipe_shared", {"message": response["message"]}, room=sender_id)
         # Check if recipient is connected
         recipient_id = connected_users.get(response["recipient_id"])
 
         if recipient_id:
             message = f"{sender} has shared '{recipe}'recipe with you!"
-            emit('user_shared_recipe', {"payload": response.get("payload"),
-                 "message": message, "recipe": response["recipe"]}, room=recipient_id)
+            emit(
+                "user_shared_recipe",
+                {
+                    "payload": response.get("payload"),
+                    "message": message,
+                    "recipe": response["recipe"],
+                },
+                room=recipient_id,
+            )
             return
         # else:
-            # Future logic to que up message for offline recipient
+        # Future logic to que up message for offline recipient
     except Exception as e:
-        emit('error_sharing_recipe', {'data': 'Something went wrong'})
+        emit("error_sharing_recipe", {"data": "Something went wrong"})
         app.logger.error(f"socketio - share_recipe: {e}")
         return
 
 
-@socketio.on('disconnect')
+@socketio.on("disconnect")
 def disconnected():
 
     user_sid = request.sid
     user_to_remove = next(
-        (k for k, v in connected_users.items() if v == user_sid), None)
+        (k for k, v in connected_users.items() if v == user_sid), None
+    )
     if user_to_remove:
         del connected_users[user_to_remove]
         highlight("user disconnected", delimiter="#")
@@ -490,5 +548,5 @@ def setup_app_context():
     app.app_context().push()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     socketio.run(app, debug=True)

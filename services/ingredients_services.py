@@ -69,7 +69,7 @@ class IngredientServices:
             ) from e
 
     @staticmethod
-    def fetch_user_components_options(user_id):
+    def build_user_components(user_id):
         """Retrieves user's individual ingredient components"""
         try:
             amounts = QuantityAmountRepo.query_user_amounts(user_id=user_id)
