@@ -127,4 +127,17 @@ class BookServices:
         )
         return {"book": book, "recipes": recipes}
 
+    @staticmethod
+    def build_book_ingredients_instructions(user_id, book_id):
+        """Consolidate repo calls to get selected book's ingredients and instructions"""
+        ingredients = IngredientServices.build_book_components(
+            user_id=user_id, book_id=book_id
+        )
+        ingredients = IngredientServices.build_book_components(
+            user_id=user_id, book_id=book_id
+        )
+        instructions = InstructionServices.build_book_instructions(
+            book_id=book_id, user_id=user_id
+        )
 
+        return {"ingredients": ingredients, "instructions": instructions}
