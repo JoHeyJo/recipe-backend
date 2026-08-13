@@ -2,7 +2,6 @@ from repository import *
 from utils.functions import highlight
 import logging
 from services.instructions_services import InstructionServices
-from exceptions import ForbiddenError
 
 logger = logging.getLogger(__name__)
 
@@ -24,48 +23,6 @@ class IngredientServices:
         except Exception as e:
             raise type(e)(
                 f"Error in IngredientServices -> fetch_components_options: {e}"
-            ) from e
-
-    @staticmethod
-    def fetch_book_components_options(book_id):
-        """Retrieves book's ingredients components options"""
-        # NOT IN USE
-        try:
-            amounts = QuantityAmountRepo.query_book_amounts(book_id=book_id)
-            units = QuantityUnitRepo.query_book_units(book_id=book_id)
-            items = ItemRepo.query_book_items(book_id=book_id)
-            return {"amounts": amounts, "units": units, "items": items}
-        except Exception as e:
-            raise type(e)(
-                f"Error in IngredientServices -> fetch_book_components_options: {e}"
-            ) from e
-
-    @staticmethod
-    def build_book_components(user_id: int, book_id: int) -> dict:
-        """Assemble all component lists for a book."""
-        has_access = InstructionServices.check_book_access(
-            user_id=user_id, book_id=book_id
-        )
-        if has_access is None:
-            raise ForbiddenError("User does not have access.")
-        try:
-            return {
-                "amounts": [
-                    QuantityAmount.serialize(a)
-                    for a in QuantityAmountRepo.query_book_amounts(book_id)
-                ],
-                "units": [
-                    QuantityUnit.serialize(u)
-                    for u in QuantityUnitRepo.query_book_units(book_id)
-                ],
-                "items": [
-                    Item.serialize(i) for i in ItemRepo.query_book_items(book_id)
-                ],
-            }
-        except Exception as e:
-            logger.exception("ComponentServices - build_book_components failed")
-            raise type(e)(
-                f"IngredientServices - build_book_components error: {e}"
             ) from e
 
     @staticmethod
@@ -245,7 +202,7 @@ class UnitServices:
         new unit: create - associate - return
         empty unit: set value to null - return
         existing unit: return
-        
+
         Ensure an unit exists and is linked to a book. Fully idempotent:
         safe to call repeatedly (double-submit, retry) — existing item is
         reused, existing link is a no-op. Commits once.

@@ -1,5 +1,11 @@
-from repository import BookRepo, UserBookRepo
-from models import db
+from repository import (
+    BookRepo,
+    UserBookRepo,
+    QuantityAmountRepo,
+    QuantityUnitRepo,
+    ItemRepo,
+)
+from models import db, QuantityUnit, QuantityAmount, Item
 from repository import UserRepo
 from models import BookRole
 from utils.functions import highlight
@@ -7,6 +13,10 @@ from services.user_services import UserServices
 from services.recipes_services import RecipeServices
 from services.ingredients_services import IngredientServices
 from services.instructions_services import InstructionServices
+from exceptions import ForbiddenError
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class BookServices:
@@ -128,9 +138,39 @@ class BookServices:
         return {"book": book, "recipes": recipes}
 
     @staticmethod
+    def build_ingredient_component_options(user_id: int, book_id: int) -> dict:
+        """Assemble selected book's options for ingredient's components - value, unit, item."""
+        has_access = InstructionServices.check_book_access(
+            user_id=user_id, book_id=book_id
+        )
+        if has_access is None:
+            raise ForbiddenError("User does not have access.")
+        try:
+            return {
+                "amounts": [
+                    QuantityAmount.serialize(a)
+                    for a in QuantityAmountRepo.query_book_amounts(book_id)
+                ],
+                "units": [
+                    QuantityUnit.serialize(u)
+                    for u in QuantityUnitRepo.query_book_units(book_id)
+                ],
+                "items": [
+                    Item.serialize(i) for i in ItemRepo.query_book_items(book_id)
+                ],
+            }
+        except Exception as e:
+            logger.exception(
+                "ComponentServices - build_book_ingredient_component_options failed"
+            )
+            raise type(e)(
+                f"IngredientServices - build_book_ingredient_component_options error: {e}"
+            ) from e
+
+    @staticmethod
     def build_book_ingredients_instructions(user_id, book_id):
         """Consolidate repo calls to get selected book's ingredients and instructions"""
-        ingredients = IngredientServices.build_book_components(
+        ingredients = BookServices.build_ingredient_component_options(
             user_id=user_id, book_id=book_id
         )
         instructions = InstructionServices.build_book_instructions(

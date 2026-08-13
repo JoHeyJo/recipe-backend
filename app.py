@@ -266,10 +266,10 @@ def add_shared_book(authed_user_id, book_id, user_id):
 @app.get("/books/<book_id>/ingredients/instructions")
 @verify_jwt_identity
 @route_error_handler
-def get_book_ingredients_instructions(auth_user_id, book_id):
+def get_book_ingredients_instructions(authed_user_id, book_id):
     """Calls services that gathers book's instructions and ingredients"""
     data = BookServices.build_book_ingredients_instructions(
-        user_id=auth_user_id, book_id=book_id
+        user_id=authed_user_id, book_id=book_id
     )
     return jsonify(data)
 
@@ -306,14 +306,14 @@ def get_user_ingredients(authed_user_id, user_id):
     return IngredientServices.build_user_components(user_id=authed_user_id)
 
 
-@app.get("/users/<user_id>/books/<book_id>/ingredients/components")
-@verify_jwt_identity
-@route_error_handler
-def get_book_ingredient_components(authed_user_id, book_id, user_id):
-    """Facilitates retrieval of all the different parts(components) of an ingredient associated to Book"""
-    return IngredientServices.build_book_components(
-        user_id=authed_user_id, book_id=book_id
-    )
+# @app.get("/users/<user_id>/books/<book_id>/ingredients/components")
+# @verify_jwt_identity
+# @route_error_handler
+# def get_book_ingredient_components(authed_user_id, book_id, user_id):
+#     """Facilitates retrieval of all the different parts(components) of an ingredient associated to Book"""
+#     return IngredientServices.build_book_ingredient_component_options(
+#         user_id=authed_user_id, book_id=book_id
+#     )
 
 
 ########### INSTRUCTIONS ###########
@@ -377,8 +377,8 @@ def get_book_instructions(authed_user_id, book_id, user_id):
 @verify_jwt_identity
 @route_error_handler
 def test_function(authed_user_id):
-    recipient = request.json["recipient"]
-    recipe_id = request.json["recipe_id"]
+    # recipient = request.json["recipient"]
+    # recipe_id = request.json["recipe_id"]
 
     res = None
 
