@@ -298,23 +298,6 @@ def add_option_association(authed_user_id, book_id, component, option_id, user_i
     return jsonify(response)
 
 
-@app.get("/users/<user_id>/ingredients/components")
-@verify_jwt_identity
-@route_error_handler
-def get_user_ingredients(authed_user_id, user_id):
-    """Facilitates retrieval of all the different parts(components) of an ingredient associated to User"""
-    return IngredientServices.build_user_components(user_id=authed_user_id)
-
-
-# @app.get("/users/<user_id>/books/<book_id>/ingredients/components")
-# @verify_jwt_identity
-# @route_error_handler
-# def get_book_ingredient_components(authed_user_id, book_id, user_id):
-#     """Facilitates retrieval of all the different parts(components) of an ingredient associated to Book"""
-#     return IngredientServices.build_book_ingredient_component_options(
-#         user_id=authed_user_id, book_id=book_id
-#     )
-
 
 ########### INSTRUCTIONS ###########
 
