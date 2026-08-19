@@ -124,7 +124,7 @@ class UserRepo:
                 db.select(model)
                 .join(association_model, model.id == model_fk)
                 .join(UserBook, association_model.book_id == UserBook.book_id)
-                .where(UserBook.user_id == user_id, UserBook.role == BookRole.owner)
+                .where(UserBook.user_id == user_id, UserBook.role == BookRole.owner).distinct()
             )
             return db.session.execute(stmt).scalars().all()
 
