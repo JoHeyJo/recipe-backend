@@ -8,6 +8,8 @@ from models import BookRole
 from services.email_services import EmailServices
 from flask import current_app
 from urllib.parse import urlencode
+from repository import InstructionRepo, IngredientsRepo
+from services.ingredients_services import IngredientServices
 
 
 class UserServices:
@@ -149,3 +151,10 @@ class UserServices:
             """,
         )
         return {"message": "Check your email for a signup authorization link."}
+
+    @staticmethod
+    def build_user_ingredients_instructions(user_id):
+        """Consolidate repo calls to get ALL user's ingredients and instructions"""
+        instructions = InstructionRepo.query_user_instructions(user_id=user_id)
+        ingredients = IngredientServices.build_user_components(user_id=user_id)
+        return {"instructions": instructions, "ingredients": ingredients}

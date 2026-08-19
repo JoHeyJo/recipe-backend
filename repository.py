@@ -124,7 +124,7 @@ class UserRepo:
                 db.select(model)
                 .join(association_model, model.id == model_fk)
                 .join(UserBook, association_model.book_id == UserBook.book_id)
-                .where(UserBook.user_id == user_id, UserBook.role == BookRole.owner)
+                .where(UserBook.user_id == user_id, UserBook.role == BookRole.owner).distinct()
             )
             return db.session.execute(stmt).scalars().all()
 
@@ -410,7 +410,7 @@ class IngredientsRepo:
 
     @staticmethod
     def query_ingredient(primary_key):
-        """Query ingredient using PK. Return ingredient or None"""
+        """Query ingredient using PK. Return ingredient or None - NOT IN USE"""
         try:
             return db.session.get(Ingredient, primary_key)
         except Exception as e:
@@ -537,7 +537,7 @@ class InstructionRepo:
             )(user_id)
             return [Instruction.serialize(instruction) for instruction in instructions]
         except Exception as e:
-            raise type(e)(f"InstructionRepo - get_user_instructions error: {e}")
+            raise type(e)(f"InstructionRepo - query_user_instructions error: {e}")
 
     @staticmethod
     def query_book_instructions(book_id: int) -> list[QuantityAmount]:

@@ -30,15 +30,14 @@ class InstructionServices:
         if has_access is None:
             raise ForbiddenError("User does not have access.")
         try:
-            return {
-                "instructions": [
-                    Instruction.serialize(i)
-                    for i in InstructionRepo.query_book_instructions(book_id)
-                ]
-            }
+            return [
+                Instruction.serialize(i)
+                for i in InstructionRepo.query_book_instructions(book_id)
+            ]
+
         except Exception as e:
             raise type(e)(
-                f"Error in InstructionServices -> fetch_book_instructions: {e}"
+                f"Error in InstructionServices -> build_book_instructions: {e}"
             ) from e
 
     @staticmethod
